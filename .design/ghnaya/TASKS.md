@@ -24,7 +24,7 @@ Date : 18/11/2026
   - **Terminé quand** quatre pages vides, une par onglet, s'enchaînent dans les deux langues et les deux thèmes.
   - **Philosophie** : « médina contemporaine », pour fixer la direction dès le début.
   - _Réutilise : `DESIGN_TOKENS.css`. Modifie : la mise en page et le `LocaleSwitcher` du plan 1. Crée : `AppShell`, `TabBar`, `PageHeader`._
-- [ ] **Logo Bulle zellige définitif**
+- [x] **Logo Bulle zellige définitif** _(fait le 19/11/2026)_
   - **À construire** :
     - le redessin propre en SVG du symbole, sur une grille de 100 unités : étoile à 8 branches dont une pointe forme la queue de la bulle, trois lignes alignées à droite, la dernière safran ;
     - ses déclinaisons : sur fond sombre (contour jasmin), sur fond clair, logo avec le nom « غناية / Ghnaya » en Reem Kufi, icône d'app 512/192 px, favicon simplifié à deux lignes ;

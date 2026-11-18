@@ -1,14 +1,23 @@
+import {
+  BRAND,
+  LYRIC_LINES,
+  SMALL_LYRIC_LINES,
+  SMALL_SIZE_THRESHOLD,
+  STAR_POINTS,
+} from "./logo-geometry";
+
 /**
  * Logo Ghnaya, piste « Bulle zellige ».
- * Version provisoire de la tâche 1 : le dessin définitif et les icônes d'app viendront à la tâche 2.
- * Les couleurs de marque sont fixes ; seul le contour s'adapte au thème (--logo-outline).
+ * Les couleurs de marque sont fixes. Seul le contour de l'étoile suit le thème (--logo-outline) :
+ * bleu sur fond clair (il ne fait qu'arrondir les coins), jasmin sur fond sombre (il détache l'étoile
+ * de l'indigo). En dessous de 28 px, la version simplifiée à deux lignes s'affiche automatiquement.
  */
-const STAR_POINTS =
-  "90,48 78.3,59.7 78.3,76.3 61.7,76.3 50,88 38.3,76.3 11.8,86.2 21.7,59.7 10,48 21.7,36.3 21.7,19.7 38.3,19.7 50,8 61.7,19.7 78.3,19.7 78.3,36.3";
-
 type SymbolProps = { size?: number; title?: string; className?: string };
 
 export function LogoSymbol({ size = 32, title, className }: SymbolProps) {
+  const small = size < SMALL_SIZE_THRESHOLD;
+  const lines = small ? SMALL_LYRIC_LINES : LYRIC_LINES;
+
   return (
     <svg
       viewBox="0 0 100 100"
@@ -22,23 +31,35 @@ export function LogoSymbol({ size = 32, title, className }: SymbolProps) {
     >
       <polygon
         points={STAR_POINTS}
-        style={{ fill: "var(--brand-blue)", stroke: "var(--logo-outline)" }}
-        strokeWidth={2.5}
+        style={{ fill: BRAND.blue, stroke: "var(--logo-outline)" }}
+        strokeWidth={small ? 7 : 3.5}
         strokeLinejoin="round"
       />
-      <rect x="34" y="36" width="34" height="5" rx="2.5" style={{ fill: "var(--brand-jasmine)" }} />
-      <rect x="44" y="46" width="24" height="5" rx="2.5" style={{ fill: "var(--brand-jasmine)" }} />
-      <rect x="39" y="56" width="29" height="5" rx="2.5" style={{ fill: "var(--brand-saffron)" }} />
+      {lines.map((line) => (
+        <rect
+          key={`${line.x}-${line.y}`}
+          x={line.x}
+          y={line.y}
+          width={line.w}
+          height={line.h}
+          rx={line.h / 2}
+          style={{ fill: BRAND[line.color] }}
+        />
+      ))}
     </svg>
   );
 }
 
-/** Logo complet : symbole + « غناية » + « Ghnaya ». Décoratif : le lien parent porte le nom accessible. */
+/**
+ * Logo complet : symbole + « غناية » + « Ghnaya ».
+ * L'ordre suit le sens de lecture : symbole à gauche en français, à droite en arabe.
+ * Décoratif : le lien parent porte le nom accessible.
+ */
 export function LogoLockup({ size = 32 }: { size?: number }) {
   return (
     <span className="inline-flex items-center gap-2 text-ink" aria-hidden="true">
       <LogoSymbol size={size} />
-      <span className="flex flex-col">
+      <span className="flex flex-col items-start">
         <span lang="ar" dir="rtl" className="font-display text-xl leading-none font-semibold">
           غناية
         </span>

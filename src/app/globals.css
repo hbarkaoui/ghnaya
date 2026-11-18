@@ -100,10 +100,11 @@
   --ease-calm: var(--easing-default);
 }
 
-/* Token de composant : contour jasmin du logo, visible uniquement sur fond sombre */
+/* Token de composant : contour de l'étoile du logo.
+   Clair : bleu, comme l'étoile (il arrondit seulement les coins). Sombre : jasmin (il détache l'étoile). */
 :root,
 [data-theme="light"] {
-  --logo-outline: transparent;
+  --logo-outline: var(--brand-blue);
 }
 [data-theme="dark"] {
   --logo-outline: var(--brand-jasmine);
