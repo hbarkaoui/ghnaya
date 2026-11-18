@@ -1,0 +1,130 @@
+@import "tailwindcss";
+@import "./design-tokens.css";
+
+/*
+ * Correspondance des tokens avec Tailwind v4.
+ * Source : .design/ghnaya/DESIGN_TOKENS.tailwind.css. Les composants n'utilisent que ces noms
+ * sémantiques, jamais de code hexadécimal en dur.
+ */
+@theme inline {
+  --color-page: var(--color-bg-primary);
+  --color-card: var(--color-bg-secondary);
+  --color-well: var(--color-bg-tertiary);
+  --color-selected: var(--color-bg-selected);
+  --color-inverse: var(--color-bg-inverse);
+
+  --color-ink: var(--color-text-primary);
+  --color-ink-2: var(--color-text-secondary);
+  --color-ink-3: var(--color-text-tertiary);
+  --color-ink-inverse: var(--color-text-inverse);
+  --color-link: var(--color-text-link);
+
+  --color-line: var(--color-border-primary);
+  --color-line-subtle: var(--color-border-secondary);
+  --color-focus: var(--color-border-focus);
+
+  --color-accent: var(--color-accent-primary);
+  --color-accent-hover: var(--color-accent-primary-hover);
+  --color-accent-active: var(--color-accent-primary-active);
+  --color-accent-ink: var(--color-on-accent);
+  --color-ornament: var(--color-accent-secondary);
+
+  --color-success: var(--color-status-success);
+  --color-success-soft: var(--color-status-success-bg);
+  --color-warning: var(--color-status-warning);
+  --color-warning-soft: var(--color-status-warning-bg);
+  --color-error: var(--color-status-error);
+  --color-error-soft: var(--color-status-error-bg);
+  --color-info: var(--color-status-info);
+  --color-info-soft: var(--color-status-info-bg);
+  --color-overlay: var(--color-surface-overlay);
+
+  --color-reader-bg: var(--reader-bg);
+  --color-reader-ink: var(--reader-text);
+  --color-reader-ink-2: var(--reader-text-secondary);
+  --color-reader-translit: var(--reader-translit);
+  --color-reader-accent: var(--reader-accent);
+  --color-reader-control: var(--reader-control-bg);
+  --color-reader-control-pressed: var(--reader-control-bg-pressed);
+  --color-reader-control-ink: var(--reader-control-text);
+  --color-reader-divider: var(--reader-divider);
+  --color-reader-focus: var(--reader-focus);
+
+  --color-brand-indigo: var(--brand-indigo);
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-saffron: var(--brand-saffron);
+  --color-brand-saffron-deep: var(--brand-saffron-deep);
+  --color-brand-jasmine: var(--brand-jasmine);
+
+  --font-display: var(--font-family-display);
+  --font-sans: var(--font-family-body);
+  --font-lyrics: var(--font-family-lyrics);
+  --font-translit: var(--font-family-translit);
+  --font-mono: var(--font-family-mono);
+
+  --text-xs: var(--font-size-xs);
+  --text-xs--line-height: var(--line-height-normal);
+  --text-sm: var(--font-size-sm);
+  --text-sm--line-height: var(--line-height-normal);
+  --text-base: var(--font-size-base);
+  --text-base--line-height: var(--line-height-normal);
+  --text-md: var(--font-size-md);
+  --text-md--line-height: var(--line-height-normal);
+  --text-lg: var(--font-size-lg);
+  --text-lg--line-height: var(--line-height-tight);
+  --text-xl: var(--font-size-xl);
+  --text-xl--line-height: var(--line-height-tight);
+  --text-2xl: var(--font-size-2xl);
+  --text-2xl--line-height: var(--line-height-tight);
+  --text-3xl: var(--font-size-3xl);
+  --text-3xl--line-height: var(--line-height-tight);
+  --text-4xl: var(--font-size-4xl);
+  --text-4xl--line-height: var(--line-height-tight);
+  --text-lyrics: var(--reader-font-size);
+  --text-lyrics--line-height: var(--reader-line-height);
+
+  --leading-tight: var(--line-height-tight);
+  --leading-normal: var(--line-height-normal);
+  --leading-relaxed: var(--line-height-relaxed);
+  --leading-lyrics: var(--line-height-lyrics);
+
+  --radius-sm: var(--border-radius-sm);
+  --radius-md: var(--border-radius-md);
+  --radius-lg: var(--border-radius-lg);
+  --radius-xl: var(--border-radius-xl);
+
+  --container-content: var(--max-width-content);
+  --container-reader: var(--max-width-reader);
+  --container-wide: var(--max-width-wide);
+
+  --ease-calm: var(--easing-default);
+}
+
+/* Token de composant : contour jasmin du logo, visible uniquement sur fond sombre */
+:root,
+[data-theme="light"] {
+  --logo-outline: transparent;
+}
+[data-theme="dark"] {
+  --logo-outline: var(--brand-jasmine);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --logo-outline: var(--brand-jasmine);
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-border-focus);
+    outline-offset: 2px;
+  }
+}

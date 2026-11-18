@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ghnaya — design tokens</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;600&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500&family=Noto+Naskh+Arabic:wght@400;500&display=swap">
+<style>
+/*
+ * Ghnaya (غناية) — design tokens
+ * ================================
+ * Philosophie : « médina contemporaine », dérivée de deux philosophies du skill frontend-design :
+ *   - Scandinave : chaleur, retenue, accessibilité, coins arrondis, ombres douces ;
+ *   - Art déco géométrique : géométrie, accents or sur bleu profond, mais utilisés avec parcimonie
+ *     (touches choisies, jamais derrière les paroles).
+ * Sources : .design/ghnaya/DESIGN_BRIEF.md et INFORMATION_ARCHITECTURE.md.
+ *
+ * Choix et écarts par rapport au modèle du skill :
+ *  - Aucun easing « bounce » : le ton est posé, sans rebond.
+ *  - letter-spacing forcé à 0 en arabe, car l'espacement casse la liaison des lettres.
+ *  - Le lecteur de séance a ses propres tokens ([data-reader]) et est SOMBRE PAR DÉFAUT, quel que
+ *    soit le thème du téléphone (décision grill-me n° 3). Le reste de l'app suit le système.
+ *  - Polices chargées avec next/font/google, qui exposent --font-reem-kufi, --font-plex-sans,
+ *    --font-plex-sans-arabic, --font-noto-naskh et --font-plex-mono. Les noms Google Fonts servent
+ *    de repli.
+ *  - Tous les couples texte/fond ont été vérifiés (WCAG 2.2 AA) : texte ≥ 4,5:1,
+ *    composants et éléments graphiques ≥ 3:1, paroles ≥ 7:1. Ratios en commentaire.
+ *  - [data-theme="light"] redéclare les valeurs claires, pour qu'un choix explicite du mode clair
+ *    l'emporte aussi sur un sous-arbre quand le système est en sombre.
+ */
+
+:root,
+[data-theme="light"] {
+  /* ---------- Couleurs de marque, valeurs brutes (ne pas utiliser directement dans les composants) ---------- */
+  --brand-indigo: #1B2550;        /* Indigo nuit */
+  --brand-indigo-deep: #111733;
+  --brand-blue: #1F6FB2;          /* Bleu Sidi Bou Saïd */
+  --brand-saffron: #D9A441;       /* Safran : sur fond sombre uniquement */
+  --brand-saffron-deep: #B07A1F;  /* Safran foncé : éléments graphiques sur fond clair, jamais du texte */
+  --brand-jasmine: #FBF8F1;       /* Blanc jasmin */
+
+  /* ---------- Couleurs sémantiques, mode CLAIR ---------- */
+  --color-bg-primary: #FBF8F1;          /* page */
+  --color-bg-secondary: #FFFFFF;        /* cartes, feuilles */
+  --color-bg-tertiary: #F3EEE2;         /* champs, zones en retrait */
+  --color-bg-selected: #EAE4D4;         /* ligne sélectionnée */
+  --color-bg-inverse: #1B2550;
+
+  --color-text-primary: #1B2550;        /* 13,9:1 sur la page */
+  --color-text-secondary: #4E536E;      /* 7,1:1 sur la page · 6,5:1 sur bg-tertiary */
+  --color-text-tertiary: #62657A;       /* 5,4:1 sur la page · 4,95:1 sur bg-tertiary (placeholder) */
+  --color-text-inverse: #FBF8F1;
+  --color-text-link: #1F6FB2;           /* 5,0:1 sur la page · 4,6:1 sur bg-tertiary */
+
+  --color-border-primary: #8F8A7A;      /* bords des champs : 3,25:1, contraste non textuel */
+  --color-border-secondary: #E6E1D4;    /* séparateurs décoratifs */
+  --color-border-focus: #1F6FB2;        /* 5,0:1 */
+
+  --color-accent-primary: #1F6FB2;      /* bouton primaire : texte blanc 5,3:1 */
+  --color-accent-primary-hover: #185C94;  /* texte blanc 7,0:1 */
+  --color-accent-primary-active: #134B79;
+  --color-on-accent: #FFFFFF;
+  --color-accent-secondary: #B07A1F;    /* losange, puces, marque de sélection : graphique seulement, 3,5:1 */
+
+  --color-status-success: #276B42;
+  --color-status-success-bg: #E3F1E8;
+  --color-status-warning: #8A5A00;      /* 5,2:1 sur son fond */
+  --color-status-warning-bg: #FBF0D9;
+  --color-status-error: #B3261E;        /* 5,4:1 sur son fond */
+  --color-status-error-bg: #FBE4E2;
+  --color-status-info: #185C94;         /* plus foncé que le lien : 4,49:1 sinon sur son fond */
+  --color-status-info-bg: #E3EEF8;
+
+  --color-surface-overlay: rgba(17, 23, 51, 0.48);
+
+  /* Couvertures de club générées : 4 combinaisons, choisies par un hachage du nom du club */
+  --cover-1-bg: #1B2550; --cover-1-fg: #D9A441;
+  --cover-2-bg: #1F6FB2; --cover-2-fg: #FBF8F1;   /* 5,0:1 */
+  --cover-3-bg: #D9A441; --cover-3-fg: #1B2550;   /* 6,5:1 */
+  --cover-4-bg: #F3EEE2; --cover-4-fg: #1F6FB2;
+
+  /* ---------- Espacements : base 4 px (philosophie équilibrée) ---------- */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 128px;
+  --space-11: 192px;
+  --space-12: 256px;
+
+  /* ---------- Typographie ---------- */
+  --font-family-display: var(--font-reem-kufi, 'Reem Kufi'), var(--font-plex-sans-arabic, 'IBM Plex Sans Arabic'), sans-serif;
+  /* Interface : le latin en Plex Sans, l'arabe se replie automatiquement sur Plex Sans Arabic */
+  --font-family-body: var(--font-plex-sans, 'IBM Plex Sans'), var(--font-plex-sans-arabic, 'IBM Plex Sans Arabic'), system-ui, sans-serif;
+  --font-family-lyrics: var(--font-noto-naskh, 'Noto Naskh Arabic'), var(--font-plex-sans-arabic, 'IBM Plex Sans Arabic'), serif;
+  --font-family-translit: var(--font-plex-sans, 'IBM Plex Sans'), system-ui, sans-serif;
+  --font-family-mono: var(--font-plex-mono, 'IBM Plex Mono'), ui-monospace, monospace;
+
+  --font-size-xs: 0.75rem;    /* 12 px, métadonnées */
+  --font-size-sm: 0.875rem;   /* 14 px */
+  --font-size-base: 1rem;     /* 16 px, minimum du corps sur mobile */
+  --font-size-md: 1.125rem;   /* 18 px */
+  --font-size-lg: 1.25rem;    /* 20 px */
+  --font-size-xl: 1.5rem;     /* 24 px */
+  --font-size-2xl: 1.875rem;  /* 30 px */
+  --font-size-3xl: 2.25rem;   /* 36 px */
+  --font-size-4xl: 3rem;      /* 48 px, titre d'accueil en Reem Kufi */
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;  /* Reem Kufi : titres et logo */
+  --font-weight-bold: 700;      /* réservé, à éviter dans l'interface */
+
+  --line-height-tight: 1.25;    /* titres */
+  --line-height-normal: 1.5;    /* corps latin */
+  --line-height-relaxed: 1.7;   /* corps arabe : les signes au-dessus et au-dessous des lettres ont besoin de place */
+  --line-height-lyrics: 1.9;    /* paroles (décision grill-me n° 4) */
+
+  --letter-spacing-tight: -0.01em;  /* titres latins seulement */
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.12em;    /* petits libellés latins et « Ghnaya » dans le logo */
+
+  /* ---------- Mise en page ---------- */
+  --max-width-content: 640px;   /* colonne de l'app sur tous les écrans */
+  --max-width-reader: 720px;    /* paroles dans le lecteur */
+  --max-width-wide: 1024px;     /* vue des différences de la modération en 2 colonnes */
+  --max-width-page: 1280px;
+
+  --border-radius-sm: 6px;      /* pastilles, petites cibles */
+  --border-radius-md: 10px;     /* boutons, champs */
+  --border-radius-lg: 16px;     /* cartes, feuilles */
+  --border-radius-xl: 24px;     /* couvertures de club, icône d'app */
+  --border-radius-full: 9999px;
+
+  --shadow-sm: 0 1px 2px rgba(27, 37, 80, 0.06);
+  --shadow-md: 0 4px 16px rgba(27, 37, 80, 0.08);
+  --shadow-lg: 0 12px 40px rgba(27, 37, 80, 0.12);   /* feuilles qui montent du bas, toasts */
+  --shadow-focus: 0 0 0 3px var(--color-border-focus);
+
+  --size-touch: 44px;           /* cible tactile minimale de l'interface */
+  --size-touch-reader: 48px;    /* contrôles du lecteur */
+  --size-tabbar: 64px;          /* hauteur de la barre d'onglets, hors zone de sécurité de l'écran */
+
+  --z-tabbar: 40;
+  --z-sheet: 50;
+  --z-toast: 60;
+  --z-reader: 70;
+
+  /* ---------- Mouvement : posé, sans rebond ---------- */
+  --duration-instant: 50ms;
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  --duration-slower: 600ms;
+  --easing-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-in: cubic-bezier(0.4, 0, 1, 1);
+  --easing-out: cubic-bezier(0, 0, 0.2, 1);
+
+  /* ---------- Points de rupture (référence ; dans les media queries, utiliser les valeurs en dur) ---------- */
+  --breakpoint-sm: 375px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  color-scheme: light;
+}
+
+/* ---------- Couleurs sémantiques, mode SOMBRE : indigo froid profond, jamais noir pur ---------- */
+[data-theme="dark"] {
+  --color-bg-primary: #111733;
+  --color-bg-secondary: #1B2550;
+  --color-bg-tertiary: #243063;
+  --color-bg-selected: #2C3A74;
+  --color-bg-inverse: #FBF8F1;
+
+  --color-text-primary: #EEE9DC;        /* jasmin adouci : 14,5:1, moins dur qu'un blanc pur */
+  --color-text-secondary: #B4B8CF;      /* 9,0:1 · 6,4:1 sur bg-tertiary */
+  --color-text-tertiary: #9A9EB8;       /* 6,7:1 · 4,7:1 sur bg-tertiary */
+  --color-text-inverse: #1B2550;
+  --color-text-link: #8DBBEA;           /* 8,7:1 ; le bleu de marque sur indigo ne fait que 2,8:1 */
+
+  --color-border-primary: #5D6694;      /* 3,2:1 sur la page */
+  --color-border-secondary: #2A3466;
+  --color-border-focus: #D9A441;        /* anneau de focus safran : 7,8:1 */
+
+  --color-accent-primary: #D9A441;      /* en sombre, le bouton primaire passe en safran, texte indigo 7,8:1 */
+  --color-accent-primary-hover: #E4B65E;
+  --color-accent-primary-active: #C99332;
+  --color-on-accent: #111733;
+  --color-accent-secondary: #D9A441;
+
+  --color-status-success: #6CC79A;
+  --color-status-success-bg: #173826;
+  --color-status-warning: #E3B65A;
+  --color-status-warning-bg: #3A2C0E;
+  --color-status-error: #F2938C;
+  --color-status-error-bg: #3E1A1A;
+  --color-status-info: #8DBBEA;
+  --color-status-info-bg: #16294A;
+
+  --color-surface-overlay: rgba(5, 8, 20, 0.64);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.32);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.40);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.48);
+
+  color-scheme: dark;
+}
+
+/* Le système demande le sombre, sauf si l'utilisateur a explicitement choisi le clair */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg-primary: #111733;
+    --color-bg-secondary: #1B2550;
+    --color-bg-tertiary: #243063;
+    --color-bg-selected: #2C3A74;
+    --color-bg-inverse: #FBF8F1;
+    --color-text-primary: #EEE9DC;
+    --color-text-secondary: #B4B8CF;
+    --color-text-tertiary: #9A9EB8;
+    --color-text-inverse: #1B2550;
+    --color-text-link: #8DBBEA;
+    --color-border-primary: #5D6694;
+    --color-border-secondary: #2A3466;
+    --color-border-focus: #D9A441;
+    --color-accent-primary: #D9A441;
+    --color-accent-primary-hover: #E4B65E;
+    --color-accent-primary-active: #C99332;
+    --color-on-accent: #111733;
+    --color-accent-secondary: #D9A441;
+    --color-status-success: #6CC79A;
+    --color-status-success-bg: #173826;
+    --color-status-warning: #E3B65A;
+    --color-status-warning-bg: #3A2C0E;
+    --color-status-error: #F2938C;
+    --color-status-error-bg: #3E1A1A;
+    --color-status-info: #8DBBEA;
+    --color-status-info-bg: #16294A;
+    --color-surface-overlay: rgba(5, 8, 20, 0.64);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.32);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.40);
+    --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.48);
+    color-scheme: dark;
+  }
+}
+
+/* ---------- Lecteur de séance : sombre PAR DÉFAUT, indépendamment du thème de l'app ---------- */
+[data-reader] {
+  --reader-bg: #1B2550;
+  --reader-text: #F1ECE0;               /* paroles : 12,5:1, objectif ≥ 7:1 */
+  --reader-text-secondary: #B4B8CF;     /* titre, position : 7,5:1 */
+  --reader-translit: #C9CCDD;           /* ligne latine sous la ligne arabe : 9,2:1 */
+  --reader-accent: #D9A441;             /* losange, position « 3 / 12 » : 6,5:1 */
+  --reader-control-bg: #243063;
+  --reader-control-bg-pressed: #2C3A74;
+  --reader-control-text: #EEE9DC;
+  --reader-divider: #2A3466;
+  --reader-focus: #D9A441;
+
+  /* Taille des paroles : 6 crans (A− / A+), cran 3 par défaut = 28 px */
+  --reader-size-1: 1.375rem;  /* 22 px */
+  --reader-size-2: 1.5625rem; /* 25 px */
+  --reader-size-3: 1.75rem;   /* 28 px, défaut */
+  --reader-size-4: 2rem;      /* 32 px */
+  --reader-size-5: 2.25rem;   /* 36 px */
+  --reader-size-6: 2.5rem;    /* 40 px */
+  --reader-font-size: var(--reader-size-3);
+  --reader-translit-ratio: 0.72;        /* le latin est plus petit que l'arabe */
+  --reader-line-height: var(--line-height-lyrics);
+  --reader-stanza-gap: 1.25em;
+
+  color-scheme: dark;
+}
+
+[data-reader][data-reader-theme="light"] {
+  --reader-bg: #FBF8F1;
+  --reader-text: #1B2550;               /* 13,9:1 */
+  --reader-text-secondary: #4E536E;     /* 7,1:1 */
+  --reader-translit: #4E536E;
+  --reader-accent: #B07A1F;
+  --reader-control-bg: #F3EEE2;
+  --reader-control-bg-pressed: #EAE4D4;
+  --reader-control-text: #1B2550;
+  --reader-divider: #E6E1D4;
+  --reader-focus: #1F6FB2;
+  color-scheme: light;
+}
+
+[data-reader][data-reader-size="1"] { --reader-font-size: var(--reader-size-1); }
+[data-reader][data-reader-size="2"] { --reader-font-size: var(--reader-size-2); }
+[data-reader][data-reader-size="3"] { --reader-font-size: var(--reader-size-3); }
+[data-reader][data-reader-size="4"] { --reader-font-size: var(--reader-size-4); }
+[data-reader][data-reader-size="5"] { --reader-font-size: var(--reader-size-5); }
+[data-reader][data-reader-size="6"] { --reader-font-size: var(--reader-size-6); }
+
+/* ---------- Règles typographiques bilingues ---------- */
+:lang(ar) {
+  letter-spacing: 0 !important;        /* l'espacement casse la liaison des lettres arabes */
+  line-height: var(--line-height-relaxed);
+}
+
+/* ---------- Mouvement réduit ---------- */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-instant: 0ms;
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-slow: 0ms;
+    --duration-slower: 0ms;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body { margin:0; background:#ECE8DD; color:#1B2550; font-family:var(--font-family-body); }
+main { max-width:1100px; margin:0 auto; padding:24px 16px 64px; display:flex; flex-direction:column; gap:28px; }
+h1 { font-family:var(--font-family-display); font-weight:600; font-size:var(--font-size-3xl); margin:0; }
+h2 { font-size:var(--font-size-lg); font-weight:500; margin:0 0 12px; }
+.intro { margin:4px 0 0; color:#4E536E; }
+.grid2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:16px; }
+.panel { background:var(--color-bg-primary); color:var(--color-text-primary); border-radius:var(--border-radius-lg); padding:var(--space-5); display:flex; flex-direction:column; gap:16px; }
+.kicker { margin:0; font-size:var(--font-size-xs); letter-spacing:var(--letter-spacing-wide); text-transform:uppercase; color:var(--color-text-secondary); }
+.card { background:var(--color-bg-secondary); border:1px solid var(--color-border-secondary); border-radius:var(--border-radius-lg); padding:var(--space-4); display:flex; flex-direction:column; gap:10px; box-shadow:var(--shadow-sm); }
+.card p { margin:0; }
+.display { font-family:var(--font-family-display); font-weight:600; font-size:var(--font-size-xl); line-height:1.1; }
+.small { font-size:var(--font-size-sm); } .ink { color:var(--color-text-primary); } .ink2 { color:var(--color-text-secondary); } .ink3 { color:var(--color-text-tertiary); }
+a { color:var(--color-text-link); }
+.row { display:flex; align-items:center; gap:8px; } .wrap { flex-wrap:wrap; }
+.btn { font:inherit; font-weight:var(--font-weight-medium); min-height:var(--size-touch); padding:0 var(--space-4); border-radius:var(--border-radius-md); cursor:pointer; }
+.btn.primary { background:var(--color-accent-primary); color:var(--color-on-accent); border:0; }
+.btn.secondary { background:transparent; color:var(--color-text-primary); border:1px solid var(--color-border-primary); }
+.btn.focus { box-shadow:var(--shadow-focus); }
+.badge { font-size:var(--font-size-xs); font-weight:var(--font-weight-medium); padding:3px 10px; border-radius:var(--border-radius-sm); }
+.field { display:flex; flex-direction:column; gap:4px; }
+.field input { font:inherit; min-height:var(--size-touch); padding:0 var(--space-3); border-radius:var(--border-radius-md); border:1px solid var(--color-border-primary); background:var(--color-bg-tertiary); color:var(--color-text-primary); }
+.field input::placeholder { color:var(--color-text-tertiary); }
+.tabbar { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); background:var(--color-bg-secondary); border-top:1px solid var(--color-border-secondary); border-radius:var(--border-radius-md); height:var(--size-tabbar); align-items:center; text-align:center; font-size:var(--font-size-xs); color:var(--color-text-secondary); }
+.tab { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.tab.active { color:var(--color-text-primary); font-weight:var(--font-weight-medium); }
+.lozenge { width:8px; height:8px; background:var(--color-accent-secondary); transform:rotate(45deg); display:block; }
+.reader { background:var(--reader-bg); color:var(--reader-text); border-radius:var(--border-radius-lg); padding:var(--space-5); display:flex; flex-direction:column; gap:var(--space-4); }
+.reader-top { display:flex; justify-content:space-between; color:var(--reader-text-secondary); font-size:var(--font-size-sm); }
+.reader-pos { color:var(--reader-accent); font-weight:var(--font-weight-medium); }
+.lyrics { font-family:var(--font-family-lyrics); font-size:var(--reader-font-size); line-height:var(--reader-line-height); max-width:var(--max-width-reader); }
+.lyrics p { margin:0 0 0.4em; }
+.tl { display:block; font-family:var(--font-family-translit); font-size:calc(var(--reader-font-size) * var(--reader-translit-ratio)); color:var(--reader-translit); line-height:1.4; text-align:right; }
+.reader-controls { display:flex; justify-content:space-between; gap:8px; }
+.ctl { min-width:var(--size-touch-reader); min-height:var(--size-touch-reader); display:flex; align-items:center; justify-content:center; border-radius:var(--border-radius-md); background:var(--reader-control-bg); color:var(--reader-control-text); font-size:var(--font-size-md); padding:0 8px; }
+.reader-label { margin:0; font-size:var(--font-size-xs); color:var(--reader-text-secondary); }
+.covers { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; }
+.cover { border-radius:var(--border-radius-xl); height:120px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; font-weight:500; }
+.sheet { background:#fff; border-radius:var(--border-radius-lg); padding:var(--space-5); }
+.sp { display:flex; align-items:center; gap:12px; margin:4px 0; font-size:12px; } .sp span { height:12px; background:#1F6FB2; display:block; border-radius:2px; }
+.rads { display:flex; gap:12px; flex-wrap:wrap; } .rad { width:72px; height:56px; background:#F3EEE2; border:1px solid #8F8A7A; display:flex; align-items:center; justify-content:center; font-size:12px; }
+.types p { margin:0 0 8px; }
+</style>
+</head>
+<body>
+<main>
+  <header><h1>Ghnaya · غناية — design tokens</h1><p class="intro">Philosophie « médina contemporaine ». Les couleurs sémantiques basculent entre clair et sombre ; le lecteur reste sombre par défaut.</p></header>
+  <div class="grid2">
+<section class="panel" data-theme="light">
+  <p class="kicker">Application — mode clair</p>
+  <div class="card">
+    <div class="row" style="gap:12px"><svg viewBox="0 0 100 100" width="40" height="40" aria-hidden="true"><polygon points="90.0,48.0 78.3,59.7 78.3,76.3 61.7,76.3 50.0,88.0 38.3,76.3 11.8,86.2 21.7,59.7 10.0,48.0 21.7,36.3 21.7,19.7 38.3,19.7 50.0,8.0 61.7,19.7 78.3,19.7 78.3,36.3" fill="#1F6FB2" stroke="#FBF8F1" stroke-width="2.5" stroke-linejoin="round"/><rect x="34" y="36" width="34" height="5" rx="2.5" fill="#FBF8F1"/><rect x="44" y="46" width="24" height="5" rx="2.5" fill="#FBF8F1"/><rect x="39" y="56" width="29" height="5" rx="2.5" fill="#D9A441"/></svg><div><p class="display">غناية</p><p class="small ink2">Ghnaya</p></div></div>
+    <p class="ink">Texte principal — <span lang="ar" dir="rtl">ابحث عن أغنية</span></p>
+    <p class="ink2">Texte secondaire, métadonnées</p>
+    <p class="ink3">Texte tertiaire, placeholder</p>
+    <p><a href="#">Lien vers l'artiste</a></p>
+    <div class="row wrap">
+      <button class="btn primary" type="button">Lire</button>
+      <button class="btn secondary" type="button">Ajouter à une playlist</button>
+      <button class="btn secondary focus" type="button">Focus visible</button>
+    </div>
+    <div class="row wrap">
+      <span class="badge" style="background:var(--color-status-success-bg);color:var(--color-status-success)">Acceptée</span>
+      <span class="badge" style="background:var(--color-status-warning-bg);color:var(--color-status-warning)">Automatique</span>
+      <span class="badge" style="background:var(--color-status-error-bg);color:var(--color-status-error)">Refusée</span>
+      <span class="badge" style="background:var(--color-status-info-bg);color:var(--color-status-info)">Tunisien</span>
+    </div>
+    <label class="field"><span class="small ink2">Titre de la chanson</span><input placeholder="Sidi Mansour ou سيدي منصور" dir="auto"></label>
+  </div>
+  <nav class="tabbar" aria-label="Exemple de barre d'onglets">
+    <span class="tab active"><i class="lozenge"></i>Accueil</span><span class="tab">Chercher</span><span class="tab">Clubs</span><span class="tab">Moi</span>
+  </nav>
+</section>
+<section class="panel" data-theme="dark">
+  <p class="kicker">Application — mode sombre</p>
+  <div class="card">
+    <div class="row" style="gap:12px"><svg viewBox="0 0 100 100" width="40" height="40" aria-hidden="true"><polygon points="90.0,48.0 78.3,59.7 78.3,76.3 61.7,76.3 50.0,88.0 38.3,76.3 11.8,86.2 21.7,59.7 10.0,48.0 21.7,36.3 21.7,19.7 38.3,19.7 50.0,8.0 61.7,19.7 78.3,19.7 78.3,36.3" fill="#1F6FB2" stroke="#FBF8F1" stroke-width="2.5" stroke-linejoin="round"/><rect x="34" y="36" width="34" height="5" rx="2.5" fill="#FBF8F1"/><rect x="44" y="46" width="24" height="5" rx="2.5" fill="#FBF8F1"/><rect x="39" y="56" width="29" height="5" rx="2.5" fill="#D9A441"/></svg><div><p class="display">غناية</p><p class="small ink2">Ghnaya</p></div></div>
+    <p class="ink">Texte principal — <span lang="ar" dir="rtl">ابحث عن أغنية</span></p>
+    <p class="ink2">Texte secondaire, métadonnées</p>
+    <p class="ink3">Texte tertiaire, placeholder</p>
+    <p><a href="#">Lien vers l'artiste</a></p>
+    <div class="row wrap">
+      <button class="btn primary" type="button">Lire</button>
+      <button class="btn secondary" type="button">Ajouter à une playlist</button>
+      <button class="btn secondary focus" type="button">Focus visible</button>
+    </div>
+    <div class="row wrap">
+      <span class="badge" style="background:var(--color-status-success-bg);color:var(--color-status-success)">Acceptée</span>
+      <span class="badge" style="background:var(--color-status-warning-bg);color:var(--color-status-warning)">Automatique</span>
+      <span class="badge" style="background:var(--color-status-error-bg);color:var(--color-status-error)">Refusée</span>
+      <span class="badge" style="background:var(--color-status-info-bg);color:var(--color-status-info)">Tunisien</span>
+    </div>
+    <label class="field"><span class="small ink2">Titre de la chanson</span><input placeholder="Sidi Mansour ou سيدي منصور" dir="auto"></label>
+  </div>
+  <nav class="tabbar" aria-label="Exemple de barre d'onglets">
+    <span class="tab active"><i class="lozenge"></i>Accueil</span><span class="tab">Chercher</span><span class="tab">Clubs</span><span class="tab">Moi</span>
+  </nav>
+</section></div>
+  <div class="grid2">
+<section class="reader" data-reader  data-reader-size="3">
+  <div class="reader-top"><span class="reader-pos">3 / 12</span><span>إرادة الحياة</span></div>
+  <div class="lyrics" lang="ar" dir="rtl">
+    <p>إذا الشعب يوما أراد الحياة<span class="tl" dir="ltr" lang="ar-Latn">idha ech-cha3bou yawman arada el-hayat</span></p>
+    <p>فلا بد أن يستجيب القدر<span class="tl" dir="ltr" lang="ar-Latn">fala boudda an yastajiba el-qadar</span></p>
+  </div>
+  <div class="reader-controls"><span class="ctl">‹</span><span class="ctl">A−</span><span class="ctl">A+</span><span class="ctl">ع / Aa</span><span class="ctl">›</span></div>
+  <p class="reader-label">Lecteur — sombre par défaut · 28 px · arabe + latin</p>
+</section>
+<section class="reader" data-reader data-reader-theme="light" data-reader-size="3">
+  <div class="reader-top"><span class="reader-pos">3 / 12</span><span>إرادة الحياة</span></div>
+  <div class="lyrics" lang="ar" dir="rtl">
+    <p>إذا الشعب يوما أراد الحياة<span class="tl" dir="ltr" lang="ar-Latn">idha ech-cha3bou yawman arada el-hayat</span></p>
+    <p>فلا بد أن يستجيب القدر<span class="tl" dir="ltr" lang="ar-Latn">fala boudda an yastajiba el-qadar</span></p>
+  </div>
+  <div class="reader-controls"><span class="ctl">‹</span><span class="ctl">A−</span><span class="ctl">A+</span><span class="ctl">ع / Aa</span><span class="ctl">›</span></div>
+  <p class="reader-label">Lecteur — option claire</p>
+</section></div>
+  <section class="sheet"><h2>Couvertures de club générées</h2><div class="covers"><div class="cover" style="background:var(--cover-1-bg);color:var(--cover-1-fg)"><svg viewBox="0 0 100 100" width="56" height="56" aria-hidden="true"><rect x="22" y="22" width="56" height="56" fill="none" stroke="currentColor" stroke-width="4"/><rect x="22" y="22" width="56" height="56" fill="none" stroke="currentColor" stroke-width="4" transform="rotate(45 50 50)"/></svg><span>Club Malouf Sfax</span></div><div class="cover" style="background:var(--cover-2-bg);color:var(--cover-2-fg)"><svg viewBox="0 0 100 100" width="56" height="56" aria-hidden="true"><rect x="22" y="22" width="56" height="56" fill="none" stroke="currentColor" stroke-width="4"/><rect x="22" y="22" width="56" height="56" fill="none" stroke="currentColor" stroke-width="4" transform="rotate(45 50 50)"/></svg><span>Club Chorale Bardo</span></div><div class="cover" style="background:var(--cover-3-bg);color:var(--cover-3-fg)"><svg viewBox="0 0 100 100" width="56" height="56" aria-hidden="true"><rect x="22" y="22" width="56" height="56" fill="none" stroke="currentColor" stroke-width="4"/><rect x="22" y="22" width="56" height="56" fill="none" stroke="currentColor" stroke-width="4" transform="rotate(45 50 50)"/></svg><span>Club Les Jasmins</span></div><div class="cover" style="background:var(--cover-4-bg);color:var(--cover-4-fg)"><svg viewBox="0 0 100 100" width="56" height="56" aria-hidden="true"><rect x="22" y="22" width="56" height="56" fill="none" stroke="currentColor" stroke-width="4"/><rect x="22" y="22" width="56" height="56" fill="none" stroke="currentColor" stroke-width="4" transform="rotate(45 50 50)"/></svg><span>Club Nghanniw</span></div></div></section>
+  <section class="sheet types"><h2>Typographie</h2>
+    <p style="font-family:var(--font-family-display);font-weight:600;font-size:var(--font-size-4xl);line-height:1.15">غناية Ghnaya</p>
+    <p style="font-size:var(--font-size-xl)">Interface — IBM Plex Sans · <span lang="ar">واجهة — IBM Plex Sans Arabic</span></p>
+    <p style="font-family:var(--font-family-lyrics);font-size:28px;line-height:1.9" lang="ar" dir="rtl">فلا بد أن يستجيب القدر — Noto Naskh Arabic</p>
+  </section>
+  <div class="grid2">
+    <section class="sheet"><h2>Espacements (base 4 px)</h2><div class="sp"><span style="width:var(--space-1)"></span><code>--space-1</code></div><div class="sp"><span style="width:var(--space-2)"></span><code>--space-2</code></div><div class="sp"><span style="width:var(--space-3)"></span><code>--space-3</code></div><div class="sp"><span style="width:var(--space-4)"></span><code>--space-4</code></div><div class="sp"><span style="width:var(--space-5)"></span><code>--space-5</code></div><div class="sp"><span style="width:var(--space-6)"></span><code>--space-6</code></div><div class="sp"><span style="width:var(--space-7)"></span><code>--space-7</code></div><div class="sp"><span style="width:var(--space-8)"></span><code>--space-8</code></div><div class="sp"><span style="width:var(--space-9)"></span><code>--space-9</code></div><div class="sp"><span style="width:var(--space-10)"></span><code>--space-10</code></div></section>
+    <section class="sheet"><h2>Arrondis</h2><div class="rads"><div class="rad" style="border-radius:var(--border-radius-sm)">sm</div><div class="rad" style="border-radius:var(--border-radius-md)">md</div><div class="rad" style="border-radius:var(--border-radius-lg)">lg</div><div class="rad" style="border-radius:var(--border-radius-xl)">xl</div><div class="rad" style="border-radius:var(--border-radius-full)">full</div></div></section>
+  </div>
+</main>
+</body>
+</html>

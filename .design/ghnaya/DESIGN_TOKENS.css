@@ -1,0 +1,322 @@
+/*
+ * Ghnaya (غناية) — design tokens
+ * ================================
+ * Philosophie : « médina contemporaine », dérivée de deux philosophies du skill frontend-design :
+ *   - Scandinave : chaleur, retenue, accessibilité, coins arrondis, ombres douces ;
+ *   - Art déco géométrique : géométrie, accents or sur bleu profond, mais utilisés avec parcimonie
+ *     (touches choisies, jamais derrière les paroles).
+ * Sources : .design/ghnaya/DESIGN_BRIEF.md et INFORMATION_ARCHITECTURE.md.
+ *
+ * Choix et écarts par rapport au modèle du skill :
+ *  - Aucun easing « bounce » : le ton est posé, sans rebond.
+ *  - letter-spacing forcé à 0 en arabe, car l'espacement casse la liaison des lettres.
+ *  - Le lecteur de séance a ses propres tokens ([data-reader]) et est SOMBRE PAR DÉFAUT, quel que
+ *    soit le thème du téléphone (décision grill-me n° 3). Le reste de l'app suit le système.
+ *  - Polices chargées avec next/font/google, qui exposent --font-reem-kufi, --font-plex-sans,
+ *    --font-plex-sans-arabic, --font-noto-naskh et --font-plex-mono. Les noms Google Fonts servent
+ *    de repli.
+ *  - Tous les couples texte/fond ont été vérifiés (WCAG 2.2 AA) : texte ≥ 4,5:1,
+ *    composants et éléments graphiques ≥ 3:1, paroles ≥ 7:1. Ratios en commentaire.
+ *  - [data-theme="light"] redéclare les valeurs claires, pour qu'un choix explicite du mode clair
+ *    l'emporte aussi sur un sous-arbre quand le système est en sombre.
+ */
+
+:root,
+[data-theme="light"] {
+  /* ---------- Couleurs de marque, valeurs brutes (ne pas utiliser directement dans les composants) ---------- */
+  --brand-indigo: #1B2550;        /* Indigo nuit */
+  --brand-indigo-deep: #111733;
+  --brand-blue: #1F6FB2;          /* Bleu Sidi Bou Saïd */
+  --brand-saffron: #D9A441;       /* Safran : sur fond sombre uniquement */
+  --brand-saffron-deep: #B07A1F;  /* Safran foncé : éléments graphiques sur fond clair, jamais du texte */
+  --brand-jasmine: #FBF8F1;       /* Blanc jasmin */
+
+  /* ---------- Couleurs sémantiques, mode CLAIR ---------- */
+  --color-bg-primary: #FBF8F1;          /* page */
+  --color-bg-secondary: #FFFFFF;        /* cartes, feuilles */
+  --color-bg-tertiary: #F3EEE2;         /* champs, zones en retrait */
+  --color-bg-selected: #EAE4D4;         /* ligne sélectionnée */
+  --color-bg-inverse: #1B2550;
+
+  --color-text-primary: #1B2550;        /* 13,9:1 sur la page */
+  --color-text-secondary: #4E536E;      /* 7,1:1 sur la page · 6,5:1 sur bg-tertiary */
+  --color-text-tertiary: #62657A;       /* 5,4:1 sur la page · 4,95:1 sur bg-tertiary (placeholder) */
+  --color-text-inverse: #FBF8F1;
+  --color-text-link: #1F6FB2;           /* 5,0:1 sur la page · 4,6:1 sur bg-tertiary */
+
+  --color-border-primary: #8F8A7A;      /* bords des champs : 3,25:1, contraste non textuel */
+  --color-border-secondary: #E6E1D4;    /* séparateurs décoratifs */
+  --color-border-focus: #1F6FB2;        /* 5,0:1 */
+
+  --color-accent-primary: #1F6FB2;      /* bouton primaire : texte blanc 5,3:1 */
+  --color-accent-primary-hover: #185C94;  /* texte blanc 7,0:1 */
+  --color-accent-primary-active: #134B79;
+  --color-on-accent: #FFFFFF;
+  --color-accent-secondary: #B07A1F;    /* losange, puces, marque de sélection : graphique seulement, 3,5:1 */
+
+  --color-status-success: #276B42;
+  --color-status-success-bg: #E3F1E8;
+  --color-status-warning: #8A5A00;      /* 5,2:1 sur son fond */
+  --color-status-warning-bg: #FBF0D9;
+  --color-status-error: #B3261E;        /* 5,4:1 sur son fond */
+  --color-status-error-bg: #FBE4E2;
+  --color-status-info: #185C94;         /* plus foncé que le lien : 4,49:1 sinon sur son fond */
+  --color-status-info-bg: #E3EEF8;
+
+  --color-surface-overlay: rgba(17, 23, 51, 0.48);
+
+  /* Couvertures de club générées : 4 combinaisons, choisies par un hachage du nom du club */
+  --cover-1-bg: #1B2550; --cover-1-fg: #D9A441;
+  --cover-2-bg: #1F6FB2; --cover-2-fg: #FBF8F1;   /* 5,0:1 */
+  --cover-3-bg: #D9A441; --cover-3-fg: #1B2550;   /* 6,5:1 */
+  --cover-4-bg: #F3EEE2; --cover-4-fg: #1F6FB2;
+
+  /* ---------- Espacements : base 4 px (philosophie équilibrée) ---------- */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 128px;
+  --space-11: 192px;
+  --space-12: 256px;
+
+  /* ---------- Typographie ---------- */
+  --font-family-display: var(--font-reem-kufi, 'Reem Kufi'), var(--font-plex-sans-arabic, 'IBM Plex Sans Arabic'), sans-serif;
+  /* Interface : IBM Plex Sans Arabic seule, chargée avec ses jeux arabe ET latin (son latin est celui
+     d'IBM Plex Sans). Ne jamais mettre deux polices web l'une après l'autre ici : la police de secours
+     ajoutée par next/font (Arial) intercepterait les lettres arabes. */
+  --font-family-body: var(--font-plex-sans-arabic, 'IBM Plex Sans Arabic'), system-ui, sans-serif;
+  --font-family-lyrics: var(--font-noto-naskh, 'Noto Naskh Arabic'), var(--font-plex-sans-arabic, 'IBM Plex Sans Arabic'), serif;
+  --font-family-translit: var(--font-plex-sans, 'IBM Plex Sans'), system-ui, sans-serif;
+  --font-family-mono: var(--font-plex-mono, 'IBM Plex Mono'), ui-monospace, monospace;
+
+  --font-size-xs: 0.75rem;    /* 12 px, métadonnées */
+  --font-size-sm: 0.875rem;   /* 14 px */
+  --font-size-base: 1rem;     /* 16 px, minimum du corps sur mobile */
+  --font-size-md: 1.125rem;   /* 18 px */
+  --font-size-lg: 1.25rem;    /* 20 px */
+  --font-size-xl: 1.5rem;     /* 24 px */
+  --font-size-2xl: 1.875rem;  /* 30 px */
+  --font-size-3xl: 2.25rem;   /* 36 px */
+  --font-size-4xl: 3rem;      /* 48 px, titre d'accueil en Reem Kufi */
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;  /* Reem Kufi : titres et logo */
+  --font-weight-bold: 700;      /* réservé, à éviter dans l'interface */
+
+  --line-height-tight: 1.25;    /* titres */
+  --line-height-normal: 1.5;    /* corps latin */
+  --line-height-relaxed: 1.7;   /* corps arabe : les signes au-dessus et au-dessous des lettres ont besoin de place */
+  --line-height-lyrics: 1.9;    /* paroles (décision grill-me n° 4) */
+
+  --letter-spacing-tight: -0.01em;  /* titres latins seulement */
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.12em;    /* petits libellés latins et « Ghnaya » dans le logo */
+
+  /* ---------- Mise en page ---------- */
+  --max-width-content: 640px;   /* colonne de l'app sur tous les écrans */
+  --max-width-reader: 720px;    /* paroles dans le lecteur */
+  --max-width-wide: 1024px;     /* vue des différences de la modération en 2 colonnes */
+  --max-width-page: 1280px;
+
+  --border-radius-sm: 6px;      /* pastilles, petites cibles */
+  --border-radius-md: 10px;     /* boutons, champs */
+  --border-radius-lg: 16px;     /* cartes, feuilles */
+  --border-radius-xl: 24px;     /* couvertures de club, icône d'app */
+  --border-radius-full: 9999px;
+
+  --shadow-sm: 0 1px 2px rgba(27, 37, 80, 0.06);
+  --shadow-md: 0 4px 16px rgba(27, 37, 80, 0.08);
+  --shadow-lg: 0 12px 40px rgba(27, 37, 80, 0.12);   /* feuilles qui montent du bas, toasts */
+  --shadow-focus: 0 0 0 3px var(--color-border-focus);
+
+  --size-touch: 44px;           /* cible tactile minimale de l'interface */
+  --size-touch-reader: 48px;    /* contrôles du lecteur */
+  --size-tabbar: 64px;          /* hauteur de la barre d'onglets, hors zone de sécurité de l'écran */
+
+  --z-tabbar: 40;
+  --z-sheet: 50;
+  --z-toast: 60;
+  --z-reader: 70;
+
+  /* ---------- Mouvement : posé, sans rebond ---------- */
+  --duration-instant: 50ms;
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  --duration-slower: 600ms;
+  --easing-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-in: cubic-bezier(0.4, 0, 1, 1);
+  --easing-out: cubic-bezier(0, 0, 0.2, 1);
+
+  /* ---------- Points de rupture (référence ; dans les media queries, utiliser les valeurs en dur) ---------- */
+  --breakpoint-sm: 375px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  color-scheme: light;
+}
+
+/* ---------- Couleurs sémantiques, mode SOMBRE : indigo froid profond, jamais noir pur ---------- */
+[data-theme="dark"] {
+  --color-bg-primary: #111733;
+  --color-bg-secondary: #1B2550;
+  --color-bg-tertiary: #243063;
+  --color-bg-selected: #2C3A74;
+  --color-bg-inverse: #FBF8F1;
+
+  --color-text-primary: #EEE9DC;        /* jasmin adouci : 14,5:1, moins dur qu'un blanc pur */
+  --color-text-secondary: #B4B8CF;      /* 9,0:1 · 6,4:1 sur bg-tertiary */
+  --color-text-tertiary: #9A9EB8;       /* 6,7:1 · 4,7:1 sur bg-tertiary */
+  --color-text-inverse: #1B2550;
+  --color-text-link: #8DBBEA;           /* 8,7:1 ; le bleu de marque sur indigo ne fait que 2,8:1 */
+
+  --color-border-primary: #5D6694;      /* 3,2:1 sur la page */
+  --color-border-secondary: #2A3466;
+  --color-border-focus: #D9A441;        /* anneau de focus safran : 7,8:1 */
+
+  --color-accent-primary: #D9A441;      /* en sombre, le bouton primaire passe en safran, texte indigo 7,8:1 */
+  --color-accent-primary-hover: #E4B65E;
+  --color-accent-primary-active: #C99332;
+  --color-on-accent: #111733;
+  --color-accent-secondary: #D9A441;
+
+  --color-status-success: #6CC79A;
+  --color-status-success-bg: #173826;
+  --color-status-warning: #E3B65A;
+  --color-status-warning-bg: #3A2C0E;
+  --color-status-error: #F2938C;
+  --color-status-error-bg: #3E1A1A;
+  --color-status-info: #8DBBEA;
+  --color-status-info-bg: #16294A;
+
+  --color-surface-overlay: rgba(5, 8, 20, 0.64);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.32);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.40);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.48);
+
+  color-scheme: dark;
+}
+
+/* Le système demande le sombre, sauf si l'utilisateur a explicitement choisi le clair */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg-primary: #111733;
+    --color-bg-secondary: #1B2550;
+    --color-bg-tertiary: #243063;
+    --color-bg-selected: #2C3A74;
+    --color-bg-inverse: #FBF8F1;
+    --color-text-primary: #EEE9DC;
+    --color-text-secondary: #B4B8CF;
+    --color-text-tertiary: #9A9EB8;
+    --color-text-inverse: #1B2550;
+    --color-text-link: #8DBBEA;
+    --color-border-primary: #5D6694;
+    --color-border-secondary: #2A3466;
+    --color-border-focus: #D9A441;
+    --color-accent-primary: #D9A441;
+    --color-accent-primary-hover: #E4B65E;
+    --color-accent-primary-active: #C99332;
+    --color-on-accent: #111733;
+    --color-accent-secondary: #D9A441;
+    --color-status-success: #6CC79A;
+    --color-status-success-bg: #173826;
+    --color-status-warning: #E3B65A;
+    --color-status-warning-bg: #3A2C0E;
+    --color-status-error: #F2938C;
+    --color-status-error-bg: #3E1A1A;
+    --color-status-info: #8DBBEA;
+    --color-status-info-bg: #16294A;
+    --color-surface-overlay: rgba(5, 8, 20, 0.64);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.32);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.40);
+    --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.48);
+    color-scheme: dark;
+  }
+}
+
+/* ---------- Lecteur de séance : sombre PAR DÉFAUT, indépendamment du thème de l'app ---------- */
+[data-reader] {
+  --reader-bg: #1B2550;
+  --reader-text: #F1ECE0;               /* paroles : 12,5:1, objectif ≥ 7:1 */
+  --reader-text-secondary: #B4B8CF;     /* titre, position : 7,5:1 */
+  --reader-translit: #C9CCDD;           /* ligne latine sous la ligne arabe : 9,2:1 */
+  --reader-accent: #D9A441;             /* losange, position « 3 / 12 » : 6,5:1 */
+  --reader-control-bg: #243063;
+  --reader-control-bg-pressed: #2C3A74;
+  --reader-control-text: #EEE9DC;
+  --reader-divider: #2A3466;
+  --reader-focus: #D9A441;
+
+  /* Taille des paroles : 6 crans (A− / A+), cran 3 par défaut = 28 px */
+  --reader-size-1: 1.375rem;  /* 22 px */
+  --reader-size-2: 1.5625rem; /* 25 px */
+  --reader-size-3: 1.75rem;   /* 28 px, défaut */
+  --reader-size-4: 2rem;      /* 32 px */
+  --reader-size-5: 2.25rem;   /* 36 px */
+  --reader-size-6: 2.5rem;    /* 40 px */
+  --reader-font-size: var(--reader-size-3);
+  --reader-translit-ratio: 0.72;        /* le latin est plus petit que l'arabe */
+  --reader-line-height: var(--line-height-lyrics);
+  --reader-stanza-gap: 1.25em;
+
+  color-scheme: dark;
+}
+
+[data-reader][data-reader-theme="light"] {
+  --reader-bg: #FBF8F1;
+  --reader-text: #1B2550;               /* 13,9:1 */
+  --reader-text-secondary: #4E536E;     /* 7,1:1 */
+  --reader-translit: #4E536E;
+  --reader-accent: #B07A1F;
+  --reader-control-bg: #F3EEE2;
+  --reader-control-bg-pressed: #EAE4D4;
+  --reader-control-text: #1B2550;
+  --reader-divider: #E6E1D4;
+  --reader-focus: #1F6FB2;
+  color-scheme: light;
+}
+
+[data-reader][data-reader-size="1"] { --reader-font-size: var(--reader-size-1); }
+[data-reader][data-reader-size="2"] { --reader-font-size: var(--reader-size-2); }
+[data-reader][data-reader-size="3"] { --reader-font-size: var(--reader-size-3); }
+[data-reader][data-reader-size="4"] { --reader-font-size: var(--reader-size-4); }
+[data-reader][data-reader-size="5"] { --reader-font-size: var(--reader-size-5); }
+[data-reader][data-reader-size="6"] { --reader-font-size: var(--reader-size-6); }
+
+/* ---------- Règles typographiques bilingues ----------
+ * Rangées dans @layer base : les classes Tailwind (couche utilities) gardent la priorité
+ * pour l'interligne, tandis que le letter-spacing reste forcé à 0 (!important). */
+@layer base {
+  :lang(ar) {
+    letter-spacing: 0 !important;      /* l'espacement casse la liaison des lettres arabes */
+    line-height: var(--line-height-relaxed);
+  }
+}
+
+/* ---------- Mouvement réduit ---------- */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-instant: 0ms;
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-slow: 0ms;
+    --duration-slower: 0ms;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

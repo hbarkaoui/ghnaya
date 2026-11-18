@@ -1,0 +1,133 @@
+/*
+ * Ghnaya — correspondance des tokens avec Tailwind CSS v4 (configuration en CSS, sans tailwind.config.js)
+ * =====================================================================================
+ * Intégration dans src/app/globals.css (plan 1, tâche 12) :
+ *
+ *   @import "tailwindcss";
+ *   @import "./design-tokens.css";          ← copie de .design/ghnaya/DESIGN_TOKENS.css
+ *   ...puis le bloc @theme inline ci-dessous.
+ *
+ * Règles d'usage :
+ *  - Les composants utilisent les noms SÉMANTIQUES (bg-page, text-ink, bg-accent…), jamais les
+ *    couleurs brutes : le mode clair, le mode sombre et le lecteur basculent alors tout seuls
+ *    grâce aux variables CSS.
+ *  - On n'utilise pas le préfixe `dark:` pour les couleurs : les tokens changent déjà de valeur
+ *    selon [data-theme] ou prefers-color-scheme.
+ *  - Les ombres (shadow-sm, shadow-md, shadow-lg) ne sont pas redéclarées ici : les classes
+ *    Tailwind lisent directement --shadow-sm/md/lg de DESIGN_TOKENS.css (déclarées hors couche,
+ *    elles l'emportent sur les valeurs par défaut de Tailwind), y compris en sombre.
+ *  - Points de rupture : on garde ceux de Tailwind. md = 48rem (768 px), lg = 64rem (1024 px),
+ *    xl = 80rem (1280 px) correspondent aux tokens. Le préfixe `sm:` (640 px) n'est pas utilisé :
+ *    la base des styles est le mobile.
+ *  - Espacements : on garde l'échelle Tailwind par défaut (multiples de 4 px). Correspondances :
+ *    --space-1 = p-1 (4 px) · 2 = p-2 (8) · 3 = p-3 (12) · 4 = p-4 (16) · 5 = p-6 (24) · 6 = p-8 (32)
+ *    · 7 = p-12 (48) · 8 = p-16 (64) · 9 = p-24 (96) · 10 = p-32 (128).
+ */
+
+@theme inline {
+  /* Fonds */
+  --color-page: var(--color-bg-primary);
+  --color-card: var(--color-bg-secondary);
+  --color-well: var(--color-bg-tertiary);
+  --color-selected: var(--color-bg-selected);
+  --color-inverse: var(--color-bg-inverse);
+
+  /* Texte */
+  --color-ink: var(--color-text-primary);
+  --color-ink-2: var(--color-text-secondary);
+  --color-ink-3: var(--color-text-tertiary);
+  --color-ink-inverse: var(--color-text-inverse);
+  --color-link: var(--color-text-link);
+
+  /* Bordures et focus */
+  --color-line: var(--color-border-primary);
+  --color-line-subtle: var(--color-border-secondary);
+  --color-focus: var(--color-border-focus);
+
+  /* Actions */
+  --color-accent: var(--color-accent-primary);
+  --color-accent-hover: var(--color-accent-primary-hover);
+  --color-accent-active: var(--color-accent-primary-active);
+  --color-accent-ink: var(--color-on-accent);
+  --color-ornament: var(--color-accent-secondary);   /* losange, puces : graphique seulement */
+
+  /* Statuts */
+  --color-success: var(--color-status-success);
+  --color-success-soft: var(--color-status-success-bg);
+  --color-warning: var(--color-status-warning);
+  --color-warning-soft: var(--color-status-warning-bg);
+  --color-error: var(--color-status-error);
+  --color-error-soft: var(--color-status-error-bg);
+  --color-info: var(--color-status-info);
+  --color-info-soft: var(--color-status-info-bg);
+  --color-overlay: var(--color-surface-overlay);
+
+  /* Lecteur (à l'intérieur de [data-reader]) */
+  --color-reader-bg: var(--reader-bg);
+  --color-reader-ink: var(--reader-text);
+  --color-reader-ink-2: var(--reader-text-secondary);
+  --color-reader-translit: var(--reader-translit);
+  --color-reader-accent: var(--reader-accent);
+  --color-reader-control: var(--reader-control-bg);
+  --color-reader-control-pressed: var(--reader-control-bg-pressed);
+  --color-reader-control-ink: var(--reader-control-text);
+  --color-reader-divider: var(--reader-divider);
+  --color-reader-focus: var(--reader-focus);
+
+  /* Marque, valeurs brutes : réservées au logo et aux couvertures de club */
+  --color-brand-indigo: var(--brand-indigo);
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-saffron: var(--brand-saffron);
+  --color-brand-saffron-deep: var(--brand-saffron-deep);
+  --color-brand-jasmine: var(--brand-jasmine);
+
+  /* Polices */
+  --font-display: var(--font-family-display);
+  --font-sans: var(--font-family-body);
+  --font-lyrics: var(--font-family-lyrics);
+  --font-translit: var(--font-family-translit);
+  --font-mono: var(--font-family-mono);
+
+  /* Tailles de texte : mêmes noms que les tokens (attention, text-lg vaut 20 px ici, contre 18 px
+     par défaut dans Tailwind) */
+  --text-xs: var(--font-size-xs);
+  --text-xs--line-height: var(--line-height-normal);
+  --text-sm: var(--font-size-sm);
+  --text-sm--line-height: var(--line-height-normal);
+  --text-base: var(--font-size-base);
+  --text-base--line-height: var(--line-height-normal);
+  --text-md: var(--font-size-md);
+  --text-md--line-height: var(--line-height-normal);
+  --text-lg: var(--font-size-lg);
+  --text-lg--line-height: var(--line-height-tight);
+  --text-xl: var(--font-size-xl);
+  --text-xl--line-height: var(--line-height-tight);
+  --text-2xl: var(--font-size-2xl);
+  --text-2xl--line-height: var(--line-height-tight);
+  --text-3xl: var(--font-size-3xl);
+  --text-3xl--line-height: var(--line-height-tight);
+  --text-4xl: var(--font-size-4xl);
+  --text-4xl--line-height: var(--line-height-tight);
+  --text-lyrics: var(--reader-font-size);
+  --text-lyrics--line-height: var(--reader-line-height);
+
+  /* Interlignes */
+  --leading-tight: var(--line-height-tight);
+  --leading-normal: var(--line-height-normal);
+  --leading-relaxed: var(--line-height-relaxed);
+  --leading-lyrics: var(--line-height-lyrics);
+
+  /* Arrondis */
+  --radius-sm: var(--border-radius-sm);
+  --radius-md: var(--border-radius-md);
+  --radius-lg: var(--border-radius-lg);
+  --radius-xl: var(--border-radius-xl);
+
+  /* Largeurs maximales : max-w-content, max-w-reader, max-w-wide */
+  --container-content: var(--max-width-content);
+  --container-reader: var(--max-width-reader);
+  --container-wide: var(--max-width-wide);
+
+  /* Courbe d'animation : ease-calm */
+  --ease-calm: var(--easing-default);
+}

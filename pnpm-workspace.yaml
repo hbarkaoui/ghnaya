@@ -1,0 +1,6 @@
+allowBuilds:
+  sharp: false
+  unrs-resolver: false
+  # Dépendances de l'extracteur de messages de next-intl, non utilisé : pas de script de build.
+  "@parcel/watcher": false
+  "@swc/core": false

@@ -1,0 +1,41 @@
+{
+  "app": {
+    "name": "Ghnaya",
+    "nameAr": "غناية",
+    "tagline": "Les paroles de vos chansons, pour chanter ensemble"
+  },
+  "nav": {
+    "label": "Navigation principale",
+    "home": "Accueil",
+    "search": "Chercher",
+    "clubs": "Clubs",
+    "me": "Moi",
+    "back": "Retour"
+  },
+  "locale": {
+    "label": "Langue de l'interface",
+    "fr": "Français",
+    "ar": "العربية"
+  },
+  "home": {
+    "title": "Accueil",
+    "meaning": "« Ghnaya » veut dire « chanson » en tunisien."
+  },
+  "search": {
+    "title": "Chercher une chanson",
+    "intro": "Titre, artiste ou paroles, en arabe ou en lettres latines."
+  },
+  "clubs": {
+    "title": "Vos clubs",
+    "intro": "Les clubs dont vous êtes membre apparaîtront ici."
+  },
+  "me": {
+    "title": "Moi",
+    "intro": "Vos playlists, vos propositions et vos réglages.",
+    "account": "Compte"
+  },
+  "account": {
+    "title": "Compte",
+    "intro": "Votre nom, votre e-mail et la langue de l'interface."
+  }
+}
