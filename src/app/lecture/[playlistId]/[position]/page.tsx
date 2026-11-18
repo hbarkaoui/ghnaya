@@ -22,8 +22,14 @@ export default async function ReaderPage({ params }: Props) {
   const entries: ReaderEntry[] = playlist.items.flatMap((item) => {
     const song = getSong(item.songId);
     if (!song) return [];
-    const { id, titleAr, titleLatin, lyrics, artists } = song;
-    return [{ position: item.position, note: item.note, song: { id, titleAr, titleLatin, lyrics, artists } }];
+    const { id, titleAr, titleLatin, lyrics, lyricsTranslit, translitStatus, artists } = song;
+    return [
+      {
+        position: item.position,
+        note: item.note,
+        song: { id, titleAr, titleLatin, lyrics, lyricsTranslit, translitStatus, artists },
+      },
+    ];
   });
 
   return (

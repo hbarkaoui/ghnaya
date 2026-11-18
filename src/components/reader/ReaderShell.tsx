@@ -3,24 +3,48 @@
 import {
   AArrowDown,
   AArrowUp,
+  Check,
   ChevronLeft,
   ChevronRight,
+  Info,
+  Languages,
+  LoaderCircle,
   MessageSquareText,
   Moon,
   RotateCcw,
+  RotateCw,
   Sun,
   X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { requestTranslit } from "@/app/actions/translit";
 import { LogoSymbol } from "@/components/brand/Logo";
 import { LyricsView } from "@/components/lyrics/LyricsView";
+import { Badge } from "@/components/ui/Badge";
 import { useLocalStorage } from "@/lib/useLocalStorage";
 import type { ReaderEntry } from "@/types/catalog";
+import { TranslitToggle } from "./TranslitToggle";
 import { useReaderPrefs } from "./useReaderPrefs";
 import { useSwipe } from "./useSwipe";
 import { useWakeLock } from "./useWakeLock";
+
+/** Résultat connu de la translittération d'une chanson (absent = pas encore demandé). */
+type TranslitState =
+  | { kind: "ready"; text: string; status: "auto" | "reviewed" }
+  | { kind: "failed" }
+  | { kind: "limit" };
+
+function initialTranslits(entries: ReaderEntry[]): Record<string, TranslitState> {
+  const known: Record<string, TranslitState> = {};
+  for (const { song } of entries) {
+    if (song.lyricsTranslit && (song.translitStatus === "auto" || song.translitStatus === "reviewed")) {
+      known[song.id] = { kind: "ready", text: song.lyricsTranslit, status: song.translitStatus };
+    }
+  }
+  return known;
+}
 
 type Props = {
   playlistId: string;
@@ -54,12 +78,44 @@ export function ReaderShell({ playlistId, playlistName, entries, initialPosition
   const [ended, setEnded] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(true);
   const [noteOpen, setNoteOpen] = useState(true);
+  const [modeOpen, setModeOpen] = useState(false);
+  const [translits, setTranslits] = useState(() => initialTranslits(entries));
+  const inFlight = useRef(new Set<string>());
   const lyricsRef = useRef<HTMLDivElement>(null);
 
   const total = entries.length;
   const entry = entries[index];
   const title = entry.song.titleAr ?? entry.song.titleLatin ?? "";
   const position = String(index + 1);
+
+  // Translittération de la chanson affichée. Sans résultat connu alors qu'un mode latin est demandé,
+  // l'état « génération en cours » est dérivé : l'effet ci-dessous lance la demande.
+  const songId = entry.song.id;
+  const wantsTranslit = prefs.mode !== "ar" && !ended;
+  // Une entrée peut être absente : on l'écrit explicitement (l'accès indexé est typé « toujours défini »).
+  const translit = translits[songId] as TranslitState | undefined;
+  const translitView = !wantsTranslit ? "off" : (translit?.kind ?? "generating");
+
+  useEffect(() => {
+    if (!wantsTranslit || translits[songId] || inFlight.current.has(songId)) return;
+    inFlight.current.add(songId);
+    requestTranslit(songId)
+      .then((result) =>
+        setTranslits((prev) => ({
+          ...prev,
+          [songId]: result.ok ? { kind: "ready", text: result.text, status: result.status } : { kind: result.reason },
+        })),
+      )
+      .catch(() => setTranslits((prev) => ({ ...prev, [songId]: { kind: "failed" } })))
+      .finally(() => inFlight.current.delete(songId));
+  }, [wantsTranslit, translits, songId]);
+
+  const retryTranslit = () =>
+    setTranslits((prev) => {
+      const next = { ...prev };
+      delete next[songId];
+      return next;
+    });
 
   const goTo = useCallback(
     (target: number) => {
@@ -212,7 +268,56 @@ export function ReaderShell({ playlistId, playlistName, entries, initialPosition
               </div>
             </section>
           ) : (
-            <LyricsView key={entry.song.id} lyrics={entry.song.lyrics} className="reader-fade" />
+            <>
+              {translitView === "generating" ? (
+                <p role="status" className="mb-5">
+                  <Badge tone="reader" icon={<LoaderCircle aria-hidden="true" className="size-4 animate-spin" />}>
+                    {t("translit.generating")}
+                  </Badge>
+                </p>
+              ) : null}
+              {translit?.kind === "ready" && translitView !== "off" ? (
+                <p className="mb-5">
+                  <Badge
+                    tone="reader"
+                    icon={
+                      translit.status === "auto" ? (
+                        <Info aria-hidden="true" className="size-4" />
+                      ) : (
+                        <Check aria-hidden="true" className="size-4" />
+                      )
+                    }
+                  >
+                    {translit.status === "auto" ? t("translit.auto") : t("translit.reviewed")}
+                  </Badge>
+                </p>
+              ) : null}
+              {translitView === "failed" ? (
+                <div role="alert" className="mb-5 rounded-md bg-reader-control p-3 text-sm text-reader-control-ink">
+                  <p>{t("translit.failed")}</p>
+                  <button
+                    type="button"
+                    onClick={retryTranslit}
+                    className="mt-1 inline-flex min-h-11 items-center gap-2 rounded-md px-1 font-medium underline underline-offset-4 focus-visible:outline-reader-focus"
+                  >
+                    <RotateCw aria-hidden="true" className="size-4" />
+                    {t("translit.retry")}
+                  </button>
+                </div>
+              ) : null}
+              {translitView === "limit" ? (
+                <p role="status" className="mb-5 rounded-md bg-reader-control p-3 text-sm text-reader-control-ink">
+                  {t("translit.limit")}
+                </p>
+              ) : null}
+              <LyricsView
+                key={`${entry.song.id}-${prefs.mode}`}
+                lyrics={entry.song.lyrics}
+                translit={translit?.kind === "ready" ? translit.text : null}
+                mode={prefs.mode}
+                className="reader-fade"
+              />
+            </>
           )}
         </div>
       </div>
@@ -237,6 +342,17 @@ export function ReaderShell({ playlistId, playlistName, entries, initialPosition
         className={`shrink-0 px-3 pt-2 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] transition-opacity duration-(--duration-normal) ${hideWhenIdle}`}
         {...hiddenProps}
       >
+        {modeOpen ? (
+          <div id="reader-mode">
+            <TranslitToggle
+              mode={prefs.mode}
+              onChange={(mode) => {
+                prefs.setMode(mode);
+                setModeOpen(false);
+              }}
+            />
+          </div>
+        ) : null}
         <div role="group" aria-label={t("controls")} className="mx-auto flex max-w-reader items-center justify-between gap-2">
           <button
             type="button"
@@ -250,6 +366,16 @@ export function ReaderShell({ playlistId, playlistName, entries, initialPosition
           <div className="flex items-center gap-2">
             <button type="button" onClick={prefs.smaller} disabled={!prefs.canShrink} aria-label={t("smaller")} className={CONTROL}>
               <AArrowDown aria-hidden="true" className="size-6" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setModeOpen((open) => !open)}
+              aria-expanded={modeOpen}
+              aria-controls="reader-mode"
+              aria-label={t("modeButton")}
+              className={`${CONTROL} ${modeOpen ? "bg-reader-control-pressed" : ""}`}
+            >
+              <Languages aria-hidden="true" className="size-6" />
             </button>
             <button
               type="button"

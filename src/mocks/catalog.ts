@@ -1,4 +1,5 @@
 import type { ArtistRef, Playlist, Song } from "@/types/catalog";
+import { STORED_TRANSLIT, TRANSLIT_TEXTS } from "./translit";
 
 /**
  * Données fictives de la maquette, en attendant le back-end des plans 1 à 4.
@@ -23,7 +24,7 @@ const JOUINI = artist("a-jouini", "الهادي الجويني", "Hedi Jouini");
 const CHEBBI = artist("a-chebbi", "أبو القاسم الشابي", "Abou el Kacem Chebbi");
 const BALTI = artist("a-balti", "بلطي", "Balti");
 
-export const SONGS: Song[] = [
+const RAW_SONGS: Omit<Song, "lyricsTranslit" | "translitStatus">[] = [
   {
     id: "s-sidi-mansour",
     titleAr: "سيدي منصور",
@@ -199,6 +200,14 @@ export const SONGS: Song[] = [
 والدنيا تولّي أمان`,
   },
 ];
+
+/** Les translittérations déjà en base : relue pour Chebbi, automatiques pour deux chansons, absentes sinon. */
+export const SONGS: Song[] = RAW_SONGS.map((song) => {
+  const stored = STORED_TRANSLIT[song.id];
+  return stored
+    ? { ...song, lyricsTranslit: TRANSLIT_TEXTS[song.id] ?? null, translitStatus: stored }
+    : { ...song, lyricsTranslit: null, translitStatus: "none" };
+});
 
 export const PLAYLISTS: Playlist[] = [
   {

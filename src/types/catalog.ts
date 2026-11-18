@@ -12,11 +12,17 @@ export interface ArtistRef {
   role: "main" | "feat";
 }
 
+export type TranslitStatus = "none" | "generating" | "auto" | "reviewed";
+export type LyricsMode = "ar" | "both" | "latin";
+
 export interface Song {
   id: string;
   titleAr: string | null;
   titleLatin: string | null;
   lyrics: string;
+  /** Translittération alignée ligne à ligne sur `lyrics` (spec §7). */
+  lyricsTranslit: string | null;
+  translitStatus: TranslitStatus;
   dialect: Dialect;
   source: SongSource;
   artists: ArtistRef[];
@@ -40,5 +46,5 @@ export interface Playlist {
 export interface ReaderEntry {
   position: number;
   note: string | null;
-  song: Pick<Song, "id" | "titleAr" | "titleLatin" | "lyrics" | "artists">;
+  song: Pick<Song, "id" | "titleAr" | "titleLatin" | "lyrics" | "lyricsTranslit" | "translitStatus" | "artists">;
 }

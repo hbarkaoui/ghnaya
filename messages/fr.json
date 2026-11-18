@@ -56,6 +56,20 @@
     "restart": "Reprendre au début",
     "wakeHint": "Votre navigateur ne peut pas garder l'écran allumé. Pendant la séance, désactivez la mise en veille automatique dans les réglages du téléphone.",
     "wakeHintDismiss": "Compris",
-    "controls": "Contrôles du lecteur"
+    "controls": "Contrôles du lecteur",
+    "modeButton": "Affichage des paroles",
+    "modes": {
+      "ar": "Arabe",
+      "both": "Arabe + latin",
+      "latin": "Latin"
+    },
+    "translit": {
+      "generating": "Translittération en cours…",
+      "auto": "Translittération automatique, peut contenir des erreurs",
+      "reviewed": "Translittération relue",
+      "failed": "La translittération n'a pas pu être générée. Les paroles arabes restent affichées.",
+      "retry": "Réessayer",
+      "limit": "Translittération indisponible aujourd'hui : la limite quotidienne est atteinte. Les paroles arabes restent affichées."
+    }
   }
 }

@@ -46,7 +46,7 @@ Date : 18/11/2026
     - la mémorisation de la taille et du thème (localStorage, avec un repli si le stockage est indisponible).
   - **Terminé quand** une playlist fictive de 12 chansons se lit entièrement au doigt, en français et en arabe.
   - _Modifie : `LyricsView` (plan 1). Crée : `ReaderShell`, `ReaderControls`, `useWakeLock`, `useReaderPrefs`._
-- [ ] **Translittération dans le lecteur**
+- [x] **Translittération dans le lecteur** _(faite le 19/11/2026)_
   - **À construire** : la bascule entre les modes « Arabe », « Arabe + latin » (une ligne latine sous chaque ligne arabe, à 72 % de la taille) et « Latin ».
   - **États à couvrir** :
     - arabe seul par défaut ;
