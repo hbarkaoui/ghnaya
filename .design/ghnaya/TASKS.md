@@ -34,7 +34,7 @@ Date : 18/11/2026
 
 ## Interface principale
 
-- [ ] **Lecteur de séance de bout en bout** (la partie la plus risquée, donc construite en premier)
+- [x] **Lecteur de séance de bout en bout** (la partie la plus risquée, donc construite en premier) _(fait le 19/11/2026)_
   - **À construire** : le `ReaderShell` plein écran sur `/lecture/[playlistId]/[position]`, sombre par défaut. Il comprend :
     - en haut : fermer ✕, le titre, la position « 3 / 12 » en safran, la note de l'animateur repliable ;
     - les paroles en Noto Naskh 28 px, interligne 1,9 ;

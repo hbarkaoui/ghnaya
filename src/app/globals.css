@@ -44,6 +44,7 @@
   --color-reader-ink-2: var(--reader-text-secondary);
   --color-reader-translit: var(--reader-translit);
   --color-reader-accent: var(--reader-accent);
+  --color-reader-accent-text: var(--reader-accent-text);
   --color-reader-control: var(--reader-control-bg);
   --color-reader-control-pressed: var(--reader-control-bg-pressed);
   --color-reader-control-ink: var(--reader-control-text);
@@ -128,4 +129,18 @@
     outline: 3px solid var(--color-border-focus);
     outline-offset: 2px;
   }
+}
+
+/* Lecteur : fondu à l'arrivée d'une nouvelle chanson (désactivé par prefers-reduced-motion via les tokens). */
+@keyframes reader-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.reader-fade {
+  animation: reader-fade var(--duration-normal) var(--easing-default);
 }

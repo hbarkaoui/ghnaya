@@ -37,5 +37,25 @@
   "account": {
     "title": "Compte",
     "intro": "Votre nom, votre e-mail et la langue de l'interface."
+  },
+  "reader": {
+    "close": "Fermer le lecteur",
+    "previous": "Chanson précédente",
+    "next": "Chanson suivante",
+    "smaller": "Réduire le texte",
+    "larger": "Agrandir le texte",
+    "themeToLight": "Passer en mode clair",
+    "themeToDark": "Passer en mode sombre",
+    "position": "{current} / {total}",
+    "showNote": "Afficher la note de l'animateur",
+    "hideNote": "Masquer la note de l'animateur",
+    "noteLabel": "Note de l'animateur",
+    "announce": "Chanson {current} sur {total} : {title}",
+    "endTitle": "Fin de la séance",
+    "endBody": "Vous avez chanté les {total} chansons de « {name} ».",
+    "restart": "Reprendre au début",
+    "wakeHint": "Votre navigateur ne peut pas garder l'écran allumé. Pendant la séance, désactivez la mise en veille automatique dans les réglages du téléphone.",
+    "wakeHintDismiss": "Compris",
+    "controls": "Contrôles du lecteur"
   }
 }

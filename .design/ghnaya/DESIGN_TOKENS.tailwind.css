@@ -68,6 +68,7 @@
   --color-reader-ink-2: var(--reader-text-secondary);
   --color-reader-translit: var(--reader-translit);
   --color-reader-accent: var(--reader-accent);
+  --color-reader-accent-text: var(--reader-accent-text);
   --color-reader-control: var(--reader-control-bg);
   --color-reader-control-pressed: var(--reader-control-bg-pressed);
   --color-reader-control-ink: var(--reader-control-text);
