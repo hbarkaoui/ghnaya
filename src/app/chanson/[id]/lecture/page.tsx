@@ -1,0 +1,35 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { getLocale } from "next-intl/server";
+import { ReaderShell } from "@/components/reader/ReaderShell";
+import { artistsLine } from "@/components/song/artistName";
+import { songDisplayTitle } from "@/components/song/songTitle";
+import { toReaderEntry } from "@/lib/reader/entry";
+import { getSong } from "@/mocks/catalog";
+
+export async function generateMetadata({ params }: PageProps<"/chanson/[id]/lecture">): Promise<Metadata> {
+  const { id } = await params;
+  const song = getSong(id);
+  const locale = await getLocale();
+  return { title: song ? songDisplayTitle(song, locale) : undefined, robots: { index: false } };
+}
+
+/**
+ * Mode séance d'une chanson seule (IA, parcours 4) : le lecteur en 1 / 1, sans précédent / suivant
+ * ni écran de fin, accessible sans connexion. Fermer revient à la fiche.
+ */
+export default async function SongReaderPage({ params }: PageProps<"/chanson/[id]/lecture">) {
+  const { id } = await params;
+  const song = getSong(id);
+  if (!song) notFound();
+  const locale = await getLocale();
+
+  return (
+    <ReaderShell
+      entries={[toReaderEntry(song)]}
+      initialPosition={1}
+      subtitle={artistsLine(song.artists, locale)}
+      fallbackHref={`/chanson/${song.id}`}
+    />
+  );
+}

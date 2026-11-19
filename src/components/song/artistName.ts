@@ -14,3 +14,16 @@ export function artistDisplayName(
   if (preferArabic ? arabicName : !latinName) return { name: arabicName, arabic: true };
   return { name: latinName, arabic: false };
 }
+
+/**
+ * Artistes principaux sur une ligne de texte simple (« A et B » / « A وB »), dans l'écriture de
+ * l'interface ; les invités seulement s'il n'y a pas d'artiste principal. Pour les sous-titres
+ * où un balisage par nom n'est pas possible (lecteur).
+ */
+export function artistsLine(artists: ArtistRef[], locale: string): string {
+  const main = artists.filter((a) => a.role === "main");
+  const shown = main.length > 0 ? main : artists;
+  return new Intl.ListFormat(locale, { type: "conjunction" }).format(
+    shown.map((a) => artistDisplayName(a, locale).name),
+  );
+}

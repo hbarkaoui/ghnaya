@@ -1,15 +1,12 @@
 "use server";
 
+import type { TranslitResult } from "@/lib/translit/state";
 import {
   DAILY_LIMIT_REACHED,
   FAIL_FIRST_ATTEMPT,
   SIMULATED_DELAY_MS,
   TRANSLIT_TEXTS,
 } from "@/mocks/translit";
-
-export type TranslitResult =
-  | { ok: true; text: string; status: "auto" }
-  | { ok: false; reason: "failed" | "limit" };
 
 const attempts = new Map<string, number>();
 

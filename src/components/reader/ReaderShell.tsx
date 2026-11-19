@@ -3,58 +3,47 @@
 import {
   AArrowDown,
   AArrowUp,
-  Check,
   ChevronLeft,
   ChevronRight,
-  Info,
   Languages,
-  LoaderCircle,
   MessageSquareText,
   Moon,
   RotateCcw,
-  RotateCw,
   Sun,
   X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { requestTranslit } from "@/app/actions/translit";
 import { LogoSymbol } from "@/components/brand/Logo";
 import { LyricsView } from "@/components/lyrics/LyricsView";
-import { Badge } from "@/components/ui/Badge";
+import { TranslitStatus } from "@/components/lyrics/TranslitStatus";
+import { TranslitToggle } from "@/components/lyrics/TranslitToggle";
+import { useTranslit } from "@/components/lyrics/useTranslit";
 import { useLocalStorage } from "@/lib/useLocalStorage";
 import type { ReaderEntry } from "@/types/catalog";
-import { TranslitToggle } from "./TranslitToggle";
 import { useReaderPrefs } from "./useReaderPrefs";
 import { useSwipe } from "./useSwipe";
 import { useWakeLock } from "./useWakeLock";
 
-/** Résultat connu de la translittération d'une chanson (absent = pas encore demandé). */
-type TranslitState =
-  | { kind: "ready"; text: string; status: "auto" | "reviewed" }
-  | { kind: "failed" }
-  | { kind: "limit" };
-
-function initialTranslits(entries: ReaderEntry[]): Record<string, TranslitState> {
-  const known: Record<string, TranslitState> = {};
-  for (const { song } of entries) {
-    if (song.lyricsTranslit && (song.translitStatus === "auto" || song.translitStatus === "reviewed")) {
-      known[song.id] = { kind: "ready", text: song.lyricsTranslit, status: song.translitStatus };
-    }
-  }
-  return known;
-}
-
 type Props = {
-  playlistId: string;
-  playlistName: string;
   entries: ReaderEntry[];
   /** Position de départ, numérotée à partir de 1. */
   initialPosition: number;
   /** Page à ouvrir à la fermeture quand il n'y a pas d'historique (lien ouvert directement). */
   fallbackHref: string;
-};
+} & (
+  | {
+      /** Playlist lue : précédent / suivant, URL qui suit la position, écran de fin. */
+      playlist: { id: string; name: string };
+    }
+  | {
+      /** Chanson seule (mode séance depuis la fiche) : 1 / 1, sans précédent / suivant ni écran de fin. */
+      playlist?: undefined;
+      /** Sous le titre, après la position : les artistes de la chanson. */
+      subtitle: string;
+    }
+);
 
 const CONTROL =
   "inline-flex size-12 shrink-0 items-center justify-center rounded-md bg-reader-control text-reader-control-ink transition-colors duration-(--duration-fast) hover:bg-reader-control-pressed active:bg-reader-control-pressed disabled:opacity-40 focus-visible:outline-reader-focus";
@@ -65,9 +54,16 @@ const HINT_KEY = "ghnaya.reader.wakeHintDismissed";
  * Lecteur de séance plein écran : sombre par défaut, paroles en 28 px, navigation par glissement
  * (dans le sens de lecture) ou par boutons, écran maintenu allumé, préférences mémorisées.
  * Un toucher sur les paroles masque ou affiche les contrôles.
+ * Sans `playlist`, il lit une chanson seule : position 1 / 1, ni navigation ni écran de fin.
  */
-export function ReaderShell({ playlistId, playlistName, entries, initialPosition, fallbackHref }: Props) {
+export function ReaderShell(props: Props) {
+  const { entries, initialPosition, fallbackHref, playlist } = props;
+  const single = !playlist;
+  const playlistId = playlist?.id;
+  const subtitle = playlist ? playlist.name : props.subtitle;
+
   const t = useTranslations("reader");
+  const tLyrics = useTranslations("lyrics");
   const rtl = useLocale() === "ar";
   const router = useRouter();
   const prefs = useReaderPrefs();
@@ -79,47 +75,21 @@ export function ReaderShell({ playlistId, playlistName, entries, initialPosition
   const [controlsVisible, setControlsVisible] = useState(true);
   const [noteOpen, setNoteOpen] = useState(true);
   const [modeOpen, setModeOpen] = useState(false);
-  const [translits, setTranslits] = useState(() => initialTranslits(entries));
-  const inFlight = useRef(new Set<string>());
   const lyricsRef = useRef<HTMLDivElement>(null);
 
   const total = entries.length;
   const entry = entries[index];
   const title = entry.song.titleAr ?? entry.song.titleLatin ?? "";
   const position = String(index + 1);
-
-  // Translittération de la chanson affichée. Sans résultat connu alors qu'un mode latin est demandé,
-  // l'état « génération en cours » est dérivé : l'effet ci-dessous lance la demande.
-  const songId = entry.song.id;
-  const wantsTranslit = prefs.mode !== "ar" && !ended;
-  // Une entrée peut être absente : on l'écrit explicitement (l'accès indexé est typé « toujours défini »).
-  const translit = translits[songId] as TranslitState | undefined;
-  const translitView = !wantsTranslit ? "off" : (translit?.kind ?? "generating");
-
-  useEffect(() => {
-    if (!wantsTranslit || translits[songId] || inFlight.current.has(songId)) return;
-    inFlight.current.add(songId);
-    requestTranslit(songId)
-      .then((result) =>
-        setTranslits((prev) => ({
-          ...prev,
-          [songId]: result.ok ? { kind: "ready", text: result.text, status: result.status } : { kind: result.reason },
-        })),
-      )
-      .catch(() => setTranslits((prev) => ({ ...prev, [songId]: { kind: "failed" } })))
-      .finally(() => inFlight.current.delete(songId));
-  }, [wantsTranslit, translits, songId]);
-
-  const retryTranslit = () =>
-    setTranslits((prev) => {
-      const next = { ...prev };
-      delete next[songId];
-      return next;
-    });
+  const translit = useTranslit(
+    entries.map((e) => e.song),
+    entry.song.id,
+    prefs.mode !== "ar" && !ended,
+  );
 
   const goTo = useCallback(
     (target: number) => {
-      if (target < 0) return;
+      if (!playlistId || target < 0) return;
       if (target >= total) {
         setEnded(true);
         return;
@@ -149,7 +119,8 @@ export function ReaderShell({ playlistId, playlistName, entries, initialPosition
 
   const close = useCallback(() => {
     if (window.history.length > 1) router.back();
-    else router.push(fallbackHref);
+    // Ouvert directement : on remplace le lecteur, pour que « retour » n'y ramène pas.
+    else router.replace(fallbackHref);
   }, [router, fallbackHref]);
 
   // Clavier (ordinateur) : les flèches suivent le sens de lecture, Échap ferme le lecteur.
@@ -158,10 +129,10 @@ export function ReaderShell({ playlistId, playlistName, entries, initialPosition
       if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
       const forward = rtl ? "ArrowLeft" : "ArrowRight";
       const backward = rtl ? "ArrowRight" : "ArrowLeft";
-      if (e.key === forward) {
+      if (e.key === forward && !single) {
         e.preventDefault();
         next();
-      } else if (e.key === backward) {
+      } else if (e.key === backward && !single) {
         e.preventDefault();
         previous();
       } else if (e.key === "Escape") {
@@ -170,7 +141,7 @@ export function ReaderShell({ playlistId, playlistName, entries, initialPosition
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [rtl, next, previous, close]);
+  }, [rtl, single, next, previous, close]);
 
   const swipe = useSwipe({
     rtl,
@@ -206,8 +177,12 @@ export function ReaderShell({ playlistId, playlistName, entries, initialPosition
               <span className="font-medium text-reader-accent-text" dir="ltr">
                 {t("position", { current: position, total: String(total) })}
               </span>
-              <span aria-hidden="true"> · </span>
-              <span dir="auto">{playlistName}</span>
+              {subtitle ? (
+                <>
+                  <span aria-hidden="true"> · </span>
+                  <span dir="auto">{subtitle}</span>
+                </>
+              ) : null}
             </p>
           </div>
           {entry.note && !ended ? (
@@ -242,12 +217,12 @@ export function ReaderShell({ playlistId, playlistName, entries, initialPosition
         {...swipe}
       >
         <div className="mx-auto max-w-reader py-6">
-          {ended ? (
+          {ended && playlist ? (
             <section className="flex flex-col items-center gap-4 py-12 text-center">
               <LogoSymbol size={72} />
               <h2 className="font-display text-2xl font-semibold">{t("endTitle")}</h2>
               <p className="text-reader-ink-2">
-                {t("endBody", { total: String(total), name: playlistName })}
+                {t("endBody", { total: String(total), name: playlist.name })}
               </p>
               <div className="mt-2 flex flex-wrap justify-center gap-3">
                 <button
@@ -269,51 +244,11 @@ export function ReaderShell({ playlistId, playlistName, entries, initialPosition
             </section>
           ) : (
             <>
-              {translitView === "generating" ? (
-                <p role="status" className="mb-5">
-                  <Badge tone="reader" icon={<LoaderCircle aria-hidden="true" className="size-4 animate-spin" />}>
-                    {t("translit.generating")}
-                  </Badge>
-                </p>
-              ) : null}
-              {translit?.kind === "ready" && translitView !== "off" ? (
-                <p className="mb-5">
-                  <Badge
-                    tone="reader"
-                    icon={
-                      translit.status === "auto" ? (
-                        <Info aria-hidden="true" className="size-4" />
-                      ) : (
-                        <Check aria-hidden="true" className="size-4" />
-                      )
-                    }
-                  >
-                    {translit.status === "auto" ? t("translit.auto") : t("translit.reviewed")}
-                  </Badge>
-                </p>
-              ) : null}
-              {translitView === "failed" ? (
-                <div role="alert" className="mb-5 rounded-md bg-reader-control p-3 text-sm text-reader-control-ink">
-                  <p>{t("translit.failed")}</p>
-                  <button
-                    type="button"
-                    onClick={retryTranslit}
-                    className="mt-1 inline-flex min-h-11 items-center gap-2 rounded-md px-1 font-medium underline underline-offset-4 focus-visible:outline-reader-focus"
-                  >
-                    <RotateCw aria-hidden="true" className="size-4" />
-                    {t("translit.retry")}
-                  </button>
-                </div>
-              ) : null}
-              {translitView === "limit" ? (
-                <p role="status" className="mb-5 rounded-md bg-reader-control p-3 text-sm text-reader-control-ink">
-                  {t("translit.limit")}
-                </p>
-              ) : null}
+              <TranslitStatus view={translit.view} status={translit.status} onRetry={translit.retry} tone="reader" />
               <LyricsView
                 key={`${entry.song.id}-${prefs.mode}`}
                 lyrics={entry.song.lyrics}
-                translit={translit?.kind === "ready" ? translit.text : null}
+                translit={translit.text}
                 mode={prefs.mode}
                 className="reader-fade"
               />
@@ -350,19 +285,26 @@ export function ReaderShell({ playlistId, playlistName, entries, initialPosition
                 prefs.setMode(mode);
                 setModeOpen(false);
               }}
+              className="mx-auto mb-2 max-w-reader"
             />
           </div>
         ) : null}
-        <div role="group" aria-label={t("controls")} className="mx-auto flex max-w-reader items-center justify-between gap-2">
-          <button
-            type="button"
-            onClick={previous}
-            disabled={index === 0 && !ended}
-            aria-label={t("previous")}
-            className={CONTROL}
-          >
-            <ChevronLeft aria-hidden="true" className="size-7 rtl:-scale-x-100" />
-          </button>
+        <div
+          role="group"
+          aria-label={t("controls")}
+          className={`mx-auto flex max-w-reader items-center gap-2 ${single ? "justify-center" : "justify-between"}`}
+        >
+          {single ? null : (
+            <button
+              type="button"
+              onClick={previous}
+              disabled={index === 0 && !ended}
+              aria-label={t("previous")}
+              className={CONTROL}
+            >
+              <ChevronLeft aria-hidden="true" className="size-7 rtl:-scale-x-100" />
+            </button>
+          )}
           <div className="flex items-center gap-2">
             <button type="button" onClick={prefs.smaller} disabled={!prefs.canShrink} aria-label={t("smaller")} className={CONTROL}>
               <AArrowDown aria-hidden="true" className="size-6" />
@@ -372,7 +314,7 @@ export function ReaderShell({ playlistId, playlistName, entries, initialPosition
               onClick={() => setModeOpen((open) => !open)}
               aria-expanded={modeOpen}
               aria-controls="reader-mode"
-              aria-label={t("modeButton")}
+              aria-label={tLyrics("modeLabel")}
               className={`${CONTROL} ${modeOpen ? "bg-reader-control-pressed" : ""}`}
             >
               <Languages aria-hidden="true" className="size-6" />
@@ -393,9 +335,11 @@ export function ReaderShell({ playlistId, playlistName, entries, initialPosition
               <AArrowUp aria-hidden="true" className="size-6" />
             </button>
           </div>
-          <button type="button" onClick={next} disabled={ended} aria-label={t("next")} className={CONTROL}>
-            <ChevronRight aria-hidden="true" className="size-7 rtl:-scale-x-100" />
-          </button>
+          {single ? null : (
+            <button type="button" onClick={next} disabled={ended} aria-label={t("next")} className={CONTROL}>
+              <ChevronRight aria-hidden="true" className="size-7 rtl:-scale-x-100" />
+            </button>
+          )}
         </div>
       </footer>
 

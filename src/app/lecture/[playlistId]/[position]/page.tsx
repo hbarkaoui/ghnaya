@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ReaderShell } from "@/components/reader/ReaderShell";
+import { toReaderEntry } from "@/lib/reader/entry";
 import { getPlaylist, getSong } from "@/mocks/catalog";
 import type { ReaderEntry } from "@/types/catalog";
 
@@ -21,21 +22,12 @@ export default async function ReaderPage({ params }: Props) {
 
   const entries: ReaderEntry[] = playlist.items.flatMap((item) => {
     const song = getSong(item.songId);
-    if (!song) return [];
-    const { id, titleAr, titleLatin, lyrics, lyricsTranslit, translitStatus, artists } = song;
-    return [
-      {
-        position: item.position,
-        note: item.note,
-        song: { id, titleAr, titleLatin, lyrics, lyricsTranslit, translitStatus, artists },
-      },
-    ];
+    return song ? [toReaderEntry(song, item.position, item.note)] : [];
   });
 
   return (
     <ReaderShell
-      playlistId={playlist.id}
-      playlistName={playlist.name}
+      playlist={{ id: playlist.id, name: playlist.name }}
       entries={entries}
       initialPosition={start}
       fallbackHref="/"

@@ -92,8 +92,10 @@
     "restart": "Reprendre au début",
     "wakeHint": "Votre navigateur ne peut pas garder l'écran allumé. Pendant la séance, désactivez la mise en veille automatique dans les réglages du téléphone.",
     "wakeHintDismiss": "Compris",
-    "controls": "Contrôles du lecteur",
-    "modeButton": "Affichage des paroles",
+    "controls": "Contrôles du lecteur"
+  },
+  "lyrics": {
+    "modeLabel": "Affichage des paroles",
     "modes": {
       "ar": "Arabe",
       "both": "Arabe + latin",
@@ -106,7 +108,8 @@
       "failed": "La translittération n'a pas pu être générée. Les paroles arabes restent affichées.",
       "retry": "Réessayer",
       "limit": "Translittération indisponible aujourd'hui : la limite quotidienne est atteinte. Les paroles arabes restent affichées."
-    }
+    },
+    "title": "Paroles"
   },
   "playlists": {
     "personal": "Personnelle",
@@ -115,7 +118,21 @@
     "readNamed": "Lire « {name} »"
   },
   "song": {
-    "with": "avec"
+    "with": "avec",
+    "dialectLabel": "Dialecte :",
+    "sessionMode": "Mode séance",
+    "sourceLabel": "Source :",
+    "sources": {
+      "lrclib": "LRCLIB",
+      "public_domain": "Domaine public",
+      "contribution": "Proposition"
+    },
+    "suggestCorrection": "Proposer une correction",
+    "report": "Signaler",
+    "notFoundTitle": "Cette chanson est introuvable ou a été retirée",
+    "notFoundBody": "Le lien est peut-être incorrect, ou la chanson a été retirée de Ghnaya, par exemple à la demande de ses ayants droit.",
+    "notFoundAction": "Chercher une chanson",
+    "notFoundMeta": "Chanson introuvable"
   },
   "dialects": {
     "tn": "Tunisien",

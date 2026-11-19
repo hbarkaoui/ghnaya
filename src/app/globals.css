@@ -131,6 +131,17 @@
   }
 }
 
+/* Token de composant : paroles hors du lecteur (fiche chanson). LyricsView lit les variables du
+   lecteur ; ici elles prennent les couleurs de l'app (qui suit le thème du système) et une taille de
+   24 px, car la fiche se parcourt : le mode séance offre 28 px et A− / A+ pour chanter. */
+[data-lyrics="page"] {
+  --reader-font-size: var(--font-size-xl);
+  --reader-line-height: var(--line-height-lyrics);
+  --reader-stanza-gap: 1.25em;
+  --reader-translit-ratio: 0.72;
+  --reader-translit: var(--color-text-secondary);
+}
+
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;

@@ -33,22 +33,27 @@ export function ZelligeMotif({ className = "" }: { className?: string }) {
 
 type Action = { label: string; href: string; icon?: ReactNode };
 
-/** État vide : une invitation (titre qui nomme l'espace, une phrase, une action), jamais une excuse. */
+/**
+ * État vide : une invitation (titre qui nomme l'espace, une phrase, une action), jamais une excuse.
+ * `titleAs="h1"` quand l'état vide est toute la page (404 d'une chanson).
+ */
 export function EmptyState({
   title,
   body,
   action,
   secondary,
+  titleAs: Title = "h2",
 }: {
   title: string;
   body: string;
   action?: Action;
   secondary?: Action;
+  titleAs?: "h1" | "h2";
 }) {
   return (
     <section className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-line px-6 py-8 text-center">
       <ZelligeMotif className="h-14 w-28" />
-      <h2 className="text-lg font-medium text-balance">{title}</h2>
+      <Title className="text-lg font-medium text-balance">{title}</Title>
       <p className="max-w-sm text-ink-2 text-pretty">{body}</p>
       {action || secondary ? (
         <div className="mt-2 flex flex-wrap justify-center gap-3">

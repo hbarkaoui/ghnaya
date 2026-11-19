@@ -71,7 +71,7 @@ Date : 18/11/2026
   - **À construire** : `/recherche` avec la barre (écriture détectée automatiquement), le nombre de résultats, la pastille de filtre de dialecte, des `SongResultItem` restylés (titre arabe, titre latin, artistes, extrait avec le passage surligné, action « Ajouter »), et la pagination.
   - **États à couvrir** : requête trop courte, aucun résultat (avec « Proposer cette chanson », titre pré-rempli), chargement, limite de requêtes atteinte.
   - _Modifie : `SearchBar`, `SongResultItem`, `ArtistNames` (plan 1)._
-- [ ] **Fiche chanson et mode séance d'une chanson seule**
+- [x] **Fiche chanson et mode séance d'une chanson seule** _(faite le 19/11/2026)_
   - **À construire** : `/chanson/[id]` avec les titres, les artistes (avec liens), la pastille de dialecte, les actions **Mode séance** (bouton primaire) et **Ajouter à une playlist**, les paroles avec la bascule de mode, la source, puis « Proposer une correction » et « Signaler » en bas.
   - **Mode séance** : `/chanson/[id]/lecture` réutilise le lecteur en 1/1.
   - **Chanson inconnue ou retirée** : page 404 « introuvable ou retirée ».
