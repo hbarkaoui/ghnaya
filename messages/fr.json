@@ -19,11 +19,24 @@
   },
   "home": {
     "title": "Accueil",
-    "meaning": "« Ghnaya » veut dire « chanson » en tunisien."
+    "meaning": "« Ghnaya » veut dire « chanson » en tunisien.",
+    "sessions": "Vos séances",
+    "playlists": "Vos playlists",
+    "seeAll": "Tout voir",
+    "noClubTitle": "Rejoignez votre club",
+    "noClubBody": "Demandez le lien d'invitation à votre animateur. Vous pouvez aussi créer votre propre club.",
+    "createClub": "Créer un club",
+    "joinClub": "Rejoindre avec un lien",
+    "visitorInviteTitle": "Votre club utilise Ghnaya ?",
+    "visitorInviteBody": "Connectez-vous pour retrouver ses playlists et les lire en séance.",
+    "signIn": "Se connecter"
   },
   "search": {
     "title": "Chercher une chanson",
-    "intro": "Titre, artiste ou paroles, en arabe ou en lettres latines."
+    "intro": "Titre, artiste ou paroles, en arabe ou en lettres latines.",
+    "label": "Chercher une chanson",
+    "placeholder": "Titre, artiste ou paroles…",
+    "submit": "Chercher"
   },
   "clubs": {
     "title": "Vos clubs",
@@ -71,5 +84,11 @@
       "retry": "Réessayer",
       "limit": "Translittération indisponible aujourd'hui : la limite quotidienne est atteinte. Les paroles arabes restent affichées."
     }
+  },
+  "playlists": {
+    "personal": "Personnelle",
+    "songCount": "{count, plural, one {{n} chanson} other {{n} chansons}}",
+    "read": "Lire",
+    "readNamed": "Lire « {name} »"
   }
 }

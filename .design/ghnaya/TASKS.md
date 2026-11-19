@@ -57,12 +57,12 @@ Date : 18/11/2026
     - limite quotidienne atteinte.
   - **Le choix est mémorisé.** Les données fictives simulent un délai de génération et un cas d'échec.
   - _Dépend de : le lecteur de séance. Crée : `TranslitToggle`, `Badge`._
-- [ ] **Couverture de club générée**
+- [x] **Couverture de club générée** _(faite le 19/11/2026)_
   - **À construire** : le composant `ClubCover`, qui choisit de façon déterministe l'une des 4 combinaisons `--cover-n`, l'orientation du motif khatam et l'initiale, à partir d'un hachage du nom du club.
   - **Tailles** : S (40 px), M (64 px) et L (en-tête pleine largeur).
   - **Terminé quand** le même nom donne toujours la même couverture, et que 10 noms différents donnent des couvertures variées et lisibles.
   - _Crée : `ClubCover`._
-- [ ] **Accueil, membre et visiteur**
+- [x] **Accueil, membre et visiteur** _(fait le 19/11/2026)_
   - **Accueil d'un membre** : la recherche ; la section « Vos séances », avec au plus 5 `PlaylistCard` (couverture, nom, nombre de chansons, bouton **Lire** qui ouvre le lecteur) puis « Tout voir » ; la section « Vos playlists » (au plus 3).
   - **Accueil d'un visiteur** : le logo, la phrase d'accroche, la recherche et l'invitation à se connecter.
   - **État vide** « Rejoignez votre club », avec le motif zellige.

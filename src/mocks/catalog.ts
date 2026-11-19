@@ -209,11 +209,17 @@ export const SONGS: Song[] = RAW_SONGS.map((song) => {
     : { ...song, lyricsTranslit: null, translitStatus: "none" };
 });
 
+const LES_JASMINS = { slug: "les-jasmins", name: "Les Jasmins" };
+const MALOUF_SFAX = { slug: "malouf-sfax", name: "Malouf Sfax" };
+const CHORALE_DU_BARDO = { slug: "chorale-du-bardo", name: "Chorale du Bardo" };
+
+const items = (songIds: string[]) => songIds.map((songId, i) => ({ position: i + 1, songId, note: null }));
+
 export const PLAYLISTS: Playlist[] = [
   {
     id: "seance-du-jeudi",
     name: "Séance du jeudi",
-    club: { slug: "les-jasmins", name: "Les Jasmins" },
+    club: LES_JASMINS,
     items: [
       { position: 1, songId: "s-sidi-mansour", note: "On commence tous ensemble, tonalité Ré." },
       { position: 2, songId: "s-ala-nar", note: null },
@@ -228,6 +234,56 @@ export const PLAYLISTS: Playlist[] = [
       { position: 11, songId: "s-alf-leila", note: null },
       { position: 12, songId: "s-ya-lili", note: "Pour finir en rythme." },
     ],
+    updatedAt: "2026-11-18T19:30:00Z",
+  },
+  {
+    id: "repetition-malouf",
+    name: "Répétition malouf",
+    club: MALOUF_SFAX,
+    items: items(["s-ya-lella", "s-taht-el-yasmina", "s-ana-wel-azab", "s-sidi-mansour", "s-ala-nar"]),
+    updatedAt: "2026-11-16T18:00:00Z",
+  },
+  {
+    id: "soiree-de-printemps",
+    name: "Soirée de printemps",
+    club: LES_JASMINS,
+    items: items(["s-habaytak", "s-nassam-alayna", "s-ya-lella", "s-sidi-mansour", "s-alf-leila", "s-ya-lili"]),
+    updatedAt: "2026-11-12T20:00:00Z",
+  },
+  {
+    id: "fete-de-fin-d-annee",
+    name: "Fête de fin d'année",
+    club: CHORALE_DU_BARDO,
+    items: items(["s-sidi-mansour", "s-ya-lili", "s-ala-nar", "s-ya-lella", "s-habaytak", "s-enta-omri", "s-alf-leila", "s-iradat-al-hayat"]),
+    updatedAt: "2026-11-10T17:45:00Z",
+  },
+  {
+    id: "classiques-egyptiens",
+    name: "Classiques égyptiens",
+    club: MALOUF_SFAX,
+    items: items(["s-enta-omri", "s-el-atlal", "s-alf-leila", "s-nassam-alayna"]),
+    updatedAt: "2026-11-02T16:00:00Z",
+  },
+  {
+    id: "chants-du-bardo",
+    name: "Chants du Bardo",
+    club: CHORALE_DU_BARDO,
+    items: items(["s-iradat-al-hayat", "s-taht-el-yasmina", "s-ya-lella", "s-sidi-mansour", "s-ana-wel-azab", "s-habaytak", "s-ya-lili"]),
+    updatedAt: "2026-10-28T19:00:00Z",
+  },
+  {
+    id: "mes-preferees",
+    name: "Mes préférées",
+    club: null,
+    items: items(["s-habaytak", "s-enta-omri", "s-taht-el-yasmina", "s-sidi-mansour"]),
+    updatedAt: "2026-11-17T21:10:00Z",
+  },
+  {
+    id: "a-apprendre",
+    name: "À apprendre",
+    club: null,
+    items: items(["s-el-atlal", "s-nassam-alayna", "s-alf-leila"]),
+    updatedAt: "2026-11-05T09:00:00Z",
   },
 ];
 

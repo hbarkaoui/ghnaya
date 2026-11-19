@@ -101,6 +101,21 @@
   --ease-calm: var(--easing-default);
 }
 
+/* Token de composant : filet intérieur des couvertures de club, pour qu'une couverture indigo ou jasmin
+   reste détachée d'une carte de même couleur (indigo sur carte sombre, jasmin sur carte claire). */
+:root,
+[data-theme="light"] {
+  --cover-ring: rgba(27, 37, 80, 0.1);
+}
+[data-theme="dark"] {
+  --cover-ring: rgba(251, 248, 241, 0.16);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --cover-ring: rgba(251, 248, 241, 0.16);
+  }
+}
+
 /* Token de composant : contour de l'étoile du logo.
    Clair : bleu, comme l'étoile (il arrondit seulement les coins). Sombre : jasmin (il détache l'étoile). */
 :root,
