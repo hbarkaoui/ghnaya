@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { resetDemoClubsAction } from "@/app/actions/clubs";
 import { setDemoSession } from "@/app/actions/demo";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
 import { getDemoSession } from "@/lib/session";
+import { getClub } from "@/mocks/clubStore";
 import type { DemoSession } from "@/mocks/session";
 
 export const metadata: Metadata = { title: "Session de démonstration", robots: { index: false } };
@@ -12,9 +14,11 @@ export const metadata: Metadata = { title: "Session de démonstration", robots: 
 const CASES: { value: DemoSession; label: string; detail: string }[] = [
   { value: "member", label: "Membre d'un club", detail: "Leïla : Les Jasmins (un membre n'a qu'un club)." },
   { value: "animator", label: "Animateur de 3 clubs", detail: "Sami : Les Jasmins, Malouf Sfax, Chorale du Bardo." },
-  { value: "member-no-club", label: "Membre sans club", detail: "Montre l'état vide « Rejoignez votre club », sans « Créer un club »." },
+  { value: "member-no-club", label: "Membre sans club", detail: "Nour : pas encore de club. Montre l'état vide « Rejoignez votre club », sans « Créer un club »." },
   { value: "visitor", label: "Visiteur", detail: "Pas de compte : accueil avec invitation à se connecter." },
 ];
+
+const DEMO_CLUBS = ["les-jasmins", "malouf-sfax", "chorale-du-bardo", "nghanniw"];
 
 /** Page d'aperçu (développement uniquement) : choisir le cas de démonstration, en attendant les comptes. */
 export default async function DemoSessionPage() {
@@ -48,6 +52,37 @@ export default async function DemoSessionPage() {
             Voir l’accueil
           </Link>
         </p>
+
+        {/* Tâche 11 : les clubs sont modifiés en mémoire (rejoindre, renommer, supprimer…). */}
+        <section aria-labelledby="demo-clubs" className="mt-8 flex flex-col gap-3">
+          <h2 id="demo-clubs" className="text-lg font-medium">
+            Clubs de démonstration
+          </h2>
+          <p className="text-sm text-ink-2">
+            Liens d’invitation actuels. « Nghanniw » est un club dont aucune session de démonstration ne fait partie ;{" "}
+            <code dir="ltr">/rejoindre/zzzzzzzzzz</code> montre un lien qui n’est plus valide.
+          </p>
+          <ul className="flex flex-col gap-2 text-sm">
+            {DEMO_CLUBS.map((slug) => {
+              const club = getClub(slug);
+              return club ? (
+                <li key={slug}>
+                  <Link href={`/rejoindre/${club.inviteCode}`} className="font-medium text-link underline underline-offset-4">
+                    Rejoindre {club.name}
+                  </Link>
+                </li>
+              ) : null;
+            })}
+          </ul>
+          <form action={resetDemoClubsAction}>
+            <button
+              type="submit"
+              className="inline-flex min-h-11 items-center rounded-md border border-line px-5 font-medium hover:bg-well"
+            >
+              Réinitialiser les clubs
+            </button>
+          </form>
+        </section>
       </PageMain>
     </>
   );

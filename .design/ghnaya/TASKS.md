@@ -92,7 +92,7 @@ Date : 18/11/2026
   - **Pour un membre** qui consulte la playlist d'un club : « Copier dans mes playlists ».
   - **États à couvrir** : playlist vide, chanson retirée affichée dans la liste.
   - _Réutilise : `SongResultItem`. Crée : `PlaylistRow`._
-- [ ] **Clubs, club et invitation**
+- [x] **Clubs, club et invitation** _(faite le 19/11/2026)_
   - **À construire** :
     - `/clubs` : pour un animateur, la liste de ses clubs, où il choisit le club à gérer, avec « Créer un club » ; pour un membre, l'onglet devient « Mon club » (« النادي ») et ouvre directement son club, sans liste ni réglages ; pour un membre sans club, « Rejoindre avec un lien » ;
     - `/clubs/nouveau`, réservé aux animateurs ;

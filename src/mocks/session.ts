@@ -22,6 +22,9 @@ export interface DemoUser {
 
 const LEILA: DemoUser = { id: "u-leila", name: "Leïla", isAnimator: false, clubSlugs: ["les-jasmins"] };
 
+/** Membre sans club : une personne distincte de Leïla, pour que les adhésions en mémoire (clubStore) restent cohérentes. */
+const NOUR: DemoUser = { id: "u-nour", name: "Nour", isAnimator: false, clubSlugs: [] };
+
 const SAMI: DemoUser = {
   id: "u-sami",
   name: "Sami",
@@ -32,7 +35,7 @@ const SAMI: DemoUser = {
 export function demoUserFor(session: DemoSession): DemoUser | null {
   if (session === "visitor") return null;
   if (session === "animator") return SAMI;
-  if (session === "member-no-club") return { ...LEILA, clubSlugs: [] };
+  if (session === "member-no-club") return NOUR;
   return LEILA;
 }
 

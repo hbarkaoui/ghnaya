@@ -1,5 +1,6 @@
 import "server-only";
 import { cookies } from "next/headers";
+import { clubSlugsOf } from "@/mocks/clubStore";
 import { DEMO_SESSION_COOKIE, demoUserFor, isDemoSession, type DemoSession, type DemoUser } from "@/mocks/session";
 
 /**
@@ -11,6 +12,8 @@ export async function getDemoSession(): Promise<DemoSession> {
   return isDemoSession(value) ? value : "member";
 }
 
+/** MAQUETTE : les clubs viennent des adhésions en mémoire (clubStore), que rejoindre ou supprimer un club modifie. */
 export async function getCurrentUser(): Promise<DemoUser | null> {
-  return demoUserFor(await getDemoSession());
+  const user = demoUserFor(await getDemoSession());
+  return user && { ...user, clubSlugs: clubSlugsOf(user.id) };
 }

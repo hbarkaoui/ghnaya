@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import { TabBar } from "@/components/shell/TabBar";
 import { isRtl } from "@/i18n/locale";
+import { getCurrentUser } from "@/lib/session";
 import { fontVariables } from "./fonts";
 import "./globals.css";
 
@@ -25,14 +26,14 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const locale = await getLocale();
+  const [locale, user] = await Promise.all([getLocale(), getCurrentUser()]);
 
   return (
     <html lang={locale} dir={isRtl(locale) ? "rtl" : "ltr"} className={fontVariables}>
       <body className="flex min-h-dvh flex-col bg-page font-sans text-ink antialiased">
         <NextIntlClientProvider>
           {children}
-          <TabBar />
+          <TabBar role={!user ? "visitor" : user.isAnimator ? "animator" : "member"} />
         </NextIntlClientProvider>
       </body>
     </html>

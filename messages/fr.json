@@ -9,6 +9,7 @@
     "home": "Accueil",
     "search": "Chercher",
     "clubs": "Clubs",
+    "myClub": "Mon club",
     "me": "Moi",
     "back": "Retour"
   },
@@ -64,7 +65,122 @@
   },
   "clubs": {
     "title": "Vos clubs",
-    "intro": "Les clubs dont vous êtes membre apparaîtront ici."
+    "create": "Créer un club",
+    "memberCount": "{count, plural, one {{n} membre} other {{n} membres}}",
+    "roles": {
+      "animator": "Animateur",
+      "member": "Membre"
+    },
+    "yourRole": "Votre rôle :",
+    "you": "vous",
+    "open": "Ouvrir {name}",
+    "emptyAnimatorTitle": "Créez votre premier club",
+    "emptyAnimatorBody": "Un club réunit vos membres autour des playlists de séance. Vous les inviterez ensuite avec un lien.",
+    "visitorTitle": "Retrouvez votre club",
+    "visitorBody": "Connectez-vous pour voir les playlists de votre club et les lire en séance.",
+    "signIn": "Se connecter",
+    "noClub": {
+      "title": "Rejoignez votre club",
+      "body": "Pour rejoindre un club, il faut le lien d'invitation que partage son animateur, souvent par WhatsApp. Ouvrez ce lien sur ce téléphone, ou collez-le ici.",
+      "label": "Lien ou code d'invitation",
+      "submit": "Rejoindre avec un lien",
+      "invalid": "Ce texte ne contient pas de lien d'invitation. Copiez le lien entier reçu de votre animateur."
+    },
+    "new": {
+      "title": "Créer un club",
+      "nameLabel": "Nom du club",
+      "nameHint": "Par exemple « Les Jasmins ». Vous pourrez le changer ensuite dans les réglages.",
+      "submit": "Créer le club",
+      "forbiddenTitle": "Seul un animateur peut créer un club",
+      "forbiddenBody": "Le rôle d'animateur est attribué par l'équipe de Ghnaya. Pour rejoindre un club, demandez le lien d'invitation à son animateur.",
+      "backToClub": "Revenir à mon club"
+    },
+    "errors": {
+      "required": "Indiquez un nom.",
+      "tooLong": "Le nom ne doit pas dépasser {max} caractères."
+    },
+    "status": {
+      "created": "<club>{name}</club> est créé. Invitez vos membres depuis l'onglet Membres.",
+      "joined": "Vous avez rejoint <club>{name}</club>.",
+      "deleted": "Le club a été supprimé."
+    },
+    "tabs": {
+      "label": "Sections du club",
+      "playlists": "Playlists",
+      "members": "Membres",
+      "settings": "Réglages"
+    },
+    "playlists": {
+      "new": "Nouvelle playlist",
+      "nameLabel": "Nom de la playlist",
+      "create": "Créer",
+      "cancel": "Annuler",
+      "created": "Playlist « {name} » créée. Ouvrez-la pour ajouter des chansons.",
+      "emptyTitle": "Aucune playlist pour l'instant",
+      "emptyBodyAnimator": "Préparez la playlist de votre prochaine séance : vos membres la retrouveront sur leur accueil.",
+      "emptyBodyMember": "L'animateur n'a pas encore préparé de playlist. Elle apparaîtra ici et sur votre accueil.",
+      "older": "Anciennes playlists ({n})"
+    },
+    "members": {
+      "title": "Membres",
+      "inviteTitle": "Inviter des membres",
+      "inviteBody": "Envoyez ce lien à vos membres, par exemple sur WhatsApp : il suffit de l'ouvrir pour rejoindre <club>{name}</club>.",
+      "linkLabel": "Lien d'invitation",
+      "copy": "Copier le lien",
+      "copied": "Lien copié",
+      "copyFailed": "La copie n'a pas fonctionné : sélectionnez le lien et copiez-le à la main.",
+      "share": "Partager",
+      "shareText": "Rejoignez {name} sur Ghnaya pour chanter ensemble :",
+      "count": "{count, plural, one {{n} membre} other {{n} membres}}",
+      "promote": "Donner le rôle d'animateur",
+      "promoteNamed": "Donner le rôle d'animateur à {name}",
+      "promoteConfirm": "<person>{name}</person> pourra gérer les playlists, les membres et les réglages de <club>{clubName}</club>.",
+      "confirm": "Confirmer",
+      "cancel": "Annuler",
+      "promoted": "<person>{name}</person> a maintenant le rôle d'animateur."
+    },
+    "settings": {
+      "title": "Réglages",
+      "renameTitle": "Nom du club",
+      "save": "Enregistrer",
+      "saved": "Nom enregistré.",
+      "inviteTitle": "Lien d'invitation",
+      "inviteBody": "Si le lien a circulé au-delà de votre club, créez-en un nouveau : l'ancien ne fonctionnera plus.",
+      "regenerate": "Créer un nouveau lien",
+      "regenerateConfirm": "L'ancien lien ne fonctionnera plus. Les membres actuels restent dans le club.",
+      "regenerated": "Nouveau lien créé. Partagez-le depuis l'onglet Membres.",
+      "deleteTitle": "Supprimer le club",
+      "deleteBody": "Les playlists du club seront supprimées pour tous ses membres. Les copies personnelles qu'ils en ont faites sont conservées. Cette action est définitive.",
+      "deleteStart": "Supprimer le club…",
+      "deleteLabel": "Pour confirmer, tapez le nom du club : <club>{name}</club>",
+      "deleteSubmit": "Supprimer définitivement",
+      "deleteMismatch": "Le nom ne correspond pas. Tapez « {name} »."
+    },
+    "join": {
+      "title": "Rejoindre un club",
+      "invitedTo": "Invitation à rejoindre",
+      "submit": "Rejoindre",
+      "signIn": "Se connecter pour rejoindre",
+      "signInHint": "Connectez-vous ou créez votre compte : vous rejoindrez le club juste après.",
+      "invalidTitle": "Ce lien n'est plus valide",
+      "invalidBody": "Demandez le nouveau lien à votre animateur.",
+      "home": "Revenir à l'accueil",
+      "alreadyTitle": "Vous faites déjà partie de <club>{name}</club>",
+      "openClub": "Ouvrir le club",
+      "switchBody": "Vous faites partie de <club>{current}</club>. Rejoindre <club>{target}</club> vous fera quitter <club>{current}</club>.",
+      "switchKeep": "Vos copies personnelles de ses playlists sont conservées.",
+      "switchSubmit": "Changer de club",
+      "stay": "Rester dans mon club",
+      "animatorNote": "Vous êtes animateur : vous rejoignez <club>{name}</club> en plus de vos clubs.",
+      "blockedBody": "Vous êtes le seul animateur de <club>{current}</club>. Avant de rejoindre <club>{target}</club>, donnez le rôle d'animateur à un autre membre de <club>{current}</club>.",
+      "blockedAction": "Voir les membres",
+      "pending": "Un instant…"
+    },
+    "notFound": {
+      "title": "Ce club est introuvable",
+      "body": "Le lien est peut-être incorrect, le club a été supprimé, ou vous n'en faites pas partie : seuls ses membres le voient.",
+      "action": "Revenir à l'accueil"
+    }
   },
   "me": {
     "title": "Moi",

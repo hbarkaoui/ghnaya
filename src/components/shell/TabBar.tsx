@@ -40,12 +40,17 @@ const TABS: Tab[] = [
 /** Barre masquée dans le lecteur de séance et pendant la connexion (IA, modèle de navigation). */
 const isHidden = (path: string) => path.includes("/lecture") || path.startsWith("/connexion");
 
+/** Rôle de l'utilisateur, qui nomme le 3e onglet. */
+export type TabBarRole = "animator" | "member" | "visitor";
+
 /**
  * Barre de 4 onglets en bas de l'écran.
  * L'onglet actif est marqué par le losange safran et un libellé en graisse 500 ;
  * l'ordre suit le sens de l'interface (en arabe, Accueil est à droite).
+ * Le 3e onglet s'appelle « Clubs » pour un animateur (il en a plusieurs) et « Mon club » pour un membre
+ * (il n'en a qu'un) ; un visiteur voit « Clubs ».
  */
-export function TabBar() {
+export function TabBar({ role }: { role: TabBarRole }) {
   const pathname = usePathname();
   const t = useTranslations("nav");
   if (isHidden(pathname)) return null;
@@ -70,7 +75,9 @@ export function TabBar() {
                   className={`block size-1.5 rotate-45 ${active ? "bg-ornament" : "bg-transparent"}`}
                 />
                 <Icon aria-hidden="true" className={`size-6 ${active ? "text-ink" : "text-ink-2"}`} strokeWidth={active ? 2 : 1.75} />
-                <span className={active ? "font-medium text-ink" : "text-ink-2"}>{t(key)}</span>
+                <span className={active ? "font-medium text-ink" : "text-ink-2"}>
+                  {t(key === "clubs" && role === "member" ? "myClub" : key)}
+                </span>
               </Link>
             </li>
           );
