@@ -12,7 +12,9 @@
 Légende des rôles :
 - 🔓 : visiteur sans compte
 - 👤 : membre connecté
-- 🎙 : animateur du club concerné
+- 🎙 : animateur (rôle attribué par un admin ; il crée et anime un ou plusieurs clubs)
+
+> **Règle des clubs** (rectification du 19/11/2026) : un membre appartient à **un seul club**. Seul l'animateur peut voir, modifier et choisir **ses** clubs, et lui seul peut en créer.
 - 🛡 : modérateur
 
 - **Accueil** `/` 🔓 👤 (onglet 1)
@@ -22,12 +24,12 @@ Légende des rôles :
     - Proposer une correction `/contribuer/[songId]` 👤
     - Signaler `/signaler/[songId]` 🔓
   - Artiste `/artiste/[id]?page=` 🔓
-- **Clubs** `/clubs` 👤 (onglet 3)
-  - Créer un club `/clubs/nouveau` 👤
+- **Clubs** `/clubs` 👤 (onglet 3) : pour 🎙, la liste de ses clubs, à choisir ; pour un membre, l'onglet « Mon club » ouvre directement son club
+  - Créer un club `/clubs/nouveau` 🎙
   - Club `/clubs/[slug]` 👤 membre du club (sous-onglet Playlists)
     - Membres et invitation `/clubs/[slug]/membres` 👤 (le lien d'invitation et la gestion des rôles sont réservés à 🎙)
     - Réglages `/clubs/[slug]/reglages` 🎙 (renommer, régénérer le lien, supprimer le club)
-  - Rejoindre un club `/rejoindre/[code]` 🔓 (demande de se connecter avant de rejoindre)
+  - Rejoindre un club `/rejoindre/[code]` 🔓 (demande de se connecter avant de rejoindre ; un membre qui a déjà un club confirme qu'il change de club)
 - **Moi** `/moi` 👤 (onglet 4 ; un visiteur y voit une invitation à se connecter)
   - Mes playlists `/playlists` 👤
   - Playlist, personnelle ou de club `/playlists/[id]` 👤
@@ -52,10 +54,11 @@ Légende des rôles :
   |---|---|---|
   | Accueil | الرئيسية | maison |
   | Chercher | ابحث | loupe |
-  | Clubs | النوادي | groupe |
+  | Clubs (animateur) · Mon club (membre) | النوادي · النادي | groupe |
   | Moi | حسابي | profil |
 
   - Chaque onglet a toujours son libellé sous l'icône.
+  - Le 3e onglet s'appelle « Clubs » pour un animateur (il en a plusieurs) et « Mon club » pour un membre (il n'en a qu'un).
   - L'onglet actif est marqué par le **losange safran** au-dessus de l'icône et par un libellé de graisse 500.
   - En arabe, l'ordre s'inverse avec l'interface : Accueil se trouve à droite.
   - La barre est **masquée** dans le lecteur de séance et pendant la connexion.
@@ -81,9 +84,9 @@ Légende des rôles :
 
 ### Accueil, membre connecté
 1. **Barre de recherche** : elle reste le premier geste possible, même pour un membre.
-2. **« Vos séances »** : les playlists de vos clubs, de la plus récemment modifiée à la plus ancienne, avec au plus 5 cartes puis « Tout voir ». Chaque carte montre la couverture du club, le nom de la playlist, le nombre de chansons et un bouton **Lire**. C'est le parcours qui compte le plus (principe « un geste pour chanter »).
+2. **« Vos séances »** : les playlists de votre club (de vos clubs pour un animateur), de la plus récemment modifiée à la plus ancienne, avec au plus 5 cartes puis « Tout voir ». Chaque carte montre la couverture du club, le nom de la playlist, le nombre de chansons et un bouton **Lire**. C'est le parcours qui compte le plus (principe « un geste pour chanter »).
 3. **« Vos playlists »** : vos playlists personnelles, au plus 3, puis « Tout voir ».
-4. **État vide**, si vous n'êtes membre d'aucun club : « Rejoignez votre club », avec un rappel sur le lien d'invitation et un bouton pour créer un club.
+4. **État vide**, si vous n'êtes membre d'aucun club : « Rejoignez votre club », avec un rappel sur le lien d'invitation. Le bouton « Créer un club » n'apparaît que pour un animateur.
 
 ### Accueil, visiteur
 1. Le logo, puis la phrase « Les paroles de vos chansons, pour chanter ensemble ».
@@ -111,8 +114,12 @@ Légende des rôles :
 3. **La note de l'animateur**, si elle existe, parce qu'elle change la façon de chanter (tonalité, couplets).
 4. **Les contrôles** : ils s'escamotent d'un toucher sur les paroles et reviennent de la même façon.
 
+### Clubs, pour un animateur
+1. La liste de ses clubs (couverture, nom, nombre de membres), dans laquelle il choisit le club à gérer.
+2. « Créer un club ».
+
 ### Club
-1. Le nom et la couverture zellige du club, le nombre de membres et votre rôle.
+1. Le nom et la couverture zellige du club, le nombre de membres et votre rôle. Pour un membre, c'est la page de l'onglet « Mon club ».
 2. Les sous-onglets Playlists, Membres et Réglages.
 3. **Playlists**, de la plus récemment modifiée à la plus ancienne, chacune avec **Lire**. Pour un animateur, s'y ajoute « Nouvelle playlist ».
 4. Pour un animateur : « Inviter des membres », qui permet de copier ou partager le lien.
@@ -124,7 +131,7 @@ Légende des rôles :
 4. Si vous pouvez modifier la playlist : le mode édition (↑ ↓, note, retrait), « Ajouter des chansons » (qui mène à Chercher) et « Renommer ». Pour un membre qui consulte la playlist d'un club : « Copier dans mes playlists ».
 
 ### Moi
-1. Votre nom et vos clubs, sous forme de pastilles.
+1. Votre nom et votre club (vos clubs pour un animateur), sous forme de pastilles.
 2. Mes playlists, Mes contributions (avec le nombre de propositions en attente) et Proposer une chanson.
 3. Modération, avec le nombre d'éléments en file, pour 🛡 seulement.
 4. Langue, Compte, Vos droits et le retrait de contenus, Se déconnecter.
@@ -158,11 +165,12 @@ Légende des rôles :
 2. La page affiche le nom et la couverture du club, avec **Rejoindre**.
    - **S'il n'est pas connecté**, il passe par la connexion (lien magique ou Google), puis revient.
    - **Si le lien a été régénéré**, il voit « Ce lien n'est plus valide. Demandez le nouveau lien à votre animateur. »
+   - **S'il fait déjà partie d'un autre club**, il voit « Vous faites partie de [A]. Rejoindre [B] vous fera quitter [A]. » Il confirme (il quitte A, ses copies personnelles restent) ou annule. Un animateur, lui, rejoint B en plus de ses clubs.
 3. Il arrive sur `/clubs/[slug]`, et la confirmation « Vous avez rejoint [club] » s'affiche.
 4. Les playlists du club apparaissent ensuite sur son Accueil, dans « Vos séances ».
 
 ### 3. Préparer une playlist de séance (animateur)
-1. Il va dans **Clubs**, puis son club, puis **Nouvelle playlist**, et la nomme « Séance du jeudi ».
+1. Il va dans **Clubs**, choisit son club, puis **Nouvelle playlist**, et la nomme « Séance du jeudi ».
 2. Il touche **Ajouter des chansons**, ce qui ouvre Chercher avec ce contexte.
 3. Il cherche « sidi mansour », puis touche **Ajouter** sur un résultat :
    - **si la chanson est déjà dans la playlist** : « Déjà dans Séance du jeudi », sans doublon ;
@@ -208,7 +216,7 @@ Le principe : un mot par concept, et le même partout.
 | Plein écran de lecture | Lecteur | القارئ | Le bouton qui l'ouvre s'appelle « Lire » depuis une playlist, et « Mode séance » depuis une chanson. |
 | Lancer le lecteur | Lire | اقرأ | Un verbe, sur toutes les cartes et playlists. |
 | Groupe de chant | Club | نادي | On n'emploie pas « groupe » ou « chorale ». |
-| Responsable d'un club | Animateur | منشّط | Rôle propre à un club. |
+| Responsable d'un club | Animateur | منشّط | Rôle attribué par un admin ; il crée et anime un ou plusieurs clubs. |
 | Personne d'un club | Membre | عضو | |
 | Texte d'une chanson | Paroles | الكلمات | |
 | Écriture latine des paroles | Translittération | الحروف اللاتينية | Les modes d'affichage s'appellent « Arabe », « Arabe + latin » et « Latin ». |
@@ -239,7 +247,7 @@ Le principe : un mot par concept, et le même partout.
 - **Chansons**, des centaines de milliers après l'import : on y accède **uniquement par la recherche** et par les pages artiste. Il n'y a jamais de liste « toutes les chansons ». Les résultats sont paginés par 20.
 - **Artistes** : on y accède par la recherche et par les liens des chansons. Une page artiste est paginée par 50 chansons.
 - **Playlists d'un club** : elles sont triées de la plus récemment modifiée à la plus ancienne. Au-delà de 10, les plus anciennes sont regroupées dans une section repliée « Anciennes playlists ».
-- **Clubs d'un membre** : la liste reste courte, sans pagination.
+- **Clubs** : un membre n'en a qu'un. La liste des clubs d'un animateur reste courte, sans pagination.
 - **Propositions** : « Mes contributions » se filtre par statut (`?statut=en-attente|acceptee|refusee`). La file de modération est triée de la plus ancienne à la plus récente, avec un compteur dans l'onglet Moi.
 - **Signalements** : ceux qui concernent les droits d'auteur passent en tête de file, puis les autres sont triés par ancienneté.
 

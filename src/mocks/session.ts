@@ -2,26 +2,36 @@ import { PLAYLISTS } from "./catalog";
 
 /**
  * Session fictive de la maquette, en attendant l'authentification (plan 2).
- * Un cookie de démonstration choisit l'un des trois cas, depuis /apercu/session.
+ * Un cookie de démonstration choisit l'un des cas, depuis /apercu/session.
+ *
+ * Règle des clubs (rectification du 19/11/2026) : un membre appartient à un seul club ; seul un
+ * animateur (rôle attribué par un admin) crée des clubs et en anime plusieurs.
  */
 export const DEMO_SESSION_COOKIE = "ghnaya-demo-session";
-export const DEMO_SESSIONS = ["member", "member-no-club", "visitor"] as const;
+export const DEMO_SESSIONS = ["member", "animator", "member-no-club", "visitor"] as const;
 export type DemoSession = (typeof DEMO_SESSIONS)[number];
 
 export interface DemoUser {
   id: string;
   name: string;
+  /** Rôle d'animateur attribué par un admin (`users.is_animator`) : créer et animer plusieurs clubs. */
+  isAnimator: boolean;
+  /** Un seul club pour un membre ; plusieurs possibles pour un animateur. */
   clubSlugs: string[];
 }
 
-const LEILA: DemoUser = {
-  id: "u-leila",
-  name: "Leïla",
+const LEILA: DemoUser = { id: "u-leila", name: "Leïla", isAnimator: false, clubSlugs: ["les-jasmins"] };
+
+const SAMI: DemoUser = {
+  id: "u-sami",
+  name: "Sami",
+  isAnimator: true,
   clubSlugs: ["les-jasmins", "malouf-sfax", "chorale-du-bardo"],
 };
 
 export function demoUserFor(session: DemoSession): DemoUser | null {
   if (session === "visitor") return null;
+  if (session === "animator") return SAMI;
   if (session === "member-no-club") return { ...LEILA, clubSlugs: [] };
   return LEILA;
 }

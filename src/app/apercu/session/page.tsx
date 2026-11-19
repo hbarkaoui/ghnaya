@@ -10,8 +10,9 @@ import type { DemoSession } from "@/mocks/session";
 export const metadata: Metadata = { title: "Session de démonstration", robots: { index: false } };
 
 const CASES: { value: DemoSession; label: string; detail: string }[] = [
-  { value: "member", label: "Membre de 3 clubs", detail: "Leïla : Les Jasmins, Malouf Sfax, Chorale du Bardo." },
-  { value: "member-no-club", label: "Membre sans club", detail: "Montre l'état vide « Rejoignez votre club »." },
+  { value: "member", label: "Membre d'un club", detail: "Leïla : Les Jasmins (un membre n'a qu'un club)." },
+  { value: "animator", label: "Animateur de 3 clubs", detail: "Sami : Les Jasmins, Malouf Sfax, Chorale du Bardo." },
+  { value: "member-no-club", label: "Membre sans club", detail: "Montre l'état vide « Rejoignez votre club », sans « Créer un club »." },
   { value: "visitor", label: "Visiteur", detail: "Pas de compte : accueil avec invitation à se connecter." },
 ];
 

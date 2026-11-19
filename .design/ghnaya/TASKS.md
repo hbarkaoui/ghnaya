@@ -9,6 +9,7 @@ Date : 18/11/2026
 - **Données** : tant que le back-end des plans 1 à 4 n'existe pas, les écrans lisent des **données fictives typées** (`src/mocks/`), avec les mêmes types que le plan 1 : `SongHit`, `SongDetail`… Le jeu de données reprend les chansons de test du plan 1 : vrais titres, paroles inventées ou du domaine public.
 - **Couleurs** : chaque composant n'utilise **que** les tokens (`bg-page`, `text-ink`, `bg-accent`…), jamais un code hexadécimal en dur, sauf dans le logo et les couvertures de club, qui utilisent les couleurs de marque.
 - **Langues** : chaque tâche est terminée seulement quand l'écran fonctionne **en français et en arabe** (de droite à gauche), en **mode clair et en mode sombre**, à **375 px de large**.
+- **Règle des clubs** (rectification du 19/11/2026) : un membre appartient à **un seul club**. L'animateur est un rôle attribué par un admin : lui seul crée des clubs, en anime plusieurs, et voit, modifie et choisit ses clubs. Un membre qui rejoint un autre club quitte le premier, après confirmation.
 - **État existant** : aucun code. Les composants du plan 1 (`SearchBar`, `SongResultItem`, `ArtistNames`, `LyricsView`, `LocaleSwitcher`, la mise en page) ne sont pas encore écrits. Leur maquette est restylée ici, et la tâche correspondante du plan 1 reprendra ce résultat.
 
 ## Fondations
@@ -66,6 +67,7 @@ Date : 18/11/2026
   - **Accueil d'un membre** : la recherche ; la section « Vos séances », avec au plus 5 `PlaylistCard` (couverture, nom, nombre de chansons, bouton **Lire** qui ouvre le lecteur) puis « Tout voir » ; la section « Vos playlists » (au plus 3).
   - **Accueil d'un visiteur** : le logo, la phrase d'accroche, la recherche et l'invitation à se connecter.
   - **État vide** « Rejoignez votre club », avec le motif zellige.
+  - _Rectification du 19/11/2026 (règle des clubs) : le membre de démonstration n'a plus qu'un club, un animateur de démonstration en a trois, et « Créer un club » n'apparaît dans l'état vide que pour un animateur._
   - _Dépend de : la coque de l'app et la couverture de club. Modifie : `SearchBar` (plan 1). Crée : `PlaylistCard`, `EmptyState`._
 - [x] **Recherche** _(faite le 19/11/2026)_
   - **À construire** : `/recherche` avec la barre (écriture détectée automatiquement), le nombre de résultats, la pastille de filtre de dialecte, des `SongResultItem` restylés (titre arabe, titre latin, artistes, extrait avec le passage surligné, action « Ajouter »), et la pagination.
@@ -92,16 +94,17 @@ Date : 18/11/2026
   - _Réutilise : `SongResultItem`. Crée : `PlaylistRow`._
 - [ ] **Clubs, club et invitation**
   - **À construire** :
-    - `/clubs` : vos clubs, avec « Créer un club » et « Rejoindre avec un lien » ;
-    - `/clubs/nouveau` ;
+    - `/clubs` : pour un animateur, la liste de ses clubs, où il choisit le club à gérer, avec « Créer un club » ; pour un membre, l'onglet devient « Mon club » (« النادي ») et ouvre directement son club, sans liste ni réglages ; pour un membre sans club, « Rejoindre avec un lien » ;
+    - `/clubs/nouveau`, réservé aux animateurs ;
     - `/clubs/[slug]` : en-tête avec la grande couverture, et les sous-onglets Playlists, Membres et Réglages (ce dernier pour l'animateur) ;
     - les Membres : `Avatar` à initiales, rôles, copie et partage du lien d'invitation ;
     - les Réglages : renommer, régénérer le lien, supprimer le club en retapant son nom ;
-    - `/rejoindre/[code]`, avec un lien valide et un lien invalide.
+    - `/rejoindre/[code]`, avec un lien valide, un lien invalide et un membre qui a déjà un club (confirmation « Rejoindre B vous fera quitter A »).
+  - **Libellé du 3e onglet** : « Clubs » pour un animateur, « Mon club » pour un membre (la `TabBar` reçoit le rôle de l'utilisateur).
   - _Réutilise : `ClubCover`, `PlaylistCard`. Crée : `SubTabs`, `Avatar`._
 - [ ] **Moi**
   - **À construire** :
-    - `/moi` : nom, pastilles des clubs, Mes playlists, Mes contributions (avec le compteur des propositions en attente), Proposer une chanson, Modération (pour les modérateurs, avec compteur), Langue, Compte, Vos droits et le retrait de contenus, Se déconnecter ;
+    - `/moi` : nom, pastille de son club (de ses clubs pour un animateur), Mes playlists, Mes contributions (avec le compteur des propositions en attente), Proposer une chanson, Modération (pour les modérateurs, avec compteur), Langue, Compte, Vos droits et le retrait de contenus, Se déconnecter ;
     - `/playlists` : la liste de mes playlists ;
     - `/moi/compte` : nom, e-mail, langue, suppression du compte avec confirmation ;
     - un visiteur voit à la place une invitation à se connecter.

@@ -47,12 +47,17 @@ export default async function HomePage() {
 
         {sessions.length === 0 ? (
           <div className="mt-8">
-            <EmptyState
-              title={t("noClubTitle")}
-              body={t("noClubBody")}
-              action={{ label: t("createClub"), href: "/clubs/nouveau", icon: <Plus aria-hidden="true" className="size-4" /> }}
-              secondary={{ label: t("joinClub"), href: "/clubs" }}
-            />
+            {/* Règle des clubs : seul un animateur peut créer un club ; un membre attend un lien d'invitation. */}
+            {user.isAnimator ? (
+              <EmptyState
+                title={t("noClubTitle")}
+                body={t("noClubBodyAnimator")}
+                action={{ label: t("createClub"), href: "/clubs/nouveau", icon: <Plus aria-hidden="true" className="size-4" /> }}
+                secondary={{ label: t("joinClub"), href: "/clubs" }}
+              />
+            ) : (
+              <EmptyState title={t("noClubTitle")} body={t("noClubBody")} action={{ label: t("joinClub"), href: "/clubs" }} />
+            )}
           </div>
         ) : (
           <section aria-labelledby="home-sessions" className="mt-8">

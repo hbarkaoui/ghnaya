@@ -85,21 +85,21 @@ Les clubs de chant ont besoin de lire les paroles de chansons arabes et tunisien
 | Rôle | Peut |
 |---|---|
 | Visiteur (sans compte) | Chercher, lire les chansons publiées, signaler une chanson (avec un e-mail de contact) |
-| Membre (compte avec e-mail vérifié) | Tout ce que fait le visiteur, plus : gérer ses playlists personnelles, proposer des ajouts et des corrections, rejoindre des clubs, activer la translittération |
-| Animateur (rôle dans un club) | Gérer les playlists et les membres de **son** club, régénérer le lien d'invitation, promouvoir un membre en animateur |
+| Membre (compte avec e-mail vérifié) | Tout ce que fait le visiteur, plus : gérer ses playlists personnelles, proposer des ajouts et des corrections, rejoindre **un** club, activer la translittération. Un membre appartient à **un seul club** : rejoindre un autre club lui fait quitter le premier, après confirmation |
+| Animateur (rôle global attribué par un admin, puis rôle dans chaque club qu'il anime) | Créer des clubs et en animer **plusieurs** ; voir, modifier et choisir ses clubs ; gérer les playlists et les membres de ses clubs, régénérer le lien d'invitation, promouvoir un membre en animateur du club |
 | Modérateur (rôle global, attribué par un admin) | Approuver et rejeter les révisions, traiter les signalements, retirer et rétablir une chanson. **Il ne peut pas approuver sa propre révision.** |
-| Admin (rôle global) | Tout ce que fait le modérateur, plus : attribuer les rôles, approuver ses propres révisions (pour amorcer la plateforme), retirer en masse par source, lancer les imports |
+| Admin (rôle global) | Tout ce que fait le modérateur, plus : attribuer les rôles (modérateur, animateur), approuver ses propres révisions (pour amorcer la plateforme), retirer en masse par source, lancer les imports |
 
 ### 4.4 Pages
 
 | Route | Contenu |
 |---|---|
-| `/` | Barre de recherche mise en avant, accès à « Mes playlists » et à « Mes clubs » |
+| `/` | Barre de recherche mise en avant, accès à « Mes playlists » et aux playlists de son club (de ses clubs pour un animateur) |
 | `/recherche?q=` | Résultats paginés par 20 : titre, artiste et, si la correspondance vient des paroles, la ligne trouvée en extrait |
 | `/chanson/[id]` | Titre, artistes, dialecte, paroles, bascule de la translittération, source. Actions : ajouter à une playlist, proposer une correction, signaler |
 | `/artiste/[id]` | Les chansons de l'artiste |
 | `/playlists`, `/playlists/[id]` | Playlists personnelles : création, ajout, réordonnancement, notes |
-| `/clubs`, `/clubs/[slug]`, `/rejoindre/[code]` | Clubs, playlists de club, page pour rejoindre un club |
+| `/clubs`, `/clubs/[slug]`, `/rejoindre/[code]` | Pour un animateur : la liste de ses clubs, à choisir et à gérer. Pour un membre : directement son club. Playlists de club, page pour rejoindre un club |
 | `/lecture/[playlistId]/[position]` | Lecteur plein écran |
 | `/contribuer`, `/contribuer/[songId]`, `/mes-contributions` | Ajout d'une chanson, correction, suivi des propositions |
 | `/moderation`, `/moderation/signalements` | File des révisions et file des signalements |
@@ -110,7 +110,9 @@ Les clubs de chant ont besoin de lire les paroles de chansons arabes et tunisien
 Tous les identifiants sont des UUID. Toutes les tables ont `created_at` et `updated_at`.
 
 ```text
-users(id, email unique, name, global_role: member|moderator|admin, locale: fr|ar, email_verified_at)
+users(id, email unique, name, global_role: member|moderator|admin,
+  is_animator boolean default false,          -- attribué par un admin : peut créer et animer des clubs
+  locale: fr|ar, email_verified_at)
 
 artists(id, name_ar, name_latin, aliases text[], search_ar, search_latin, search_key)
 
@@ -158,6 +160,7 @@ playlist_items(id, playlist_id, song_id, position, note text null, unique(playli
 - **Retrait doux.** Une chanson retirée passe en `removed` sans être supprimée. Les playlists affichent alors « chanson retirée », et `/chanson/[id]` renvoie une page 410.
 - **Colonnes de recherche.** Les colonnes `search_*` sont recalculées par `lib/text` à chaque écriture, que ce soit par import ou par l'approbation d'une révision. Elles ne sont jamais modifiées à la main.
 - **Animateurs.** Un club garde toujours au moins un animateur. Le dernier animateur ne peut ni partir ni être rétrogradé.
+- **Un seul club par membre** (rectification du 19/11/2026). Un utilisateur sans `is_animator` a au plus une ligne dans `club_members`. La règle est appliquée par `lib/clubs`, dans la transaction d'adhésion : rejoindre un club supprime l'adhésion précédente. Un animateur (`is_animator`) peut appartenir à plusieurs clubs.
 
 ## 6. Recherche
 
@@ -265,8 +268,11 @@ playlist_items(id, playlist_id, song_id, position, note text null, unique(playli
 
 ## 10. Clubs, playlists et lecteur
 
-- **Création d'un club** : son créateur devient animateur, et un `invite_code` aléatoire de 10 caractères est généré.
+- **Création d'un club** : réservée aux animateurs (`is_animator`, attribué par un admin). Le créateur devient animateur du club, et un `invite_code` aléatoire de 10 caractères est généré.
 - **Invitation** : le lien `/rejoindre/[code]` s'ouvre, puis, une fois l'utilisateur connecté, il devient membre. Régénérer le code rend l'ancien lien invalide.
+  - **Membre déjà dans un club** : la page lui demande de confirmer le changement (« Vous faites partie de A. Rejoindre B vous fera quitter A. »). S'il confirme, il quitte A et rejoint B ; ses copies personnelles des playlists de A sont conservées. S'il est le dernier animateur de A, il doit d'abord en désigner un autre.
+  - **Animateur** : il rejoint B en plus de ses autres clubs.
+- **Choix du club** : un animateur voit la liste de ses clubs sur `/clubs` et choisit celui qu'il gère. Un membre n'a pas de liste : `/clubs` ouvre directement son club.
 - **Visibilité** : un club est **privé**, et seuls ses membres voient ses playlists.
 - **Suppression d'un club** : un animateur peut supprimer le club, après une confirmation où il retape le nom du club. Ses playlists de club sont alors supprimées, mais les copies personnelles faites par les membres sont conservées.
 - **Droits sur les playlists** :
