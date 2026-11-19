@@ -225,9 +225,12 @@ const LES_JASMINS = { slug: "les-jasmins", name: "Les Jasmins" };
 const MALOUF_SFAX = { slug: "malouf-sfax", name: "Malouf Sfax" };
 const CHORALE_DU_BARDO = { slug: "chorale-du-bardo", name: "Chorale du Bardo" };
 
+/** Clubs fictifs qui ont des playlists dans la maquette. */
+export const CLUBS = [LES_JASMINS, MALOUF_SFAX, CHORALE_DU_BARDO];
+
 const items = (songIds: string[]) => songIds.map((songId, i) => ({ position: i + 1, songId, note: null }));
 
-export const PLAYLISTS: Playlist[] = [
+const SEED_PLAYLISTS: Playlist[] = [
   {
     id: "seance-du-jeudi",
     name: "Séance du jeudi",
@@ -316,6 +319,15 @@ export const PLAYLISTS: Playlist[] = [
     updatedAt: "2026-11-05T09:00:00Z",
   },
 ];
+
+/**
+ * MAQUETTE : les playlists vivent en mémoire, et la feuille « Ajouter à une playlist » y ajoute des
+ * chansons et en crée (src/mocks/playlistMemory.ts). Le tableau est rangé sur globalThis : Next peut
+ * charger ce module plusieurs fois (pages, actions serveur, rechargement à chaud), et toutes ces
+ * copies doivent lire les mêmes playlists. Un redémarrage du serveur revient au jeu de départ.
+ */
+const memory = globalThis as typeof globalThis & { __ghnayaPlaylists?: Playlist[] };
+export const PLAYLISTS: Playlist[] = (memory.__ghnayaPlaylists ??= SEED_PLAYLISTS);
 
 export const getSong = (id: string): Song | undefined => SONGS.find((s) => s.id === id);
 export const getPlaylist = (id: string): Playlist | undefined => PLAYLISTS.find((p) => p.id === id);
