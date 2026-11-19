@@ -102,7 +102,7 @@ Date : 18/11/2026
     - `/rejoindre/[code]`, avec un lien valide, un lien invalide et un membre qui a déjà un club (confirmation « Rejoindre B vous fera quitter A »).
   - **Libellé du 3e onglet** : « Clubs » pour un animateur, « Mon club » pour un membre (la `TabBar` reçoit le rôle de l'utilisateur).
   - _Réutilise : `ClubCover`, `PlaylistCard`. Crée : `SubTabs`, `Avatar`._
-- [ ] **Moi**
+- [x] **Moi** _(faite le 19/11/2026)_
   - **À construire** :
     - `/moi` : nom, pastille de son club (de ses clubs pour un animateur), Mes playlists, Mes contributions (avec le compteur des propositions en attente), Proposer une chanson, Modération (pour les modérateurs, avec compteur), Langue, Compte, Vos droits et le retrait de contenus, Se déconnecter ;
     - `/playlists` : la liste de mes playlists ;
