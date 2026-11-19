@@ -24,7 +24,11 @@ describe("clubsOf : les pastilles de club de la page Moi", () => {
 
 describe("soleAnimatorClubs : la règle du dernier animateur (spec §12)", () => {
   it("liste les clubs où l'animateur est le seul animateur", () => {
-    expect(soleAnimatorClubs(user("animator"))).toEqual([{ slug: "malouf-sfax", name: "Malouf Sfax" }]);
+    // Adhésions de clubStore : Malouf Sfax a un second animateur, Les Jasmins et la Chorale du Bardo non.
+    expect(soleAnimatorClubs(user("animator"))).toEqual([
+      { slug: "les-jasmins", name: "Les Jasmins" },
+      { slug: "chorale-du-bardo", name: "Chorale du Bardo" },
+    ]);
   });
 
   it("ne bloque jamais un membre qui n'anime aucun club", () => {

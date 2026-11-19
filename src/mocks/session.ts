@@ -24,6 +24,9 @@ export interface DemoUser {
 
 const LEILA: DemoUser = { id: "u-leila", name: "Leïla", isAnimator: false, clubSlugs: ["les-jasmins"] };
 
+/** Membre sans club : une personne distincte de Leïla, pour que les adhésions en mémoire (clubStore) restent cohérentes. */
+const NOUR: DemoUser = { id: "u-nour", name: "Nour", isAnimator: false, clubSlugs: [] };
+
 const SAMI: DemoUser = {
   id: "u-sami",
   name: "Sami",
@@ -31,14 +34,23 @@ const SAMI: DemoUser = {
   clubSlugs: ["les-jasmins", "malouf-sfax", "chorale-du-bardo"],
 };
 
-/** Session « moderator » : Nour, membre ordinaire des Jasmins, qui relit aussi les propositions (tâche 12). */
-const NOUR: DemoUser = { id: "u-nour", name: "Nour", isAnimator: false, clubSlugs: ["les-jasmins"], isModerator: true };
+/**
+ * Session « moderator » : Rania, membre ordinaire des Jasmins, qui relit aussi les propositions (tâche 12).
+ * Son adhésion aux Jasmins est dans les adhésions en mémoire (clubStore), comme celles de Leïla et Sami.
+ */
+const RANIA: DemoUser = {
+  id: "u-rania",
+  name: "Rania",
+  isAnimator: false,
+  clubSlugs: ["les-jasmins"],
+  isModerator: true,
+};
 
 export function demoUserFor(session: DemoSession): DemoUser | null {
   if (session === "visitor") return null;
-  if (session === "moderator") return NOUR;
+  if (session === "moderator") return RANIA;
   if (session === "animator") return SAMI;
-  if (session === "member-no-club") return { ...LEILA, clubSlugs: [] };
+  if (session === "member-no-club") return NOUR;
   return LEILA;
 }
 
