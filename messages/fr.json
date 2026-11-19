@@ -286,5 +286,113 @@
       "notReceivedBody": "Regardez dans vos courriers indésirables, ou recommencez avec une autre adresse.",
       "changeEmail": "Modifier l'adresse"
     }
+  },
+  "contribute": {
+    "title": "Proposer une chanson",
+    "correctionTitle": "Proposer une correction",
+    "intro": "Un modérateur relira votre proposition avant de la publier.",
+    "correctionIntro": "Corrigez ce qui doit l'être. Un modérateur comparera votre version à celle de Ghnaya avant de la publier.",
+    "correcting": "Chanson à corriger",
+    "titles": {
+      "legend": "Titre",
+      "hint": "En arabe, en lettres latines, ou les deux.",
+      "ar": "Titre en arabe",
+      "latin": "Titre en lettres latines"
+    },
+    "artists": {
+      "legend": "Artistes",
+      "hint": "Choisissez dans la liste, ou écrivez le nom d'un nouvel artiste.",
+      "label": "Artiste {n}",
+      "add": "Ajouter un artiste",
+      "remove": "Retirer « {name} »",
+      "removeUnnamed": "Retirer l'artiste {n}",
+      "suggestions": "Artistes connus"
+    },
+    "similar": {
+      "title": "Cette chanson existe peut-être déjà",
+      "body": "Ouvrez-la pour vérifier. Si ce n'est pas la même, continuez votre proposition."
+    },
+    "lyrics": {
+      "label": "Paroles",
+      "hint": "En arabe, une ligne par vers, et une ligne vide entre deux couplets."
+    },
+    "dialect": {
+      "label": "Dialecte",
+      "placeholder": "Choisissez le dialecte"
+    },
+    "translit": {
+      "add": "Ajouter la translittération",
+      "addHint": "Facultatif : les paroles en lettres latines, pour qui ne lit pas l'arabe.",
+      "label": "Translittération (facultatif)",
+      "hint": "Les paroles en lettres latines, une ligne pour chaque ligne arabe, dans le même ordre."
+    },
+    "rights": "Ces paroles sont dans le domaine public, ou j'ai le droit de les partager.",
+    "submit": "Envoyer la proposition",
+    "submitting": "Envoi en cours…",
+    "afterSubmit": "Vous suivrez sa relecture dans Mes contributions.",
+    "errorSummary": "{count, plural, one {Un point à corriger avant l'envoi} other {{n} points à corriger avant l'envoi}}",
+    "pendingTitle": "Votre correction attend déjà sa relecture",
+    "pendingBody": "Vous avez déjà proposé une correction de cette chanson. Quand un modérateur l'aura relue, vous pourrez en proposer une autre.",
+    "pendingAction": "Voir mes contributions",
+    "errors": {
+      "titleMissing": "Indiquez le titre, en arabe ou en lettres latines.",
+      "titleTooLong": "Le titre ne doit pas dépasser {max} caractères.",
+      "titleArNotArabic": "Écrivez ce titre en lettres arabes, ou mettez-le dans le titre en lettres latines.",
+      "titleLatinHasArabic": "Écrivez ce titre en lettres latines ; le titre arabe a son propre champ.",
+      "artistsMissing": "Indiquez au moins un artiste.",
+      "artistsTooMany": "Indiquez {max} artistes au plus.",
+      "artistTooLong": "Un nom d'artiste ne doit pas dépasser {max} caractères.",
+      "lyricsMissing": "Écrivez les paroles de la chanson.",
+      "lyricsTooShort": "Les paroles doivent compter au moins {min} caractères.",
+      "lyricsTooLong": "Les paroles ne doivent pas dépasser {max} caractères.",
+      "lyricsNotArabic": "Écrivez les paroles en lettres arabes. L'écriture latine va dans la translittération.",
+      "dialectMissing": "Choisissez le dialecte de la chanson.",
+      "translitTooLong": "La translittération ne doit pas dépasser {max} caractères.",
+      "translitHasArabic": "Écrivez la translittération en lettres latines.",
+      "translitLines": "Il faut une ligne de translittération par ligne de paroles : les paroles en comptent {expected}, la translittération {actual}.",
+      "rightsMissing": "Cochez cette case pour confirmer que vous pouvez partager ces paroles.",
+      "unchanged": "Vous n'avez rien modifié. Corrigez au moins un champ avant d'envoyer.",
+      "pendingExists": "Vous avez déjà une correction en attente pour cette chanson.",
+      "songMissing": "Cette chanson est introuvable ou a été retirée."
+    }
+  },
+  "contributions": {
+    "title": "Mes contributions",
+    "intro": "Vos propositions et leur relecture par les modérateurs.",
+    "propose": "Proposer une chanson",
+    "sent": {
+      "thanks": "يعيشك",
+      "title": "votre proposition sera relue",
+      "body": "Elle apparaît ci-dessous, en attente. Vous suivrez ici sa relecture."
+    },
+    "filterLabel": "Filtrer par statut",
+    "filters": {
+      "all": "Toutes",
+      "pending": "En attente",
+      "approved": "Acceptées",
+      "rejected": "Refusées"
+    },
+    "status": {
+      "pending": "En attente",
+      "approved": "Acceptée",
+      "rejected": "Refusée"
+    },
+    "statusLabel": "Statut :",
+    "type": {
+      "addition": "Ajout",
+      "correction": "Correction"
+    },
+    "proposedOn": "Proposée le {date}",
+    "reviewNote": "Note du modérateur",
+    "seeSong": "Voir la chanson",
+    "emptyTitle": "Proposez votre première chanson",
+    "emptyBody": "Une chanson manque à Ghnaya ? Proposez-la : un modérateur la relira, puis elle rejoindra la base de tous.",
+    "emptyFiltered": {
+      "pending": "Aucune proposition en attente",
+      "approved": "Aucune proposition acceptée pour l'instant",
+      "rejected": "Aucune proposition refusée"
+    },
+    "emptyFilteredBody": "Vos autres propositions sont dans « Toutes ».",
+    "seeAll": "Voir toutes mes propositions"
   }
 }

@@ -109,7 +109,7 @@ Date : 18/11/2026
     - `/moi/compte` : nom, e-mail, langue, suppression du compte avec confirmation ;
     - un visiteur voit à la place une invitation à se connecter.
   - _Réutilise : `PlaylistCard`._
-- [ ] **Proposer une chanson et Mes contributions**
+- [x] **Proposer une chanson et Mes contributions** _(faite le 19/11/2026)_
   - **À construire** : `/contribuer` et `/contribuer/[songId]`, avec :
     - le titre arabe et/ou latin, les artistes (avec autocomplétion) ;
     - l'encadré « existe peut-être déjà », avec les 3 chansons les plus proches ;
