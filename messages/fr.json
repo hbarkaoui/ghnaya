@@ -149,5 +149,33 @@
     "previous": "Précédent",
     "next": "Suivant",
     "position": "Page {current} sur {total}"
+  },
+  "signIn": {
+    "metaTitle": "Connexion",
+    "title": "Connectez-vous",
+    "intro": "Retrouvez les séances de votre club, préparez vos playlists et proposez des chansons.",
+    "google": "Continuer avec Google",
+    "googlePending": "Connexion à Google…",
+    "or": "ou",
+    "emailLabel": "Adresse e-mail",
+    "emailPlaceholder": "nom@exemple.com",
+    "emailHint": "Nous vous envoyons un lien de connexion, sans mot de passe.",
+    "submit": "Recevoir un lien de connexion",
+    "sending": "Envoi en cours…",
+    "errors": {
+      "missing": "Saisissez votre adresse e-mail.",
+      "invalid": "Cette adresse n'est pas valide. Elle doit ressembler à nom@exemple.com"
+    },
+    "noAccount": "Pas encore de compte ? Il est créé à votre première connexion.",
+    "verify": {
+      "metaTitle": "Vérifiez vos e-mails",
+      "title": "Vérifiez vos e-mails",
+      "sentTo": "Nous avons envoyé un lien de connexion à <strong>{email}</strong>.",
+      "sent": "Nous vous avons envoyé un lien de connexion.",
+      "openLink": "Touchez le lien dans l'e-mail pour vous connecter : vous reviendrez ensuite à la page que vous consultiez.",
+      "notReceivedTitle": "Rien reçu ?",
+      "notReceivedBody": "Regardez dans vos courriers indésirables, ou recommencez avec une autre adresse.",
+      "changeEmail": "Modifier l'adresse"
+    }
   }
 }

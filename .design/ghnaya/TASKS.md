@@ -128,7 +128,7 @@ Date : 18/11/2026
 - [ ] **Signaler et page « Vos droits »**
   - **À construire** : `/signaler/[songId]`, avec le motif, les détails et un e-mail obligatoire pour un visiteur, puis une confirmation qui renvoie vers `/a-propos/droits` (page de texte sobre).
   - _Réutilise : les composants de formulaire._
-- [ ] **Connexion**
+- [x] **Connexion** _(faite le 19/11/2026)_
   - **À construire** : `/connexion`, avec le lien magique par e-mail et le bouton Google, puis `/connexion/verifier` (« Vérifiez vos e-mails »).
   - **`AuthGate`** : il renvoie vers `?retour=`, en n'acceptant que des chemins internes. La barre d'onglets est masquée pendant la connexion.
   - **États à couvrir** : e-mail invalide, envoi en cours, envoyé.
