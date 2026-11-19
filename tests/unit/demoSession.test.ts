@@ -21,4 +21,18 @@ describe("sessions de démonstration et règle des clubs", () => {
     expect(animator?.isAnimator).toBe(true);
     expect(animator?.clubSlugs.length).toBeGreaterThan(1);
   });
+
+  it("propose une session de modérateur, la seule à avoir ce rôle", () => {
+    expect(DEMO_SESSIONS).toContain("moderator");
+    for (const session of DEMO_SESSIONS) {
+      expect(demoUserFor(session)?.isModerator === true).toBe(session === "moderator");
+    }
+  });
+
+  it("le modérateur est un autre utilisateur que le membre, membre ordinaire d'un seul club", () => {
+    const moderator = demoUserFor("moderator");
+    expect(moderator?.id).not.toBe(demoUserFor("member")?.id);
+    expect(moderator?.isAnimator).toBe(false);
+    expect(moderator?.clubSlugs).toHaveLength(1);
+  });
 });

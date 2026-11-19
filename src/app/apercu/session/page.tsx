@@ -14,6 +14,7 @@ const CASES: { value: DemoSession; label: string; detail: string }[] = [
   { value: "animator", label: "Animateur de 3 clubs", detail: "Sami : Les Jasmins, Malouf Sfax, Chorale du Bardo." },
   { value: "member-no-club", label: "Membre sans club", detail: "Montre l'état vide « Rejoignez votre club », sans « Créer un club »." },
   { value: "visitor", label: "Visiteur", detail: "Pas de compte : accueil avec invitation à se connecter." },
+  { value: "moderator", label: "Modérateur", detail: "Nour : membre des Jasmins, voit « Modération » dans Moi (file fictive de 7)." },
 ];
 
 /** Page d'aperçu (développement uniquement) : choisir le cas de démonstration, en attendant les comptes. */
