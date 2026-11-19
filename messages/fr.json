@@ -36,7 +36,30 @@
     "intro": "Titre, artiste ou paroles, en arabe ou en lettres latines.",
     "label": "Chercher une chanson",
     "placeholder": "Titre, artiste ou paroles…",
-    "submit": "Chercher"
+    "submit": "Chercher",
+    "metaTitle": "Recherche « {query} »",
+    "examples": "Essayez :",
+    "tooShort": "Tapez au moins 2 lettres pour lancer la recherche.",
+    "results": "{count, plural, =0 {Aucun résultat} one {{n} résultat} other {{n} résultats}}",
+    "loading": "Recherche en cours…",
+    "snippetLabel": "Dans les paroles :",
+    "noResultsTitle": "Aucune chanson trouvée",
+    "noResultsBody": "« {query} » n'est pas encore dans Ghnaya. Proposez-la : un modérateur la relira avant de la publier.",
+    "propose": "Proposer cette chanson",
+    "noResultsDialectTitle": "Aucune chanson dans ce dialecte",
+    "noResultsDialectBody": "Aucun résultat pour « {query} » avec le filtre « {dialect} ».",
+    "allDialects": "Chercher dans tous les dialectes",
+    "emptyPageTitle": "Plus de résultats sur cette page",
+    "emptyPageBody": "Les résultats de cette recherche tiennent sur moins de pages.",
+    "firstPage": "Revenir à la première page",
+    "rateLimitedTitle": "Trop de recherches d'un coup",
+    "rateLimitedBody": "Pour protéger Ghnaya, le nombre de recherches est limité. Réessayez dans une minute.",
+    "dialect": {
+      "button": "Dialecte",
+      "current": "Filtre de dialecte :",
+      "all": "Tous les dialectes",
+      "clear": "Retirer le filtre « {dialect} »"
+    }
   },
   "clubs": {
     "title": "Vos clubs",
@@ -90,5 +113,23 @@
     "songCount": "{count, plural, one {{n} chanson} other {{n} chansons}}",
     "read": "Lire",
     "readNamed": "Lire « {name} »"
+  },
+  "song": {
+    "with": "avec"
+  },
+  "dialects": {
+    "tn": "Tunisien",
+    "eg": "Égyptien",
+    "lev": "Levantin",
+    "gulf": "Golfe",
+    "maghreb_other": "Maghreb",
+    "msa": "Arabe littéral",
+    "other": "Autre"
+  },
+  "pagination": {
+    "label": "Pages de résultats",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "position": "Page {current} sur {total}"
   }
 }

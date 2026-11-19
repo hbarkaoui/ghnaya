@@ -67,7 +67,7 @@ Date : 18/11/2026
   - **Accueil d'un visiteur** : le logo, la phrase d'accroche, la recherche et l'invitation à se connecter.
   - **État vide** « Rejoignez votre club », avec le motif zellige.
   - _Dépend de : la coque de l'app et la couverture de club. Modifie : `SearchBar` (plan 1). Crée : `PlaylistCard`, `EmptyState`._
-- [ ] **Recherche**
+- [x] **Recherche** _(faite le 19/11/2026)_
   - **À construire** : `/recherche` avec la barre (écriture détectée automatiquement), le nombre de résultats, la pastille de filtre de dialecte, des `SongResultItem` restylés (titre arabe, titre latin, artistes, extrait avec le passage surligné, action « Ajouter »), et la pagination.
   - **États à couvrir** : requête trop courte, aucun résultat (avec « Proposer cette chanson », titre pré-rempli), chargement, limite de requêtes atteinte.
   - _Modifie : `SearchBar`, `SongResultItem`, `ArtistNames` (plan 1)._

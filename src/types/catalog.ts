@@ -2,7 +2,9 @@
  * Types du catalogue, alignés sur le plan 1 (SongDetail, ArtistRef…), pour que les écrans
  * construits sur les données fictives se branchent ensuite sans changement sur la vraie base.
  */
-export type Dialect = "tn" | "eg" | "lev" | "gulf" | "maghreb_other" | "msa" | "other";
+export const DIALECTS = ["tn", "eg", "lev", "gulf", "maghreb_other", "msa", "other"] as const;
+export type Dialect = (typeof DIALECTS)[number];
+export const isDialect = (value: string | undefined): value is Dialect => DIALECTS.includes(value as Dialect);
 export type SongSource = "lrclib" | "public_domain" | "contribution";
 
 export interface ArtistRef {

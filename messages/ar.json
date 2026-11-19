@@ -36,7 +36,30 @@
     "intro": "العنوان أو الفنان أو الكلمات، بالعربية أو بالحروف اللاتينية.",
     "label": "ابحثوا عن أغنية",
     "placeholder": "عنوان، فنان أو كلمات…",
-    "submit": "ابحث"
+    "submit": "ابحث",
+    "metaTitle": "البحث عن «{query}»",
+    "examples": "جرّبوا:",
+    "tooShort": "اكتبوا حرفين على الأقل لبدء البحث.",
+    "results": "{count, plural, =0 {لا نتائج} one {نتيجة واحدة} two {نتيجتان} few {{n} نتائج} many {{n} نتيجة} other {{n} نتيجة}}",
+    "loading": "جارٍ البحث…",
+    "snippetLabel": "في الكلمات:",
+    "noResultsTitle": "لم نجد أي أغنية",
+    "noResultsBody": "«{query}» غير موجودة بعد في غناية. اقترحوها وسيراجعها مشرف قبل نشرها.",
+    "propose": "اقتراح هذه الأغنية",
+    "noResultsDialectTitle": "لا توجد أغنية بهذه اللهجة",
+    "noResultsDialectBody": "لا نتائج لـ«{query}» مع تصفية «{dialect}».",
+    "allDialects": "البحث في كل اللهجات",
+    "emptyPageTitle": "لا نتائج في هذه الصفحة",
+    "emptyPageBody": "نتائج هذا البحث موزّعة على صفحات أقل.",
+    "firstPage": "العودة إلى الصفحة الأولى",
+    "rateLimitedTitle": "عمليات بحث كثيرة في وقت قصير",
+    "rateLimitedBody": "لحماية غناية، عدد عمليات البحث محدود. أعيدوا المحاولة بعد دقيقة.",
+    "dialect": {
+      "button": "اللهجة",
+      "current": "تصفية اللهجة:",
+      "all": "كل اللهجات",
+      "clear": "إزالة تصفية «{dialect}»"
+    }
   },
   "clubs": {
     "title": "نواديكم",
@@ -90,5 +113,23 @@
     "songCount": "{count, plural, zero {لا أغاني} one {أغنية واحدة} two {أغنيتان} few {{n} أغانٍ} many {{n} أغنية} other {{n} أغنية}}",
     "read": "اقرأ",
     "readNamed": "اقرأ «{name}»"
+  },
+  "song": {
+    "with": "مع"
+  },
+  "dialects": {
+    "tn": "تونسي",
+    "eg": "مصري",
+    "lev": "شامي",
+    "gulf": "خليجي",
+    "maghreb_other": "مغاربي",
+    "msa": "فصحى",
+    "other": "أخرى"
+  },
+  "pagination": {
+    "label": "صفحات النتائج",
+    "previous": "السابق",
+    "next": "التالي",
+    "position": "الصفحة {current} من {total}"
   }
 }
