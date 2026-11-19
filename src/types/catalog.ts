@@ -42,6 +42,8 @@ export interface Playlist {
   name: string;
   /** Club propriétaire ; `null` pour une playlist personnelle. */
   club: { slug: string; name: string } | null;
+  /** Propriétaire d'une playlist personnelle (`owner_user_id`) ; `null` pour une playlist de club. */
+  ownerId: string | null;
   items: PlaylistItem[];
   /** Dernière modification (ISO 8601) : sert à trier « Vos séances ». */
   updatedAt: string;

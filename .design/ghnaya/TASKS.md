@@ -86,7 +86,7 @@ Date : 18/11/2026
     - utilisateur non connecté (redirection vers la connexion).
   - **La feuille se ferme** par un glissement vers le bas, avec la touche Échap, ou en touchant le fond. Le focus reste dans la feuille tant qu'elle est ouverte.
   - _Crée : `AddToPlaylistSheet`, `Sheet`, `Toast`._
-- [ ] **Playlist, en consultation et en édition**
+- [x] **Playlist, en consultation et en édition** _(faite le 19/11/2026)_
   - **À construire** : `/playlists/[id]` avec le nom, le club ou la mention « Personnelle », **Lire depuis le début**, et la liste numérotée avec les notes (un toucher sur une chanson ouvre le lecteur à cette position).
   - **Mode édition**, pour les playlists modifiables : ↑ / ↓, note écrite directement dans la ligne, retrait, renommage, « Ajouter des chansons » (vers la recherche avec ce contexte).
   - **Pour un membre** qui consulte la playlist d'un club : « Copier dans mes playlists ».
