@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
+import { AddToPlaylistButton } from "@/components/playlist/AddToPlaylist";
+import { AddToPlaylistScope } from "@/components/playlist/AddToPlaylistScope";
 import { DialectFilter } from "@/components/search/DialectFilter";
 import { ResultsSkeleton } from "@/components/search/ResultsSkeleton";
 import { SearchBar } from "@/components/search/SearchBar";
@@ -168,11 +170,24 @@ async function SearchResults({ params, preview }: { params: SearchParams; previe
         </h2>
         {filter}
       </div>
-      <ul className="mt-3 flex flex-col gap-3">
-        {result.items.map((hit) => (
-          <SongResultItem key={hit.id} hit={hit} query={q} />
-        ))}
-      </ul>
+      {/* Une seule feuille « Ajouter à une playlist » pour la page ; après un ajout, la recherche reste affichée. */}
+      <AddToPlaylistScope returnTo={searchHref({ q, dialect, page, preview })}>
+        <ul className="mt-3 flex flex-col gap-3">
+          {result.items.map((hit) => (
+            <SongResultItem
+              key={hit.id}
+              hit={hit}
+              query={q}
+              actions={
+                <AddToPlaylistButton
+                  variant="compact"
+                  song={{ id: hit.id, titleAr: hit.titleAr, titleLatin: hit.titleLatin }}
+                />
+              }
+            />
+          ))}
+        </ul>
+      </AddToPlaylistScope>
       <Pagination page={page} lastPage={lastPage} hrefFor={(p) => searchHref({ q, dialect, page: p, preview })} />
     </section>
   );

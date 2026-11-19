@@ -135,6 +135,35 @@
     "notFoundAction": "ابحثوا عن أغنية",
     "notFoundMeta": "أغنية غير موجودة"
   },
+  "addToPlaylist": {
+    "button": "إضافة إلى قائمة",
+    "buttonShort": "إضافة",
+    "buttonNamed": "إضافة «{title}» إلى قائمة",
+    "title": "إضافة إلى قائمة",
+    "close": "إغلاق",
+    "listLabel": "القوائم التي يمكنكم تعديلها",
+    "alreadyIn": "مضافة مسبقًا",
+    "adding": "جارٍ الإضافة…",
+    "newPlaylist": "قائمة جديدة",
+    "empty": "ليست لديكم قائمة بعد. أنشئوا قائمة لتحفظوا فيها هذه الأغنية.",
+    "nameLabel": "اسم القائمة",
+    "namePlaceholder": "مثلًا: جلسة الخميس",
+    "destinationLabel": "الحفظ في",
+    "destinationPersonal": "قوائمي الشخصية",
+    "create": "إنشاء وإضافة",
+    "creating": "جارٍ الإنشاء…",
+    "cancel": "إلغاء",
+    "errors": {
+      "empty": "أعطوا القائمة اسمًا.",
+      "tooLong": "يجب ألّا يتجاوز الاسم {max} حرفًا."
+    },
+    "toast": {
+      "added": "أُضيفت إلى «{name}»",
+      "addedToNew": "أُضيفت إلى القائمة الجديدة «{name}»",
+      "duplicate": "موجودة مسبقًا في «{name}»",
+      "failed": "تعذّرت الإضافة. أعيدوا المحاولة."
+    }
+  },
   "dialects": {
     "tn": "تونسي",
     "eg": "مصري",

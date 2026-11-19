@@ -11,8 +11,7 @@ import type { SongHit } from "@/lib/search/types";
  * paroles, la ligne trouvée avec le passage surligné. Toute la carte mène à la fiche chanson.
  *
  * `actions` : emplacement des actions de la ligne, en bout de carte et au-dessus du lien (« Ajouter à
- * une playlist » dans Chercher, ↑ ↓ ✕ dans une playlist en édition). Rien n'y est passé tant que la
- * feuille « Ajouter à une playlist » (tâche 9) n'existe pas.
+ * une playlist » dans Chercher, avec AddToPlaylistButton ; ↑ ↓ ✕ dans une playlist en édition).
  */
 export async function SongResultItem({
   hit,

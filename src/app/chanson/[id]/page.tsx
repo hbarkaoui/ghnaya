@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
+import { AddToPlaylistButton } from "@/components/playlist/AddToPlaylist";
+import { AddToPlaylistScope } from "@/components/playlist/AddToPlaylistScope";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
 import { ArtistNames } from "@/components/song/ArtistNames";
@@ -74,7 +76,9 @@ export default async function SongPage({ params }: PageProps<"/chanson/[id]">) {
             <Maximize aria-hidden="true" className="size-5" />
             {t("song.sessionMode")}
           </Link>
-          {/* Tâche 9 : « Ajouter à une playlist » (AddToPlaylistSheet) se place ici, en bouton secondaire. */}
+          <AddToPlaylistScope returnTo={`/chanson/${song.id}`}>
+            <AddToPlaylistButton variant="full" song={{ id: song.id, titleAr, titleLatin }} />
+          </AddToPlaylistScope>
         </div>
 
         <section aria-labelledby="lyrics-title" className="mt-8">

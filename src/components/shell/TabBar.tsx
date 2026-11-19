@@ -37,8 +37,11 @@ const TABS: Tab[] = [
   },
 ];
 
-/** Barre masquée dans le lecteur de séance et pendant la connexion (IA, modèle de navigation). */
-const isHidden = (path: string) => path.includes("/lecture") || path.startsWith("/connexion");
+/**
+ * Barre masquée dans le lecteur de séance et pendant la connexion (IA, modèle de navigation).
+ * Exportée pour les toasts, qui se posent au-dessus de la barre quand elle est affichée.
+ */
+export const isTabBarHidden = (path: string) => path.includes("/lecture") || path.startsWith("/connexion");
 
 /**
  * Barre de 4 onglets en bas de l'écran.
@@ -48,7 +51,7 @@ const isHidden = (path: string) => path.includes("/lecture") || path.startsWith(
 export function TabBar() {
   const pathname = usePathname();
   const t = useTranslations("nav");
-  if (isHidden(pathname)) return null;
+  if (isTabBarHidden(pathname)) return null;
 
   return (
     <nav

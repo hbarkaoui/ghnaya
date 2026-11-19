@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import { TabBar } from "@/components/shell/TabBar";
+import { ToastProvider } from "@/components/ui/Toast";
 import { isRtl } from "@/i18n/locale";
 import { fontVariables } from "./fonts";
 import "./globals.css";
@@ -31,8 +32,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     <html lang={locale} dir={isRtl(locale) ? "rtl" : "ltr"} className={fontVariables}>
       <body className="flex min-h-dvh flex-col bg-page font-sans text-ink antialiased">
         <NextIntlClientProvider>
-          {children}
-          <TabBar />
+          <ToastProvider>
+            {children}
+            <TabBar />
+          </ToastProvider>
         </NextIntlClientProvider>
       </body>
     </html>

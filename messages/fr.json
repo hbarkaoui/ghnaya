@@ -135,6 +135,35 @@
     "notFoundAction": "Chercher une chanson",
     "notFoundMeta": "Chanson introuvable"
   },
+  "addToPlaylist": {
+    "button": "Ajouter à une playlist",
+    "buttonShort": "Ajouter",
+    "buttonNamed": "Ajouter « {title} » à une playlist",
+    "title": "Ajouter à une playlist",
+    "close": "Fermer",
+    "listLabel": "Playlists que vous pouvez modifier",
+    "alreadyIn": "Déjà ajoutée",
+    "adding": "Ajout en cours…",
+    "newPlaylist": "Nouvelle playlist",
+    "empty": "Vous n'avez pas encore de playlist. Créez-en une pour y ranger cette chanson.",
+    "nameLabel": "Nom de la playlist",
+    "namePlaceholder": "Par exemple : Séance du jeudi",
+    "destinationLabel": "Ranger dans",
+    "destinationPersonal": "Mes playlists personnelles",
+    "create": "Créer et ajouter",
+    "creating": "Création en cours…",
+    "cancel": "Annuler",
+    "errors": {
+      "empty": "Donnez un nom à la playlist.",
+      "tooLong": "Le nom ne doit pas dépasser {max} caractères."
+    },
+    "toast": {
+      "added": "Ajoutée à « {name} »",
+      "addedToNew": "Ajoutée à la nouvelle playlist « {name} »",
+      "duplicate": "Déjà dans « {name} »",
+      "failed": "L'ajout n'a pas pu être enregistré. Réessayez."
+    }
+  },
   "dialects": {
     "tn": "Tunisien",
     "eg": "Égyptien",

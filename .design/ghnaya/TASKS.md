@@ -78,7 +78,7 @@ Date : 18/11/2026
   - **Mode séance** : `/chanson/[id]/lecture` réutilise le lecteur en 1/1.
   - **Chanson inconnue ou retirée** : page 404 « introuvable ou retirée ».
   - _Dépend de : le lecteur. Modifie : la page chanson du plan 1._
-- [ ] **Feuille « Ajouter à une playlist » et toasts**
+- [x] **Feuille « Ajouter à une playlist » et toasts** _(faite le 19/11/2026)_
   - **À construire** : une feuille qui monte du bas de l'écran, avec les playlists modifiables (personnelles et celles des clubs dont on est animateur) et « Nouvelle playlist » en création rapide.
   - **États à couvrir** :
     - ajout réussi, avec le toast « Ajoutée à … » ;

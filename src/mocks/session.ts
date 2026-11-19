@@ -1,4 +1,5 @@
 import { PLAYLISTS } from "./catalog";
+import { personalOwnerOf } from "./playlistMemory";
 
 /**
  * Session fictive de la maquette, en attendant l'authentification (plan 2).
@@ -45,9 +46,10 @@ const byMostRecent = (a: { updatedAt: string }, b: { updatedAt: string }) => b.u
 export const clubPlaylistsFor = (user: DemoUser) =>
   PLAYLISTS.filter((p) => p.club && user.clubSlugs.includes(p.club.slug)).sort(byMostRecent);
 
-/** Dans la maquette, toutes les playlists personnelles appartiennent à Leïla. */
-const PERSONAL_PLAYLISTS_OWNER = LEILA.id;
-
-/** Playlists personnelles de l'utilisateur, de la plus récemment modifiée à la plus ancienne. */
+/**
+ * Playlists personnelles de l'utilisateur, de la plus récemment modifiée à la plus ancienne.
+ * Dans la maquette, celles du jeu de départ appartiennent à Leïla ; celles créées depuis la feuille
+ * « Ajouter à une playlist », à leur créateur (playlistMemory.ts).
+ */
 export const personalPlaylistsFor = (user: DemoUser) =>
-  user.id === PERSONAL_PLAYLISTS_OWNER ? PLAYLISTS.filter((p) => p.club === null).sort(byMostRecent) : [];
+  PLAYLISTS.filter((p) => p.club === null && personalOwnerOf(p) === user.id).sort(byMostRecent);
