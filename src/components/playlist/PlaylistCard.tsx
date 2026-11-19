@@ -2,6 +2,7 @@ import { ListMusic, Play } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ClubCover } from "@/components/club/ClubCover";
+import { readerPositionsOf } from "@/mocks/playlistStore";
 import type { Playlist } from "@/types/catalog";
 
 /**
@@ -11,7 +12,8 @@ import type { Playlist } from "@/types/catalog";
  */
 export async function PlaylistCard({ playlist }: { playlist: Playlist }) {
   const t = await getTranslations("playlists");
-  const count = playlist.items.length;
+  // Chansons lisibles seulement : une chanson retirée n'est pas comptée (comme sur la page de la playlist).
+  const count = readerPositionsOf(playlist).size;
 
   return (
     <li className="relative flex items-center gap-3 rounded-lg border border-line-subtle bg-card p-3 transition-colors duration-(--duration-fast) hover:bg-well">

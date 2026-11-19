@@ -45,9 +45,6 @@ const byMostRecent = (a: { updatedAt: string }, b: { updatedAt: string }) => b.u
 export const clubPlaylistsFor = (user: DemoUser) =>
   PLAYLISTS.filter((p) => p.club && user.clubSlugs.includes(p.club.slug)).sort(byMostRecent);
 
-/** Dans la maquette, toutes les playlists personnelles appartiennent à Leïla. */
-const PERSONAL_PLAYLISTS_OWNER = LEILA.id;
-
-/** Playlists personnelles de l'utilisateur, de la plus récemment modifiée à la plus ancienne. */
+/** Playlists personnelles de l'utilisateur (`ownerId`), de la plus récemment modifiée à la plus ancienne. */
 export const personalPlaylistsFor = (user: DemoUser) =>
-  user.id === PERSONAL_PLAYLISTS_OWNER ? PLAYLISTS.filter((p) => p.club === null).sort(byMostRecent) : [];
+  PLAYLISTS.filter((p) => p.club === null && p.ownerId === user.id).sort(byMostRecent);
