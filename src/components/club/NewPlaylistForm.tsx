@@ -4,6 +4,7 @@ import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
 import { createClubPlaylistAction, type FormState, type NameError } from "@/app/actions/clubs";
+import { useActionGuard } from "@/components/system/useActionGuard";
 import { CLUB_NAME_MAX } from "@/lib/clubs/name";
 import { StatusNotice } from "@/components/ui/StatusNotice";
 import { BUTTON_PRIMARY, BUTTON_SECONDARY, FIELD, FIELD_ERROR, LABEL } from "@/components/ui/styles";
@@ -16,11 +17,15 @@ import { nameErrorMessage } from "./nameError";
 export function NewPlaylistForm({ slug }: { slug: string }) {
   const t = useTranslations("clubs");
   const [open, setOpen] = useState(false);
-  const [state, action, pending] = useActionState(async (prev: FormState, formData: FormData) => {
-    const result = await createClubPlaylistAction(slug, prev, formData);
-    if (result?.done) setOpen(false);
-    return result;
-  }, null);
+  const { guardState } = useActionGuard();
+  const [state, action, pending] = useActionState(
+    guardState(async (prev: FormState, formData: FormData) => {
+      const result = await createClubPlaylistAction(slug, prev, formData);
+      if (result?.done) setOpen(false);
+      return result;
+    }),
+    null,
+  );
   const error = state?.error as NameError | undefined;
 
   if (!open) {

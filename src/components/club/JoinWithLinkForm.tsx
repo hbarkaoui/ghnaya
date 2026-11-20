@@ -4,12 +4,14 @@ import { Link2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 import { openInviteLinkAction } from "@/app/actions/clubs";
+import { useActionGuard } from "@/components/system/useActionGuard";
 import { BUTTON_PRIMARY, FIELD, FIELD_ERROR, LABEL } from "@/components/ui/styles";
 
 /** « Rejoindre avec un lien » : coller le lien (ou le message WhatsApp qui le contient), puis ouvrir l'invitation. */
 export function JoinWithLinkForm() {
   const t = useTranslations("clubs.noClub");
-  const [state, action, pending] = useActionState(openInviteLinkAction, null);
+  const { guardState } = useActionGuard();
+  const [state, action, pending] = useActionState(guardState(openInviteLinkAction), null);
   const invalid = state?.error === "invalid";
 
   return (

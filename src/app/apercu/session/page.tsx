@@ -48,9 +48,12 @@ export default async function DemoSessionPage() {
             </button>
           ))}
         </form>
-        <p className="mt-6">
+        <p className="mt-6 flex flex-wrap gap-x-6 gap-y-2">
           <Link href="/" className="font-medium text-link underline underline-offset-4">
             Voir l’accueil
+          </Link>
+          <Link href="/apercu/etats" className="font-medium text-link underline underline-offset-4">
+            États système (chargement, erreur, introuvable)
           </Link>
         </p>
 

@@ -4,6 +4,7 @@ import { CircleCheck, RefreshCw, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useActionState, useState, type ReactNode } from "react";
 import { deleteClubAction, regenerateInviteAction, renameClubAction, type NameError } from "@/app/actions/clubs";
+import { useActionGuard } from "@/components/system/useActionGuard";
 import { CLUB_NAME_MAX, confirmsClubName } from "@/lib/clubs/name";
 import {
   BUTTON_DANGER,
@@ -28,7 +29,8 @@ function Saved({ children }: { children: ReactNode }) {
 /** Renommer le club. Le lien du club (slug) ne change pas. */
 export function RenameClubForm({ slug, name }: { slug: string; name: string }) {
   const t = useTranslations("clubs");
-  const [state, action, pending] = useActionState(renameClubAction.bind(null, slug), null);
+  const { guardState } = useActionGuard();
+  const [state, action, pending] = useActionState(guardState(renameClubAction.bind(null, slug)), null);
   const error = state?.error as NameError | undefined;
 
   return (
@@ -66,11 +68,15 @@ export function RenameClubForm({ slug, name }: { slug: string; name: string }) {
 export function RegenerateInviteForm({ slug }: { slug: string }) {
   const t = useTranslations("clubs");
   const [confirming, setConfirming] = useState(false);
-  const [state, action, pending] = useActionState(async () => {
-    const result = await regenerateInviteAction(slug);
-    setConfirming(false);
-    return result;
-  }, null);
+  const { guardState } = useActionGuard();
+  const [state, action, pending] = useActionState(
+    guardState(async () => {
+      const result = await regenerateInviteAction(slug);
+      setConfirming(false);
+      return result;
+    }),
+    null,
+  );
 
   if (!confirming) {
     return (
@@ -107,7 +113,8 @@ export function DeleteClubForm({ slug, name }: { slug: string; name: string }) {
   const t = useTranslations("clubs");
   const [open, setOpen] = useState(false);
   const [typed, setTyped] = useState("");
-  const [state, action, pending] = useActionState(deleteClubAction.bind(null, slug), null);
+  const { guardState } = useActionGuard();
+  const [state, action, pending] = useActionState(guardState(deleteClubAction.bind(null, slug)), null);
   const matches = confirmsClubName(typed, name);
 
   if (!open) {

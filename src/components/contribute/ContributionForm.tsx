@@ -11,6 +11,7 @@ import { FormErrorSummary, type ErrorSummaryItem } from "@/components/form/FormE
 import { LyricsTextarea } from "@/components/form/LyricsTextarea";
 import { Select } from "@/components/form/Select";
 import { TextField } from "@/components/form/TextField";
+import { useActionGuard } from "@/components/system/useActionGuard";
 import type { KnownArtist } from "@/lib/contribution/artists";
 import type { ContributionFormValues } from "@/lib/contribution/correction";
 import { contributeHref } from "@/lib/contribution/routes";
@@ -61,7 +62,15 @@ export function ContributionForm({
   const tDialects = useTranslations("dialects");
   const router = useRouter();
   const action = useMemo(() => submitProposal.bind(null, songId), [songId]);
-  const [state, formAction, pending] = useActionState(action, INITIAL_STATE);
+  // Sans JavaScript : l'action serveur est inscrite dans le HTML du formulaire, l'état revient du serveur.
+  const [noScriptState, noScriptAction] = useActionState(action, INITIAL_STATE);
+  // Avec JavaScript : la même action, gardée. Un échec réseau affiche un toast et garde la saisie
+  // (paroles comprises) au lieu de remplacer la page par la page d'erreur.
+  const { guardState } = useActionGuard();
+  const guardedAction = useMemo(() => guardState(action), [guardState, action]);
+  const [scriptState, submit, pending] = useActionState(guardedAction, INITIAL_STATE);
+  // Le plus récent des deux : `attempt` augmente à chaque envoi refusé.
+  const state = scriptState.attempt >= noScriptState.attempt ? scriptState : noScriptState;
   const { errors } = state;
 
   const [titleAr, setTitleAr] = useState(initial.titleAr);
@@ -118,14 +127,14 @@ export function ContributionForm({
 
   return (
     <form
-      action={formAction}
+      action={noScriptAction}
       // Envoi à la main : avec `action` seul, React 19 réinitialise le formulaire après l'envoi, et la
       // liste des dialectes et la case des droits reviendraient à vide alors que l'état les garde.
       // `action` reste pour l'envoi sans JavaScript.
       onSubmit={(e) => {
         e.preventDefault();
         const data = new FormData(e.currentTarget);
-        startTransition(() => formAction(data));
+        startTransition(() => submit(data));
       }}
       noValidate
       className="flex flex-col gap-7"

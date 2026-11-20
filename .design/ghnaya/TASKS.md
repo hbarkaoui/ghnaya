@@ -136,7 +136,7 @@ Date : 18/11/2026
 
 ## Interactions et états
 
-- [ ] **États de chargement, d'erreur et introuvable**
+- [x] **États de chargement, d'erreur et introuvable** _(faits le 20/11/2026)_
   - **À construire** : des squelettes de chargement pour les listes (résultats, playlists, file de modération) ; la page d'erreur qui affiche la référence `digest` ; les pages 404 générale et « chanson introuvable ou retirée » ; un toast en cas d'échec réseau.
   - **Couvre** : chargement, erreur, introuvable, page vide.
   - _Réutilise : `EmptyState`, `Toast`._

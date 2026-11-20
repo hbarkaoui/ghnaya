@@ -8,6 +8,7 @@ import { PageMain } from "@/components/shell/PageMain";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { getCurrentUser } from "@/lib/session";
 import { personalPlaylistsFor } from "@/mocks/session";
+import { waitDemoLatency } from "@/mocks/demoPreviewsServer";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("myPlaylists");
@@ -16,6 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /** Mes playlists : les playlists personnelles, de la plus récemment modifiée à la plus ancienne. */
 export default async function MyPlaylistsPage() {
+  await waitDemoLatency(); // MAQUETTE : délai d'aperçu (/apercu/etats), nul en production.
   const t = await getTranslations("myPlaylists");
   const tMe = await getTranslations("me");
   const user = await getCurrentUser();

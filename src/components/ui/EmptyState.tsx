@@ -35,7 +35,9 @@ type Action = { label: string; href: string; icon?: ReactNode };
 
 /**
  * État vide : une invitation (titre qui nomme l'espace, une phrase, une action), jamais une excuse.
- * `titleAs="h1"` quand l'état vide est toute la page (404 d'une chanson).
+ * `titleAs="h1"` quand l'état vide est toute la page (pages introuvables, page d'erreur).
+ * `children` s'ajoute en dessous (boutons qui ne sont pas des liens, référence d'erreur) ;
+ * `titleId` rend le titre focalisable par script (tabIndex -1), pour y amener le focus.
  */
 export function EmptyState({
   title,
@@ -43,17 +45,23 @@ export function EmptyState({
   action,
   secondary,
   titleAs: Title = "h2",
+  titleId,
+  children,
 }: {
   title: string;
   body: string;
   action?: Action;
   secondary?: Action;
   titleAs?: "h1" | "h2";
+  titleId?: string;
+  children?: ReactNode;
 }) {
   return (
     <section className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-line px-6 py-8 text-center">
       <ZelligeMotif className="h-14 w-28" />
-      <Title className="text-lg font-medium text-balance">{title}</Title>
+      <Title id={titleId} tabIndex={titleId ? -1 : undefined} className="text-lg font-medium text-balance">
+        {title}
+      </Title>
       <p className="max-w-sm text-ink-2 text-pretty">{body}</p>
       {action || secondary ? (
         <div className="mt-2 flex flex-wrap justify-center gap-3">
@@ -77,6 +85,7 @@ export function EmptyState({
           ) : null}
         </div>
       ) : null}
+      {children}
     </section>
   );
 }

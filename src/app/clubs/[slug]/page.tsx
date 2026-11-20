@@ -5,6 +5,7 @@ import { PlaylistCard } from "@/components/playlist/PlaylistCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusNotice } from "@/components/ui/StatusNotice";
 import { clubPlaylists } from "@/mocks/clubStore";
+import { waitDemoLatency } from "@/mocks/demoPreviewsServer";
 import { loadClub } from "./loadClub";
 
 /** Au-delà de 10 playlists, les plus anciennes sont regroupées dans une section repliée (IA, croissance). */
@@ -18,6 +19,7 @@ export async function generateMetadata({ params }: PageProps<"/clubs/[slug]">): 
 
 /** Sous-onglet Playlists : de la plus récemment modifiée à la plus ancienne, chacune avec « Lire ». */
 export default async function ClubPlaylistsPage({ params, searchParams }: PageProps<"/clubs/[slug]">) {
+  await waitDemoLatency(); // MAQUETTE : délai d'aperçu (/apercu/etats), nul en production.
   const { slug } = await params;
   const { statut } = await searchParams;
   const { club, role } = await loadClub(slug);

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useActionState, useEffect, useRef } from "react";
 import { copyPlaylistToMine, type CopyResult } from "@/app/actions/playlist";
+import { useActionGuard } from "@/components/system/useActionGuard";
 
 /**
  * « Copier dans mes playlists », pour un membre qui lit la playlist de son club (spec §10).
@@ -15,7 +16,12 @@ import { copyPlaylistToMine, type CopyResult } from "@/app/actions/playlist";
  */
 export function CopyPlaylistButton({ playlistId }: { playlistId: string }) {
   const t = useTranslations("playlistPage");
-  const [result, copy, pending] = useActionState<CopyResult | null>(() => copyPlaylistToMine(playlistId), null);
+  const { guardState } = useActionGuard();
+  // Échec réseau ou serveur : toast d'erreur, et le bouton reste là pour réessayer.
+  const [result, copy, pending] = useActionState(
+    guardState(async (): Promise<CopyResult | null> => copyPlaylistToMine(playlistId)),
+    null,
+  );
   const openRef = useRef<HTMLAnchorElement>(null);
 
   // Le bouton disparaît après la copie : le focus passe au lien vers la copie.
