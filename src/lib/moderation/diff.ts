@@ -2,8 +2,8 @@ import { normalizeMultiline } from "@/lib/contribution/validate";
 
 /**
  * Vue des différences de la modération (spec §8.4) : les paroles comparées ligne par ligne.
- * Fonctions pures, sans dépendance au rendu : `DiffView` les affiche sur une colonne en mobile, et la
- * tâche 19 pourra les afficher sur deux colonnes (avant / après) à partir de 1024 px.
+ * Fonctions pures, sans dépendance au rendu : `DiffView` les affiche sur une colonne en mobile, et sur
+ * deux colonnes (avant / après) à partir de 1024 px, avec `pairDiffRows`.
  */
 
 export type DiffKind = "same" | "added" | "removed";
@@ -98,4 +98,40 @@ export function segmentDiff(lines: readonly DiffLine[]): DiffSegment[] {
     start = end;
   }
   return segments;
+}
+
+/** Une rangée de la vue sur deux colonnes : la ligne d'avant et celle d'après, ou rien d'un côté. */
+export interface DiffRow {
+  before: DiffLine | null;
+  after: DiffLine | null;
+}
+
+/**
+ * Les lignes face à face, pour la vue sur deux colonnes (avant / après) : une ligne identique se trouve
+ * des deux côtés ; dans une zone modifiée, la n-ième ligne retirée fait face à la n-ième ligne ajoutée
+ * (une ligne corrigée en face de sa correction), et le côté le plus court est complété par des vides.
+ */
+export function pairDiffRows(lines: readonly DiffLine[]): DiffRow[] {
+  const rows: DiffRow[] = [];
+  let removed: DiffLine[] = [];
+  let added: DiffLine[] = [];
+
+  const flushChanges = () => {
+    for (let k = 0; k < Math.max(removed.length, added.length); k++) {
+      rows.push({ before: removed[k] ?? null, after: added[k] ?? null });
+    }
+    removed = [];
+    added = [];
+  };
+
+  for (const line of lines) {
+    if (line.kind === "removed") removed.push(line);
+    else if (line.kind === "added") added.push(line);
+    else {
+      flushChanges();
+      rows.push({ before: line, after: line });
+    }
+  }
+  flushChanges();
+  return rows;
 }

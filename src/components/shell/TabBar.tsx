@@ -4,6 +4,8 @@ import { House, Search, UserRound, Users, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import type { ReactNode } from "react";
+import { LogoLockup } from "@/components/brand/Logo";
 
 type Tab = {
   href: string;
@@ -39,7 +41,7 @@ const TABS: Tab[] = [
 
 /**
  * Barre masquée dans le lecteur de séance et pendant la connexion (IA, modèle de navigation).
- * Exportée pour les toasts, qui se posent au-dessus de la barre quand elle est affichée.
+ * Exportée pour les toasts, qui se posent au-dessus de la barre du bas quand elle est affichée.
  */
 export const isTabBarHidden = (path: string) => path.includes("/lecture") || path.startsWith("/connexion");
 
@@ -47,45 +49,72 @@ export const isTabBarHidden = (path: string) => path.includes("/lecture") || pat
 export type TabBarRole = "animator" | "member" | "visitor";
 
 /**
- * Barre de 4 onglets en bas de l'écran.
- * L'onglet actif est marqué par le losange safran et un libellé en graisse 500 ;
- * l'ordre suit le sens de l'interface (en arabe, Accueil est à droite).
+ * Barre de 4 onglets (IA, modèle de navigation).
+ *  - En dessous de 768 px : fixée en bas de l'écran, au-dessus de la zone de sécurité.
+ *  - À partir de 768 px : une barre en haut de l'écran, collante, dans la colonne de 640 px : le logo
+ *    (lien vers l'accueil), puis les onglets, et sur l'Accueil la bascule de langue FR · ع au bout de la
+ *    ligne. L'en-tête des pages de premier niveau (`RootHeaderBar`), qui porte le logo et la bascule en
+ *    mobile, est alors masqué ; celui des pages de second niveau (retour, titre) se place dessous.
+ * Une seule navigation dans la page, placée avant le contenu : l'ordre de lecture et de tabulation suit
+ * la barre du haut, et la même navigation descend en bas de l'écran sur mobile.
+ * L'onglet actif est marqué par le losange safran et un libellé en graisse 500 ; l'ordre suit le sens de
+ * l'interface (en arabe, Accueil et le logo sont à droite).
  * Le 3e onglet s'appelle « Clubs » pour un animateur (il en a plusieurs) et « Mon club » pour un membre
  * (il n'en a qu'un) ; un visiteur voit « Clubs ».
  */
-export function TabBar({ role }: { role: TabBarRole }) {
+export function TabBar({
+  role,
+  localeSwitcher,
+}: {
+  role: TabBarRole;
+  /** Bascule de langue FR · ع, montrée dans la barre du haut sur l'Accueil (à partir de 768 px). */
+  localeSwitcher?: ReactNode;
+}) {
   const pathname = usePathname();
-  const t = useTranslations("nav");
+  const t = useTranslations();
   if (isTabBarHidden(pathname)) return null;
 
   return (
-    <nav
-      aria-label={t("label")}
-      className="fixed inset-x-0 bottom-0 z-(--z-tabbar) border-t border-line-subtle bg-card pb-[env(safe-area-inset-bottom)]"
-    >
-      <ul className="mx-auto grid max-w-content grid-cols-4">
-        {TABS.map(({ href, key, Icon, matches }) => {
-          const active = matches(pathname);
-          return (
-            <li key={key}>
-              <Link
-                href={href}
-                aria-current={active ? "page" : undefined}
-                className="flex h-(--size-tabbar) flex-col items-center justify-center gap-1 text-xs"
-              >
-                <span
-                  aria-hidden="true"
-                  className={`block size-1.5 rotate-45 ${active ? "bg-ornament" : "bg-transparent"}`}
-                />
-                <Icon aria-hidden="true" className={`size-6 ${active ? "text-ink" : "text-ink-2"}`} strokeWidth={active ? 2 : 1.75} />
-                <span className={active ? "font-medium text-ink" : "text-ink-2"}>
-                  {t(key === "clubs" && role === "member" ? "myClub" : key)}
-                </span>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
+    // En mobile, ce bloc n'a pas de hauteur : la navigation est fixée en bas et le reste est masqué.
+    <div className="md:sticky md:top-0 md:z-(--z-tabbar) md:border-b md:border-line-subtle md:bg-page md:pt-[env(safe-area-inset-top)]">
+      <div className="md:mx-auto md:flex md:max-w-content md:items-center md:gap-4 md:px-4">
+        <nav
+          aria-label={t("nav.label")}
+          className="fixed inset-x-0 bottom-0 z-(--z-tabbar) border-t border-line-subtle bg-card pb-[env(safe-area-inset-bottom)] md:static md:z-auto md:flex md:min-w-0 md:flex-1 md:items-center md:gap-6 md:border-t-0 md:bg-transparent md:pb-0"
+        >
+          <Link href="/" aria-label={t("app.name")} className="hidden shrink-0 rounded-md md:inline-flex">
+            <LogoLockup />
+          </Link>
+          <ul className="mx-auto grid max-w-content grid-cols-4 md:mx-0 md:flex md:gap-1">
+            {TABS.map(({ href, key, Icon, matches }) => {
+              const active = matches(pathname);
+              return (
+                <li key={key}>
+                  <Link
+                    href={href}
+                    aria-current={active ? "page" : undefined}
+                    className="group flex h-(--size-tabbar) flex-col items-center justify-center gap-1 text-xs md:min-w-18 md:px-3"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`block size-1.5 rotate-45 ${active ? "bg-ornament" : "bg-transparent"}`}
+                    />
+                    <Icon
+                      aria-hidden="true"
+                      className={`size-6 ${active ? "text-ink" : "text-ink-2 group-hover:text-ink"}`}
+                      strokeWidth={active ? 2 : 1.75}
+                    />
+                    <span className={active ? "font-medium text-ink" : "text-ink-2 group-hover:text-ink"}>
+                      {t(key === "clubs" && role === "member" ? "nav.myClub" : `nav.${key}`)}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+        {localeSwitcher && pathname === "/" ? <div className="hidden shrink-0 md:block">{localeSwitcher}</div> : null}
+      </div>
+    </div>
   );
 }
