@@ -140,7 +140,7 @@ Date : 18/11/2026
   - **À construire** : des squelettes de chargement pour les listes (résultats, playlists, file de modération) ; la page d'erreur qui affiche la référence `digest` ; les pages 404 générale et « chanson introuvable ou retirée » ; un toast en cas d'échec réseau.
   - **Couvre** : chargement, erreur, introuvable, page vide.
   - _Réutilise : `EmptyState`, `Toast`._
-- [ ] **Transitions posées**
+- [x] **Transitions posées** _(faite le 20/11/2026)_
   - **À construire** : l'ouverture et la fermeture des feuilles, l'apparition des toasts, le passage d'une chanson à l'autre dans le lecteur (fondu de 250 ms) et l'affichage ou le masquage des contrôles du lecteur. Tout cela avec la courbe `--easing-default`, sans rebond.
   - **Couvre** : `prefers-reduced-motion`, qui coupe toutes les animations.
 

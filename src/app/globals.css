@@ -99,6 +99,11 @@
   --container-wide: var(--max-width-wide);
 
   --ease-calm: var(--easing-default);
+
+  /* Toute transition sans durée ni courbe explicites (transition-colors des boutons…) prend les tokens :
+     150 ms et --easing-default, et 0 quand prefers-reduced-motion ramène les durées à zéro. */
+  --default-transition-duration: var(--duration-fast);
+  --default-transition-timing-function: var(--easing-default);
 }
 
 /* Token de composant : filet intérieur des couvertures de club, pour qu'une couverture indigo ou jasmin
@@ -157,7 +162,8 @@
   }
 }
 
-/* Lecteur : fondu à l'arrivée d'une nouvelle chanson (désactivé par prefers-reduced-motion via les tokens). */
+/* Lecteur : fondu de 250 ms à l'arrivée d'une nouvelle chanson ou de l'écran de fin, sans déplacement
+   (« la lecture avant tout »). prefers-reduced-motion le coupe : les tokens de durée valent alors 0. */
 @keyframes reader-fade {
   from {
     opacity: 0;
