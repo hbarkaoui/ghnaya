@@ -201,22 +201,32 @@ const RAW_SONGS: Omit<Song, "lyricsTranslit" | "translitStatus">[] = [
   },
 ];
 
+/**
+ * Chansons publiées et retirées, rangées sur globalThis comme les playlists (voir plus bas) : la
+ * modération (tâche 14) en publie, en corrige et en retire, et toutes les copies du module doivent
+ * voir ces changements. Un redémarrage du serveur revient au jeu de départ.
+ */
+const songMemory = globalThis as typeof globalThis & {
+  __ghnayaSongs?: Song[];
+  __ghnayaRemovedSongs?: Pick<Song, "id" | "titleAr" | "titleLatin" | "artists">[];
+};
+
 /** Les translittérations déjà en base : relue pour Chebbi, automatiques pour deux chansons, absentes sinon. */
-export const SONGS: Song[] = RAW_SONGS.map((song) => {
+export const SONGS: Song[] = (songMemory.__ghnayaSongs ??= RAW_SONGS.map((song) => {
   const stored = STORED_TRANSLIT[song.id];
   return stored
     ? { ...song, lyricsTranslit: TRANSLIT_TEXTS[song.id] ?? null, translitStatus: stored }
     : { ...song, lyricsTranslit: null, translitStatus: "none" };
-});
+}));
 
 /**
  * Chansons retirées (spec §5, retrait doux : `status = removed`). Elles ne sont ni cherchables ni
  * lisibles, et leur fiche répond « introuvable ou retirée » (`getSong` ne les renvoie pas). Une playlist
  * qui en contient une l'affiche « chanson retirée », sans lien vers le lecteur.
  */
-export const REMOVED_SONGS: Pick<Song, "id" | "titleAr" | "titleLatin" | "artists">[] = [
+export const REMOVED_SONGS: Pick<Song, "id" | "titleAr" | "titleLatin" | "artists">[] = (songMemory.__ghnayaRemovedSongs ??= [
   { id: "s-lamouni", titleAr: "لاموني اللي غاروا مني", titleLatin: "Lamouni Elli Gharou Menni", artists: [JOUINI] },
-];
+]);
 
 /** Propriétaire des playlists personnelles de la maquette : Leïla, le membre de démonstration (mocks/session). */
 const LEILA_ID = "u-leila";

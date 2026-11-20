@@ -3,7 +3,8 @@ import type { DemoUser } from "./session";
 
 /**
  * MAQUETTE : données du compte pour la page « Moi » (tâche 12), en attendant le plan 2 (comptes),
- * les contributions (tâche 13) et la file de modération (tâche 14). Les compteurs sont fictifs.
+ * et les contributions (tâche 13). Le compteur des contributions est fictif ; celui de la modération
+ * vient de la file en mémoire (`moderationQueueSize`, src/mocks/moderation.ts).
  */
 
 export interface ClubRef {
@@ -23,9 +24,6 @@ const ACCOUNTS: Record<string, DemoAccount> = {
   "u-nour": { email: "nour@example.com", pendingContributions: 0 },
   "u-rania": { email: "rania@example.com", pendingContributions: 1 },
 };
-
-/** Taille de la file de modération, montrée aux modérateurs seulement. */
-export const MODERATION_QUEUE_SIZE = 7;
 
 /** Nom d'un club, lu dans les clubs en mémoire (clubStore). */
 const clubRef = (slug: string): ClubRef => ({ slug, name: getClub(slug)?.name ?? slug });

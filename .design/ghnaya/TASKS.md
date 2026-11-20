@@ -118,7 +118,7 @@ Date : 18/11/2026
     - la confirmation « يعيشك — votre proposition sera relue ».
   - **Mes contributions** : `/mes-contributions`, avec un filtre par statut et les pastilles En attente, Acceptée et Refusée (avec la note du modérateur).
   - _Réutilise : `SongResultItem`, `Badge`. Crée : `TextField`, `LyricsTextarea`, `Select`, `Checkbox`, `FormError`._
-- [ ] **Modération**
+- [x] **Modération** _(faite le 20/11/2026)_
   - **À construire** :
     - `/moderation` : la file triée de la plus ancienne à la plus récente, chaque élément avec son type, son auteur et son ancienneté ;
     - `/moderation/[revisionId]` : la vue des différences ligne par ligne (une colonne en mobile), **Approuver**, et **Rejeter** qui exige une note, puis « Suivante » ;

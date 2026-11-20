@@ -202,6 +202,143 @@
     "visitorBody": "Retrouvez les playlists de votre club, vos playlists personnelles et vos propositions.",
     "accountDeleted": "Votre compte a été supprimé. Vos propositions restent dans Ghnaya, sans votre nom."
   },
+  "moderation": {
+    "title": "Modération",
+    "tabs": {
+      "label": "Sections de la modération",
+      "proposals": "Propositions ({n})",
+      "reports": "Signalements ({n})"
+    },
+    "notFound": {
+      "title": "Page introuvable",
+      "body": "Cette page n'existe pas, ou elle n'est pas accessible avec votre compte.",
+      "action": "Revenir à l'accueil"
+    },
+    "empty": {
+      "title": "Plus rien à relire",
+      "proposalsBody": "Toutes les propositions ont été relues. Merci pour votre temps.",
+      "reportsBody": "Aucun signalement n'attend d'être traité.",
+      "toReports": "Voir les signalements",
+      "toProposals": "Voir les propositions"
+    },
+    "queue": {
+      "proposalsIntro": "{count, plural, one {{n} proposition à relire} other {{n} propositions à relire}}, de la plus ancienne à la plus récente.",
+      "reportsIntro": "{count, plural, one {{n} signalement à traiter} other {{n} signalements à traiter}} : les droits d'auteur d'abord, puis les autres par ancienneté.",
+      "treated": "{count, plural, one {{n} signalement traité} other {{n} signalements traités}}"
+    },
+    "type": {
+      "addition": "Ajout",
+      "correction": "Correction"
+    },
+    "typeLabel": "Type :",
+    "own": "Votre proposition",
+    "by": "Proposée par {name}",
+    "unknownAuthor": "un compte supprimé",
+    "position": "Proposition {i} sur {n}",
+    "proposal": {
+      "title": "Proposition",
+      "seeSong": "Voir la chanson publiée",
+      "rights": "L'auteur déclare que ce contenu est dans le domaine public ou qu'il a le droit de le partager.",
+      "fieldsTitle": "Champs modifiés",
+      "fields": {
+        "titleAr": "Titre arabe",
+        "titleLatin": "Titre latin",
+        "artists": "Artistes",
+        "dialect": "Dialecte",
+        "translit": "Translittération"
+      },
+      "before": "Avant",
+      "after": "Après",
+      "none": "Aucun",
+      "lyricsTitle": "Paroles",
+      "proposedLyrics": "Paroles proposées",
+      "translitTitle": "Translittération",
+      "proposedTranslit": "Translittération proposée",
+      "statusLabel": "Statut :",
+      "status": {
+        "approved": "Approuvée",
+        "rejected": "Rejetée"
+      },
+      "reviewedOn": "Relue le {date}",
+      "reviewNote": "Note du modérateur"
+    },
+    "diff": {
+      "added": "{count, plural, one {{n} ligne ajoutée} other {{n} lignes ajoutées}}",
+      "removed": "{count, plural, one {{n} ligne retirée} other {{n} lignes retirées}}",
+      "unchanged": "Paroles inchangées.",
+      "unchangedTranslit": "Translittération inchangée.",
+      "addedLine": "Ligne ajoutée :",
+      "removedLine": "Ligne retirée :",
+      "emptyLine": "ligne vide",
+      "showHidden": "{count, plural, one {Afficher {n} ligne identique} other {Afficher les {n} lignes identiques}}"
+    },
+    "review": {
+      "title": "Votre décision",
+      "noteLabel": "Note pour l'auteur",
+      "noteHint": "Obligatoire pour rejeter. L'auteur la lira dans Mes contributions.",
+      "approve": "Approuver",
+      "reject": "Rejeter",
+      "ownNotice": "Vous ne pouvez pas approuver votre propre proposition : un autre modérateur la relira.",
+      "errors": {
+        "noteRequired": "Écrivez une note pour expliquer le rejet à l'auteur.",
+        "noteTooLong": "La note dépasse {max} caractères.",
+        "ownProposal": "Vous ne pouvez pas approuver votre propre proposition.",
+        "notPending": "Cette proposition a déjà été relue.",
+        "songGone": "Cette chanson a été retirée entre-temps : la correction ne peut plus être approuvée."
+      }
+    },
+    "next": "Suivante",
+    "done": {
+      "approved": "Proposition approuvée",
+      "rejected": "Proposition rejetée",
+      "removed": "Chanson retirée",
+      "dismissed": "Signalement classé sans suite"
+    },
+    "report": {
+      "title": "Signalement",
+      "reasonLabel": "Motif :",
+      "reasons": {
+        "copyright": "Droits d'auteur",
+        "wrong_lyrics": "Paroles erronées",
+        "duplicate": "Doublon",
+        "spam": "Spam",
+        "other": "Autre"
+      },
+      "by": "Signalé par {name}",
+      "byVisitor": "Signalé par un visiteur",
+      "contact": "Contact :",
+      "details": "Détails",
+      "noDetails": "Aucun détail.",
+      "unknownSong": "Chanson inconnue",
+      "songRemoved": "Cette chanson est retirée : elle n'est plus ni cherchable ni lisible.",
+      "seeSong": "Voir la chanson",
+      "statusLabel": "Statut :",
+      "status": {
+        "open": "À traiter",
+        "resolved": "Traité",
+        "dismissed": "Classé sans suite"
+      },
+      "resolvedBy": "Par {name}",
+      "resolutionNote": "Note de traitement",
+      "form": {
+        "title": "Traiter le signalement",
+        "noteLabel": "Note de traitement",
+        "noteHint": "Obligatoire. Elle reste avec le signalement ; pour un retrait, elle en donne le motif.",
+        "remove": "Retirer la chanson",
+        "removeHint": "Retrait doux : la chanson disparaît de la recherche et des lectures, et peut être rétablie.",
+        "correct": "Corriger la chanson",
+        "correctHint": "Le signalement est marqué traité, puis le formulaire de correction s'ouvre.",
+        "dismiss": "Classer sans suite",
+        "dismissHint": "La chanson reste publiée telle quelle."
+      },
+      "errors": {
+        "noteRequired": "Écrivez une note : elle reste avec le signalement.",
+        "noteTooLong": "La note dépasse {max} caractères.",
+        "notOpen": "Ce signalement a déjà été traité.",
+        "songGone": "Cette chanson est déjà retirée : vous pouvez seulement classer le signalement."
+      }
+    }
+  },
   "account": {
     "title": "Compte",
     "infoTitle": "Vos informations",
