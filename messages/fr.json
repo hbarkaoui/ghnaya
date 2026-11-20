@@ -222,6 +222,107 @@
     "deleteClub": "Supprimer le club",
     "visitorBody": "Connectez-vous pour gérer votre compte."
   },
+  "reportForm": {
+    "metaTitle": "Signaler une chanson",
+    "title": "Signaler une chanson",
+    "songLabel": "Chanson signalée",
+    "intro": "Un modérateur examinera votre signalement. S'il s'agit de droits d'auteur, <link>voyez comment se passe un retrait</link>.",
+    "reasonLegend": "Motif",
+    "reasons": {
+      "copyright": {
+        "label": "Droits d'auteur",
+        "hint": "Vous détenez les droits de ces paroles, ou vous représentez ceux qui les détiennent."
+      },
+      "wrong_lyrics": {
+        "label": "Paroles erronées",
+        "hint": "Des vers manquent, sont faux ou ne sont pas dans le bon ordre."
+      },
+      "duplicate": {
+        "label": "Doublon",
+        "hint": "Cette chanson existe déjà sur Ghnaya."
+      },
+      "spam": {
+        "label": "Spam",
+        "hint": "Publicité, ou contenu sans rapport avec la chanson."
+      },
+      "other": {
+        "label": "Autre",
+        "hint": "Un autre problème sur cette fiche."
+      }
+    },
+    "detailsLabel": "Détails",
+    "detailsHints": {
+      "none": "Dites-nous ce qui ne va pas, le plus précisément possible.",
+      "copyright": "Indiquez l'œuvre, qui en détient les droits et à quel titre vous agissez : auteur, compositeur, éditeur ou représentant.",
+      "wrong_lyrics": "Indiquez les vers concernés et, si vous la connaissez, la bonne version.",
+      "duplicate": "Indiquez le titre de l'autre fiche, ou copiez son lien.",
+      "spam": "Dites-nous ce qui relève de la publicité ou du hors-sujet.",
+      "other": "Dites-nous ce qui ne va pas, le plus précisément possible."
+    },
+    "correctionTip": "Vous connaissez la bonne version ? <link>Proposez une correction</link> : elle sera relue avant d'être publiée.",
+    "emailLabel": "Votre adresse e-mail",
+    "emailHint": "Pour vous répondre si besoin. Elle n'est jamais publiée.",
+    "emailPlaceholder": "nom@exemple.com",
+    "signInPrompt": "Vous avez un compte ? <link>Connectez-vous</link> : vous n'aurez pas d'adresse à saisir.",
+    "signedInAs": "Vous signalez avec votre compte, <b>{name}</b> : inutile de laisser une adresse e-mail.",
+    "submit": "Envoyer le signalement",
+    "submitting": "Envoi en cours…",
+    "errorSummary": "{count, plural, one {Un point à corriger avant l'envoi} other {{n} points à corriger avant l'envoi}}",
+    "errors": {
+      "reasonMissing": "Choisissez un motif.",
+      "detailsMissing": "Décrivez le problème.",
+      "detailsTooShort": "Écrivez au moins {min} caractères.",
+      "detailsTooLong": "Écrivez au plus {max} caractères.",
+      "emailMissing": "Saisissez votre adresse e-mail : elle nous permet de vous répondre.",
+      "emailInvalid": "Cette adresse n'est pas valide. Elle doit ressembler à nom@exemple.com",
+      "songMissing": "Cette chanson est introuvable ou a été retirée."
+    },
+    "sent": {
+      "title": "Signalement envoyé",
+      "body": "Merci. Un modérateur va l'examiner ; les signalements pour droits d'auteur passent en priorité.",
+      "contact": "S'il a besoin de précisions, il vous écrira à <b>{email}</b>.",
+      "rightsTitle": "Vos droits et le retrait de contenus",
+      "rightsHint": "Ce qui se passe après un signalement",
+      "backToSong": "Revenir à la chanson"
+    }
+  },
+  "rightsPage": {
+    "metaDescription": "Ce que Ghnaya publie, comment demander le retrait d'une chanson et ce qui se passe ensuite.",
+    "title": "Vos droits et le retrait de contenus",
+    "lead": "Ghnaya aide les clubs de chant à lire des paroles en séance. Si une chanson publiée ici vous appartient, ou si vous représentez ses ayants droit, vous pouvez demander son retrait.",
+    "publish": {
+      "title": "Ce que Ghnaya publie",
+      "body": "Ghnaya publie des paroles, en texte seul : ni enregistrement, ni partition, ni publicité. Chaque fiche de chanson indique la source de ses paroles :",
+      "lrclib": "<source>LRCLIB</source>, une base de paroles ouverte et collaborative ;",
+      "publicDomain": "<source>Domaine public</source> : des chants traditionnels, ou des textes dont l'auteur est mort depuis plus de 50 ans ;",
+      "contribution": "<source>Proposition</source> : des paroles envoyées par un membre, qui déclare avoir le droit de les partager, puis relues par un modérateur avant d'être publiées."
+    },
+    "request": {
+      "title": "Demander un retrait",
+      "open": "Ouvrez la fiche de la chanson, puis touchez <strong>Signaler</strong>, en bas de la page.",
+      "reason": "Choisissez le motif <strong>Droits d'auteur</strong>.",
+      "details": "Dans les détails, indiquez l'œuvre, qui en détient les droits et à quel titre vous agissez : auteur, compositeur, éditeur ou représentant.",
+      "email": "Laissez une adresse e-mail pour que nous puissions vous répondre. Vous n'avez pas besoin de compte."
+    },
+    "after": {
+      "title": "Ce qui se passe ensuite",
+      "body": "Les signalements pour droits d'auteur passent en tête de la file de modération. Un modérateur examine le vôtre, puis :",
+      "remove": "retire la chanson ;",
+      "correct": "la corrige, si le problème ne porte que sur une partie du texte ;",
+      "dismiss": "ou classe le signalement sans suite, s'il n'est pas fondé.",
+      "contact": "S'il a besoin de précisions, il vous écrit à l'adresse que vous avez laissée."
+    },
+    "reversible": {
+      "title": "Un retrait réversible",
+      "hidden": "Une chanson retirée n'apparaît plus dans la recherche, et sa fiche indique qu'elle est introuvable ou retirée. Dans les playlists, elle est marquée « Chanson retirée ».",
+      "restore": "Elle n'est pas effacée pour autant : un modérateur peut la rétablir si le retrait était une erreur, ou si les droits ont été accordés depuis."
+    },
+    "other": {
+      "title": "Les autres signalements",
+      "body": "Le même formulaire sert à signaler des paroles erronées, un doublon ou du spam. Si vous connaissez la bonne version des paroles, vous pouvez aussi proposer une correction depuis la fiche de la chanson : elle sera relue avant d'être publiée."
+    },
+    "searchAction": "Chercher une chanson"
+  },
   "myPlaylists": {
     "title": "Mes playlists",
     "intro": "Vos playlists personnelles. Elles ne sont visibles que par vous.",
