@@ -59,9 +59,9 @@ export function SkeletonRows({ rows = 4, leading = "none", lines = 2, trailing =
   return (
     <ul className="flex flex-col gap-3">
       {Array.from({ length: rows }, (_, row) => (
-        <li key={row} className="flex items-center gap-3 rounded-lg border border-line-subtle bg-card p-3">
+        <li key={row} className="flex flex-wrap items-center gap-3 rounded-lg border border-line-subtle bg-card p-3">
           {leading === "none" ? null : <SkeletonBar className={`shrink-0 ${LEADING[leading]}`} />}
-          <div className={`flex min-w-0 flex-1 flex-col gap-2.5 ${leading === "none" ? "py-1" : ""}`}>
+          <div className={`flex min-w-0 grow basis-32 flex-col gap-2.5 ${leading === "none" ? "py-1" : ""}`}>
             {Array.from({ length: lines }, (_, line) => (
               <SkeletonBar key={line} className={`${HEIGHTS[line]} ${WIDTHS[row % WIDTHS.length][line]}`} />
             ))}

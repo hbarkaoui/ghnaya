@@ -44,7 +44,7 @@
   --color-text-inverse: #FBF8F1;
   --color-text-link: #1F6FB2;           /* 5,0:1 sur la page · 4,6:1 sur bg-tertiary */
 
-  --color-border-primary: #8F8A7A;      /* bords des champs : 3,25:1, contraste non textuel */
+  --color-border-primary: #8C8777;      /* bords des champs, contraste non textuel : 3,4:1 sur la page · 3,6:1 sur bg-secondary · 3,1:1 sur bg-tertiary (#8F8A7A n'y faisait que 2,98:1) */
   --color-border-secondary: #E6E1D4;    /* séparateurs décoratifs */
   --color-border-focus: #1F6FB2;        /* 5,0:1 */
 
@@ -139,7 +139,8 @@
 
   --size-touch: 44px;           /* cible tactile minimale de l'interface */
   --size-touch-reader: 48px;    /* contrôles du lecteur */
-  --size-tabbar: 64px;          /* hauteur de la barre d'onglets, hors zone de sécurité de l'écran */
+  --size-tabbar: 4rem;          /* hauteur de la barre d'onglets (64 px), hors zone de sécurité de l'écran ;
+                                   en rem pour grandir avec la taille de texte du système (libellés lisibles à 200 %) */
 
   --z-tabbar: 40;
   --z-sheet: 50;
@@ -180,7 +181,7 @@
   --color-text-inverse: #1B2550;
   --color-text-link: #8DBBEA;           /* 8,7:1 ; le bleu de marque sur indigo ne fait que 2,8:1 */
 
-  --color-border-primary: #5D6694;      /* 3,2:1 sur la page */
+  --color-border-primary: #737CAB;      /* 4,35:1 sur la page · 3,6:1 sur bg-secondary (feuilles, cartes) · 3,1:1 sur bg-tertiary ; #5D6694 tombait à 2,66:1 sur les feuilles */
   --color-border-secondary: #2A3466;
   --color-border-focus: #D9A441;        /* anneau de focus safran : 7,8:1 */
 
@@ -221,7 +222,7 @@
     --color-text-tertiary: #9A9EB8;
     --color-text-inverse: #1B2550;
     --color-text-link: #8DBBEA;
-    --color-border-primary: #5D6694;
+    --color-border-primary: #737CAB;
     --color-border-secondary: #2A3466;
     --color-border-focus: #D9A441;
     --color-accent-primary: #D9A441;
@@ -258,6 +259,10 @@
   --reader-control-text: #EEE9DC;
   --reader-divider: #2A3466;
   --reader-focus: #D9A441;
+  /* L'anneau de focus global (:focus-visible) prend la couleur du lecteur : safran sur l'indigo (6,5:1),
+     bleu sur le jasmin du thème clair (5,0:1). Sans cela, la zone des paroles (qui défile, donc atteignable
+     au clavier) gardait le bleu de l'app en clair : 2,8:1 sur l'indigo. */
+  --color-border-focus: var(--reader-focus);
 
   /* Taille des paroles : 6 crans (A− / A+), cran 3 par défaut = 28 px */
   --reader-size-1: 1.375rem;  /* 22 px */

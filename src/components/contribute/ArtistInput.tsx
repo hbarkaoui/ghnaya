@@ -142,7 +142,8 @@ export function ArtistInput({
             // Garde le focus dans le champ : le choix se fait au clic, sans perdre la saisie.
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => choose(artist)}
-            className="flex min-h-11 cursor-pointer flex-wrap items-center gap-x-2 rounded-md px-3 py-1.5 text-ink hover:bg-well aria-selected:bg-selected"
+            // Option active au clavier : fond et anneau de focus (le fond seul ne contraste qu'à 1,3:1 avec la liste).
+            className="flex min-h-11 cursor-pointer flex-wrap items-center gap-x-2 rounded-md px-3 py-1.5 text-ink hover:bg-well aria-selected:bg-selected aria-selected:outline-2 aria-selected:-outline-offset-2 aria-selected:outline-focus"
           >
             <ArtistOptionNames artist={artist} arabicFirst={locale === "ar"} />
           </li>

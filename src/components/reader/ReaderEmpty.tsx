@@ -6,7 +6,7 @@ import { Bidi } from "@/components/ui/Bidi";
 
 // Mêmes contrôles que le ReaderShell (module client : sa constante n'est pas importable ici).
 const CONTROL =
-  "inline-flex size-12 shrink-0 items-center justify-center rounded-md bg-reader-control text-reader-control-ink transition-colors duration-(--duration-fast) hover:bg-reader-control-pressed focus-visible:outline-reader-focus";
+  "inline-flex size-(--size-touch-reader) shrink-0 items-center justify-center rounded-md bg-reader-control text-reader-control-ink transition-colors duration-(--duration-fast) hover:bg-reader-control-pressed focus-visible:outline-reader-focus";
 
 /**
  * Lecteur d'une playlist sans chanson lisible (IA, parcours 1) : plutôt qu'une 404, l'état vide
@@ -31,12 +31,12 @@ export async function ReaderEmpty({
       <header className="shrink-0 px-2 pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2">
         <div className="mx-auto flex max-w-reader items-center gap-2">
           <Link href={playlistHref} replace aria-label={t("reader.close")} className={CONTROL}>
-            <X aria-hidden="true" className="size-6" />
+            <X aria-hidden="true" />
           </Link>
-          <p className="min-w-0 flex-1 truncate text-center text-sm text-reader-ink-2">
+          <p className="line-clamp-2 min-w-0 flex-1 text-center text-sm text-reader-ink-2">
             <Bidi>{playlist.name}</Bidi>
           </p>
-          <span aria-hidden="true" className="size-12 shrink-0" />
+          <span aria-hidden="true" className="size-(--size-touch-reader) shrink-0" />
         </div>
       </header>
       <main className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4 overflow-y-auto px-6 pb-16 text-center">

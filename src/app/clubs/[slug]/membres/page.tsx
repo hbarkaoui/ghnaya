@@ -59,7 +59,7 @@ export default async function ClubMembersPage({ params }: PageProps<"/clubs/[slu
                 <div className="flex items-center gap-3">
                   <Avatar name={member.name} marked={member.role === "animator"} />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">
+                    <p className="font-medium break-words">
                       <Bidi>{member.name}</Bidi>
                       {isMe ? <span className="font-normal text-ink-2"> ({t("you")})</span> : null}
                     </p>

@@ -76,7 +76,7 @@ const STYLES = {
     "inline-flex min-h-11 items-center gap-1.5 rounded-md border border-line-subtle bg-card px-3 text-sm font-medium text-ink transition-colors duration-(--duration-fast) hover:bg-well",
   // Bouton secondaire de la fiche chanson, à côté de « Mode séance ». Le libellé ne se coupe pas : quand
   // les deux boutons ne tiennent pas sur une ligne (375 px en français), il passe dessous, pleine largeur.
-  full: "inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-md border border-line bg-card px-5 font-medium whitespace-nowrap text-ink transition-colors duration-(--duration-fast) hover:bg-well",
+  full: "inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-md border border-line bg-card px-5 text-center font-medium text-ink transition-colors duration-(--duration-fast) hover:bg-well",
 };
 
 /**

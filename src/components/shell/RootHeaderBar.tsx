@@ -22,7 +22,7 @@ export function RootHeaderBar({ homeLabel, children }: { homeLabel: string; chil
   return (
     <header className={`${HEADER_CLASS} md:hidden`}>
       <div className="mx-auto flex h-14 max-w-content items-center justify-between px-4">
-        <Link href="/" aria-label={homeLabel} className="rounded-md">
+        <Link href="/" aria-label={homeLabel} className="inline-flex min-h-11 items-center rounded-md">
           <LogoLockup />
         </Link>
         {children}

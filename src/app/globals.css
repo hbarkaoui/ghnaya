@@ -173,6 +173,17 @@
   html {
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
+    /* Focus jamais caché (WCAG 2.4.11) : quand Tab fait défiler la page jusqu'à un élément, il s'arrête
+       au-dessus de la barre d'onglets fixée en bas et sous l'en-tête collant (h-14), pas derrière. */
+    scroll-padding-top: calc(env(safe-area-inset-top) + 3.5rem);
+    scroll-padding-bottom: calc(var(--size-tabbar) + env(safe-area-inset-bottom));
+  }
+  /* À partir de 768 px, la barre d'onglets colle en haut, au-dessus de l'en-tête des pages de second niveau. */
+  @media (width >= 48rem) {
+    html {
+      scroll-padding-top: calc(env(safe-area-inset-top) + var(--size-tabbar) + 3.5rem);
+      scroll-padding-bottom: 0;
+    }
   }
   body {
     background: var(--color-bg-primary);

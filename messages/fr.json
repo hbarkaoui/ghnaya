@@ -4,6 +4,9 @@
     "nameAr": "غناية",
     "tagline": "Les paroles de vos chansons, pour chanter ensemble"
   },
+  "a11y": {
+    "skipToContent": "Aller au contenu"
+  },
   "system": {
     "loading": {
       "list": "Chargement…",

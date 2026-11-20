@@ -17,7 +17,7 @@ export async function PlaylistCard({ playlist }: { playlist: Playlist }) {
   const count = readerPositionsOf(playlist).size;
 
   return (
-    <li className="relative flex items-center gap-3 rounded-lg border border-line-subtle bg-card p-3 transition-colors duration-(--duration-fast) hover:bg-well">
+    <li className="relative flex flex-wrap items-center gap-3 rounded-lg border border-line-subtle bg-card p-3 transition-colors duration-(--duration-fast) hover:bg-well">
       {playlist.club ? (
         <ClubCover name={playlist.club.name} size="md" />
       ) : (
@@ -25,7 +25,9 @@ export async function PlaylistCard({ playlist }: { playlist: Playlist }) {
           <ListMusic className="size-7 rtl:-scale-x-100" />
         </span>
       )}
-      <div className="min-w-0 flex-1">
+      {/* basis-32 + flex-wrap : quand le texte est agrandi (200 %), « Lire » passe à la ligne au lieu
+          d'écraser le nom et de sortir de la carte. */}
+      <div className="min-w-0 grow basis-32">
         {/* Le sens d'écriture est sur le fragment (Bidi), pas sur le lien bloc : un nom latin reste aligné
             sur le début de l'interface (à droite en arabe). */}
         <Link
@@ -34,7 +36,7 @@ export async function PlaylistCard({ playlist }: { playlist: Playlist }) {
         >
           <Bidi>{playlist.name}</Bidi>
         </Link>
-        <p className="line-clamp-2 text-sm text-ink-2">
+        <p className="text-sm text-ink-2">
           <Bidi>{playlist.club ? playlist.club.name : t("personal")}</Bidi>
           <span aria-hidden="true"> · </span>
           {t("songCount", { count, n: String(count) })}
