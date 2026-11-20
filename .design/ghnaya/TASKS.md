@@ -125,7 +125,7 @@ Date : 18/11/2026
     - `/moderation/signalements` et le détail d'un signalement : les droits d'auteur en tête, et les actions retirer, corriger ou classer.
   - **État vide** : « Plus rien à relire ».
   - _Réutilise : `SubTabs`, `Badge`, `EmptyState`. Crée : `DiffView`, `ModerationItem`._
-- [ ] **Signaler et page « Vos droits »**
+- [x] **Signaler et page « Vos droits »** _(faite le 20/11/2026)_
   - **À construire** : `/signaler/[songId]`, avec le motif, les détails et un e-mail obligatoire pour un visiteur, puis une confirmation qui renvoie vers `/a-propos/droits` (page de texte sobre).
   - _Réutilise : les composants de formulaire._
 - [x] **Connexion** _(faite le 19/11/2026)_
