@@ -35,7 +35,7 @@ export function useToast(): ShowToast {
 
 /**
  * Toasts : messages courts au passé (« Ajoutée à Séance du jeudi »), en bas de l'écran, au-dessus de
- * la barre d'onglets et des feuilles (--z-toast). Ils disparaissent seuls et sont annoncés par une
+ * la barre d'onglets et des feuilles (--z-toast), centrés et larges de 640 px au plus. Ils disparaissent seuls et sont annoncés par une
  * région `role="status"` toujours présente. Le ton est porté par une icône et par le texte, jamais par
  * la couleur seule ; le toast reste sur le fond inversé (indigo en clair, jasmin en sombre).
  */
@@ -64,9 +64,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, [toast]);
 
   const Icon = toast ? ICONS[toast.tone] : null;
+  // Au-dessus de la barre d'onglets du bas ; à partir de 768 px, la barre est en haut et le toast descend.
   const bottom = isTabBarHidden(pathname)
     ? "bottom-[calc(env(safe-area-inset-bottom)+1rem)]"
-    : "bottom-[calc(var(--size-tabbar)+env(safe-area-inset-bottom)+0.75rem)]";
+    : "bottom-[calc(var(--size-tabbar)+env(safe-area-inset-bottom)+0.75rem)] md:bottom-[calc(env(safe-area-inset-bottom)+1rem)]";
 
   return (
     <ToastContext value={show}>

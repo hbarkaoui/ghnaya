@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
+import { LocaleSwitcher } from "@/components/shell/LocaleSwitcher";
 import { TabBar } from "@/components/shell/TabBar";
 import { ToastProvider } from "@/components/ui/Toast";
 import { isRtl } from "@/i18n/locale";
@@ -36,8 +37,12 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-dvh flex-col bg-page font-sans text-ink antialiased">
         <NextIntlClientProvider>
           <ToastProvider>
+            {/* Avant le contenu : en haut de l'écran à partir de 768 px, fixée en bas en dessous. */}
+            <TabBar
+              role={!user ? "visitor" : user.isAnimator ? "animator" : "member"}
+              localeSwitcher={<LocaleSwitcher />}
+            />
             {children}
-            <TabBar role={!user ? "visitor" : user.isAnimator ? "animator" : "member"} />
           </ToastProvider>
         </NextIntlClientProvider>
       </body>

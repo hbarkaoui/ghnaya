@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { BackLink } from "./BackLink";
 import { LocaleSwitcher } from "./LocaleSwitcher";
-import { HEADER_CLASS, RootHeaderBar } from "./RootHeaderBar";
+import { RootHeaderBar, SUB_HEADER_CLASS } from "./RootHeaderBar";
 
 type Props =
   | { variant: "root"; withLocaleSwitcher?: boolean }
@@ -34,7 +34,7 @@ export async function PageHeader(props: Props) {
   }
 
   return (
-    <header className={HEADER_CLASS}>
+    <header className={SUB_HEADER_CLASS}>
       <div className="mx-auto flex h-14 max-w-content items-center gap-1 px-2">
         {props.backToHistory ? (
           <BackLink fallbackHref={props.backHref} label={t("nav.back")} className={BACK_CLASS} />

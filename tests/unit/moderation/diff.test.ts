@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { diffLines, diffStats, segmentDiff, type DiffLine } from "@/lib/moderation/diff";
+import { diffLines, diffStats, pairDiffRows, segmentDiff, type DiffLine } from "@/lib/moderation/diff";
 
 const same = (text: string): DiffLine => ({ kind: "same", text });
 const added = (text: string): DiffLine => ({ kind: "added", text });
@@ -114,5 +114,49 @@ describe("segmentDiff : replie les longues suites de lignes identiques", () => {
   it("garde tout visible quand aucune ligne n'a changé", () => {
     const lines = unchanged(10);
     expect(segmentDiff(lines)).toEqual([{ hidden: false, lines }]);
+  });
+});
+
+describe("pairDiffRows : les lignes face à face, avant / après (deux colonnes à partir de 1024 px)", () => {
+  it("met une ligne identique des deux côtés", () => {
+    expect(pairDiffRows([same("أ"), same("ب")])).toEqual([
+      { before: same("أ"), after: same("أ") },
+      { before: same("ب"), after: same("ب") },
+    ]);
+  });
+
+  it("met une ligne corrigée en face de sa correction", () => {
+    expect(pairDiffRows([same("أ"), removed("غالط"), added("صحيح"), same("ج")])).toEqual([
+      { before: same("أ"), after: same("أ") },
+      { before: removed("غالط"), after: added("صحيح") },
+      { before: same("ج"), after: same("ج") },
+    ]);
+  });
+
+  it("laisse le côté après vide en face d'une ligne retirée sans remplaçante", () => {
+    expect(pairDiffRows([removed("ب1"), removed("ب2"), added("ب")])).toEqual([
+      { before: removed("ب1"), after: added("ب") },
+      { before: removed("ب2"), after: null },
+    ]);
+  });
+
+  it("laisse le côté avant vide en face d'une ligne ajoutée en plus", () => {
+    expect(pairDiffRows([same("أ"), added("جديد"), added("جديد2")])).toEqual([
+      { before: same("أ"), after: same("أ") },
+      { before: null, after: added("جديد") },
+      { before: null, after: added("جديد2") },
+    ]);
+  });
+
+  it("n'apparie pas deux zones modifiées séparées par une ligne identique", () => {
+    expect(pairDiffRows([removed("قديم"), same("أ"), added("جديد")])).toEqual([
+      { before: removed("قديم"), after: null },
+      { before: same("أ"), after: same("أ") },
+      { before: null, after: added("جديد") },
+    ]);
+  });
+
+  it("ne rend aucune rangée pour un diff vide", () => {
+    expect(pairDiffRows([])).toEqual([]);
   });
 });

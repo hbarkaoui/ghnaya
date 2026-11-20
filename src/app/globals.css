@@ -106,6 +106,28 @@
   --default-transition-timing-function: var(--easing-default);
 }
 
+/*
+ * Points de rupture (brief, « Comportement responsive ») : 375 px est la référence mobile, sans variante ;
+ * md: s'applique à partir de 768 px (barre d'onglets en haut) et lg: à partir de 1024 px (vue des
+ * différences sur deux colonnes). Une media query ne lit pas de variable CSS : les valeurs de
+ * design-tokens.css (--breakpoint-md, --breakpoint-lg) sont donc recopiées ici, en rem (48 × 16 = 768 px,
+ * 64 × 16 = 1024 px) pour suivre la taille de texte choisie dans le navigateur.
+ * sm: garde la valeur par défaut de Tailwind (40rem, 640 px) : ce n'est pas un point de rupture du design.
+ */
+@theme {
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+}
+
+/*
+ * Sortie de colonne : un bloc placé dans la colonne de 640 px (PageMain) s'élargit jusqu'à
+ * --max-width-wide (1024 px), centré sur la colonne, en gardant 2 rem de marge de chaque côté de l'écran.
+ * Utilisé à partir de 1024 px par la vue des différences de la modération (lg:breakout-wide).
+ */
+@utility breakout-wide {
+  margin-inline: calc((100% - min(100vw - 4rem, var(--max-width-wide))) / 2);
+}
+
 /* Token de composant : filet intérieur des couvertures de club, pour qu'une couverture indigo ou jasmin
    reste détachée d'une carte de même couleur (indigo sur carte sombre, jasmin sur carte claire). */
 :root,

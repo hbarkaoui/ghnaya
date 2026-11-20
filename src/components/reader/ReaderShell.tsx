@@ -269,7 +269,8 @@ export function ReaderShell(props: Props) {
       {showHint ? (
         <div
           role="status"
-          className="mx-3 mb-2 flex items-start gap-3 rounded-md bg-reader-control p-3 text-sm text-reader-control-ink"
+          // À partir de 768 px, le message garde la largeur des paroles et des contrôles (720 px au plus).
+          className="mx-3 mb-2 flex items-start gap-3 rounded-md bg-reader-control p-3 text-sm text-reader-control-ink md:mx-auto md:w-full md:max-w-reader"
         >
           <p className="flex-1">{t("wakeHint")}</p>
           <button
