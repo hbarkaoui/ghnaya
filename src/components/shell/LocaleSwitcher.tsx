@@ -2,8 +2,8 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { setLocale } from "@/app/actions/locale";
 
 const OPTIONS = [
-  { value: "fr", short: "FR", lang: "fr" },
-  { value: "ar", short: "ع", lang: "ar" },
+  { value: "fr", short: "FR", lang: "fr", dir: "ltr" },
+  { value: "ar", short: "ع", lang: "ar", dir: "rtl" },
 ] as const;
 
 /** Bascule FR · ع : un formulaire, deux boutons ; la langue active est marquée aria-pressed. */
@@ -28,6 +28,7 @@ export async function LocaleSwitcher() {
             aria-pressed={current}
             aria-label={t(option.value)}
             lang={option.lang}
+            dir={option.dir}
             className={`min-h-11 min-w-11 rounded-sm px-2 text-sm font-medium transition-colors duration-(--duration-fast) ${
               current ? "bg-inverse text-ink-inverse" : "text-ink-2 hover:text-ink"
             }`}

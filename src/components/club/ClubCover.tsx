@@ -62,6 +62,7 @@ function Medallion({ style, className, textClass }: { style: CoverStyle; classNa
         </g>
       </svg>
       <span
+        dir="auto"
         className={`relative font-display leading-none font-semibold ${textClass}`}
         // Motif plein : l'initiale prend la couleur du fond pour rester lisible sur l'étoile (même contraste).
         style={filled ? { color: `var(--cover-${style.combo}-bg)` } : undefined}

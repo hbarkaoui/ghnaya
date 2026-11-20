@@ -2,6 +2,7 @@ import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { ArtistNames } from "@/components/song/ArtistNames";
+import { scriptAttrs } from "@/lib/text/scriptAttrs";
 import { getSong } from "@/mocks/catalog";
 import { formatProposalDate } from "@/mocks/proposals";
 import type { ArtistRef } from "@/types/catalog";
@@ -49,7 +50,7 @@ export async function ProposalCard({ proposal }: { proposal: Proposal }) {
       {proposal.status === "rejected" && proposal.reviewNote ? (
         <div className="mt-3 rounded-md bg-well p-3">
           <p className="text-sm font-medium text-ink-2">{t("reviewNote")}</p>
-          <p dir="auto" className="mt-1 text-ink">
+          <p {...scriptAttrs(proposal.reviewNote)} className="mt-1 text-ink">
             {proposal.reviewNote}
           </p>
         </div>

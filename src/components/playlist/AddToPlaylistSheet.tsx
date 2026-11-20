@@ -9,6 +9,7 @@ import { addSongToPlaylist, createPlaylistWithSong } from "@/app/actions/addToPl
 import { ClubCover } from "@/components/club/ClubCover";
 import { Badge } from "@/components/ui/Badge";
 import { ACTION_FAILED, useActionGuard } from "@/components/system/useActionGuard";
+import { Bidi } from "@/components/ui/Bidi";
 import { Sheet } from "@/components/ui/Sheet";
 import { useToast } from "@/components/ui/Toast";
 import { signInHref } from "@/lib/auth/returnPath";
@@ -177,17 +178,17 @@ function SheetBody({
                       aria-hidden="true"
                       className="inline-flex size-10 shrink-0 items-center justify-center rounded-md bg-well text-ink-2"
                     >
-                      <ListMusic className="size-5" />
+                      <ListMusic className="size-5 rtl:-scale-x-100" />
                     </span>
                   )}
                   <span className="min-w-0 flex-1">
-                    {/* dir="auto" sur un fragment en ligne : un nom latin garde son sens d'écriture, mais la
+                    {/* Bidi sur un fragment en ligne : un nom latin garde son sens d'écriture, mais la
                         ligne reste alignée sur le début de l'interface (à droite en arabe). */}
                     <span className="line-clamp-2 font-medium">
-                      <span dir="auto">{target.name}</span>
+                      <Bidi>{target.name}</Bidi>
                     </span>
                     <span className="block text-sm text-ink-2">
-                      <span dir="auto">{target.club ? target.club.name : t("playlists.personal")}</span>
+                      <Bidi>{target.club ? target.club.name : t("playlists.personal")}</Bidi>
                       <span aria-hidden="true"> · </span>
                       {t("playlists.songCount", { count, n: String(count) })}
                     </span>

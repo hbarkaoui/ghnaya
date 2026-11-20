@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useActionState, useState, type ReactNode } from "react";
 import { deleteClubAction, regenerateInviteAction, renameClubAction, type NameError } from "@/app/actions/clubs";
 import { useActionGuard } from "@/components/system/useActionGuard";
+import { Bidi } from "@/components/ui/Bidi";
 import { CLUB_NAME_MAX, confirmsClubName } from "@/lib/clubs/name";
 import {
   BUTTON_DANGER,
@@ -129,7 +130,7 @@ export function DeleteClubForm({ slug, name }: { slug: string; name: string }) {
   return (
     <form action={action} className="flex flex-col gap-3 rounded-md bg-error-soft p-4">
       <label htmlFor="delete-confirm" className={LABEL}>
-        {t.rich("settings.deleteLabel", { name, club: (chunks) => <bdi className="font-semibold">{chunks}</bdi> })}
+        {t.rich("settings.deleteLabel", { name, club: (chunks) => <Bidi className="font-semibold">{chunks}</Bidi> })}
       </label>
       <input
         id="delete-confirm"

@@ -3,6 +3,7 @@ import { ClubCover } from "@/components/club/ClubCover";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
 import { Badge } from "@/components/ui/Badge";
+import { Bidi } from "@/components/ui/Bidi";
 import { SubTabs } from "@/components/ui/SubTabs";
 import { clubHref } from "@/lib/clubs/href";
 import { memberships } from "@/mocks/clubStore";
@@ -31,9 +32,9 @@ export default async function ClubLayout({ children, params }: LayoutProps<"/clu
       <PageMain>
         <header>
           <ClubCover name={club.name} size="lg" />
-          {/* bdi : le nom (latin ou arabe) garde son sens d'écriture, le titre suit l'alignement de l'interface. */}
+          {/* Bidi : le nom (latin ou arabe) garde son sens d'écriture, le titre suit l'alignement de l'interface. */}
           <h1 className="mt-4 font-display text-2xl leading-snug font-semibold">
-            <bdi>{club.name}</bdi>
+            <Bidi>{club.name}</Bidi>
           </h1>
           <p className="mt-1 flex flex-wrap items-center gap-2 text-ink-2">
             {t("memberCount", { count, n: String(count) })}

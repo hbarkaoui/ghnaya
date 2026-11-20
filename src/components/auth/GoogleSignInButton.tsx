@@ -2,6 +2,7 @@
 
 import { LoaderCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
+import type { ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import { continueWithGoogle } from "@/app/actions/signIn";
 import { GoogleLogo } from "./GoogleLogo";
@@ -20,6 +21,12 @@ export function GoogleSignInButton({ retour }: { retour: string }) {
   );
 }
 
+const brand = (chunks: ReactNode) => (
+  <span lang="en" dir="ltr">
+    {chunks}
+  </span>
+);
+
 function GoogleSubmit() {
   const t = useTranslations("signIn");
   const { pending } = useFormStatus();
@@ -36,10 +43,11 @@ function GoogleSubmit() {
         ) : (
           <GoogleLogo className="size-5" />
         )}
-        {pending ? t("googlePending") : t("google")}
+        {/* Une seule boîte de texte dans le bouton flex ; « Google » en dir="ltr" dans l'interface arabe. */}
+        <span>{pending ? t.rich("googlePending", { brand }) : t.rich("google", { brand })}</span>
       </button>
       <p role="status" className="sr-only">
-        {pending ? t("googlePending") : ""}
+        {pending ? t.rich("googlePending", { brand }) : ""}
       </p>
     </>
   );

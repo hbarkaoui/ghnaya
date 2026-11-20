@@ -12,6 +12,7 @@ import { PlaylistSongLabel } from "@/components/playlist/PlaylistSongLabel";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
 import { songDisplayTitle } from "@/components/song/songTitle";
+import { Bidi } from "@/components/ui/Bidi";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { canCopyPlaylist, canEditPlaylist, canViewPlaylist } from "@/lib/playlist/rights";
 import { getCurrentUser } from "@/lib/session";
@@ -103,16 +104,16 @@ export default async function PlaylistPage({ params, searchParams }: PageProps<"
             <ClubCover name={playlist.club.name} size="md" />
           ) : (
             <span aria-hidden="true" className="inline-flex size-16 shrink-0 items-center justify-center rounded-lg bg-well text-ink-2">
-              <ListMusic className="size-7" />
+              <ListMusic className="size-7 rtl:-scale-x-100" />
             </span>
           )}
           <div className="min-w-0 flex-1">
             {/* Le sens d'écriture est sur le fragment : le titre reste aligné sur l'interface (à droite en arabe). */}
             <h1 className="font-display text-2xl leading-snug font-semibold text-balance">
-              <span dir="auto">{playlist.name}</span>
+              <Bidi>{playlist.name}</Bidi>
             </h1>
             <p className="mt-0.5 text-ink-2">
-              <span dir="auto">{playlist.club ? playlist.club.name : t("playlists.personal")}</span>
+              <Bidi>{playlist.club ? playlist.club.name : t("playlists.personal")}</Bidi>
               <span aria-hidden="true"> · </span>
               {t("playlists.songCount", { count, n: String(count) })}
             </p>
@@ -170,7 +171,7 @@ export default async function PlaylistPage({ params, searchParams }: PageProps<"
                         <MessageSquareText aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
                         <span>
                           <span className="sr-only">{t("playlistPage.noteLabel")} </span>
-                          <span dir="auto">{note}</span>
+                          <Bidi>{note}</Bidi>
                         </span>
                       </p>
                     ) : undefined

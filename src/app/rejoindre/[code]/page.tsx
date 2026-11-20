@@ -7,6 +7,7 @@ import { ClubCover } from "@/components/club/ClubCover";
 import { JoinClubForm } from "@/components/club/JoinClubForm";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
+import { Bidi } from "@/components/ui/Bidi";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { BUTTON_PRIMARY, BUTTON_SECONDARY } from "@/components/ui/styles";
 import { clubHref, signInHref } from "@/lib/clubs/href";
@@ -19,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("title"), robots: { index: false } };
 }
 
-const bdi = (chunks: ReactNode) => <bdi className="font-medium">{chunks}</bdi>;
+const bdi = (chunks: ReactNode) => <Bidi className="font-medium">{chunks}</Bidi>;
 
 /** Encadré d'avertissement (changement de club, refus) : une icône et un texte, jamais la couleur seule. */
 function Warning({ children }: { children: ReactNode }) {
@@ -74,7 +75,7 @@ export default async function JoinPage({ params }: PageProps<"/rejoindre/[code]"
           <div>
             <p className="text-sm font-medium text-ink-2">{t("join.invitedTo")}</p>
             <h1 className="mt-1 font-display text-2xl leading-snug font-semibold">
-              <bdi>{club.name}</bdi>
+              <Bidi>{club.name}</Bidi>
             </h1>
             <p className="mt-1 flex items-center gap-1.5 text-ink-2">
               <Users aria-hidden="true" className="size-4" />

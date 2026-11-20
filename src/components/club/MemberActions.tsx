@@ -6,9 +6,10 @@ import { useActionState, useState } from "react";
 import { promoteMemberAction } from "@/app/actions/clubs";
 import { useActionGuard } from "@/components/system/useActionGuard";
 import type { ClubRole } from "@/lib/clubs/membership";
+import { Bidi } from "@/components/ui/Bidi";
 import { BUTTON_PRIMARY, BUTTON_SECONDARY } from "@/components/ui/styles";
 
-const bdi = (chunks: React.ReactNode) => <bdi>{chunks}</bdi>;
+const bdi = (chunks: React.ReactNode) => <Bidi>{chunks}</Bidi>;
 
 /**
  * Action de l'animateur sur la ligne d'un membre : « Donner le rôle d'animateur », avec une confirmation

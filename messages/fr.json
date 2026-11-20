@@ -260,7 +260,7 @@
     },
     "typeLabel": "Type :",
     "own": "Votre proposition",
-    "by": "Proposée par {name}",
+    "by": "Proposée par <person>{name}</person>",
     "unknownAuthor": "un compte supprimé",
     "position": "Proposition {i} sur {n}",
     "proposal": {
@@ -332,7 +332,7 @@
         "spam": "Spam",
         "other": "Autre"
       },
-      "by": "Signalé par {name}",
+      "by": "Signalé par <person>{name}</person>",
       "byVisitor": "Signalé par un visiteur",
       "contact": "Contact :",
       "details": "Détails",
@@ -346,7 +346,7 @@
         "resolved": "Traité",
         "dismissed": "Classé sans suite"
       },
-      "resolvedBy": "Par {name}",
+      "resolvedBy": "Par <person>{name}</person>",
       "resolutionNote": "Note de traitement",
       "form": {
         "title": "Traiter le signalement",
@@ -439,7 +439,7 @@
       "detailsTooShort": "Écrivez au moins {min} caractères.",
       "detailsTooLong": "Écrivez au plus {max} caractères.",
       "emailMissing": "Saisissez votre adresse e-mail : elle nous permet de vous répondre.",
-      "emailInvalid": "Cette adresse n'est pas valide. Elle doit ressembler à nom@exemple.com",
+      "emailInvalid": "Cette adresse n'est pas valide. Elle doit ressembler à <ltr>nom@exemple.com</ltr>",
       "songMissing": "Cette chanson est introuvable ou a été retirée."
     },
     "sent": {
@@ -508,9 +508,9 @@
     "showNote": "Afficher la note de l'animateur",
     "hideNote": "Masquer la note de l'animateur",
     "noteLabel": "Note de l'animateur",
-    "announce": "Chanson {current} sur {total} : {title}",
+    "announce": "Chanson {current} sur {total} : <song>{title}</song>",
     "endTitle": "Fin de la séance",
-    "endBody": "Vous avez chanté les {total} chansons de « {name} ».",
+    "endBody": "{count, plural, one {Vous avez chanté la chanson de « {name} ».} other {Vous avez chanté les {n} chansons de « {name} ».}}",
     "restart": "Reprendre au début",
     "wakeHint": "Votre navigateur ne peut pas garder l'écran allumé. Pendant la séance, désactivez la mise en veille automatique dans les réglages du téléphone.",
     "wakeHintDismiss": "Compris",
@@ -645,8 +645,8 @@
     "metaTitle": "Connexion",
     "title": "Connectez-vous",
     "intro": "Retrouvez les séances de votre club, préparez vos playlists et proposez des chansons.",
-    "google": "Continuer avec Google",
-    "googlePending": "Connexion à Google…",
+    "google": "Continuer avec <brand>Google</brand>",
+    "googlePending": "Connexion à <brand>Google</brand>…",
     "or": "ou",
     "emailLabel": "Adresse e-mail",
     "emailPlaceholder": "nom@exemple.com",
@@ -655,7 +655,7 @@
     "sending": "Envoi en cours…",
     "errors": {
       "missing": "Saisissez votre adresse e-mail.",
-      "invalid": "Cette adresse n'est pas valide. Elle doit ressembler à nom@exemple.com"
+      "invalid": "Cette adresse n'est pas valide. Elle doit ressembler à <ltr>nom@exemple.com</ltr>"
     },
     "noAccount": "Pas encore de compte ? Il est créé à votre première connexion.",
     "verify": {

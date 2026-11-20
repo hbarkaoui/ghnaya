@@ -8,6 +8,7 @@ import { JoinWithLinkForm } from "@/components/club/JoinWithLinkForm";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
 import { Badge } from "@/components/ui/Badge";
+import { Bidi } from "@/components/ui/Bidi";
 import { EmptyState, ZelligeMotif } from "@/components/ui/EmptyState";
 import { StatusNotice } from "@/components/ui/StatusNotice";
 import { BUTTON_PRIMARY } from "@/components/ui/styles";
@@ -76,7 +77,7 @@ export default async function ClubsPage({ searchParams }: PageProps<"/clubs">) {
                       href={clubHref(club.slug)}
                       className="line-clamp-2 font-medium after:absolute after:inset-0 after:rounded-lg"
                     >
-                      <bdi>{club.name}</bdi>
+                      <Bidi>{club.name}</Bidi>
                     </Link>
                     <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-ink-2">
                       {t("memberCount", { count: club.memberCount, n: String(club.memberCount) })}

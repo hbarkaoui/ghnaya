@@ -5,6 +5,7 @@ import { InviteLink } from "@/components/club/InviteLink";
 import { MemberActions } from "@/components/club/MemberActions";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
+import { Bidi } from "@/components/ui/Bidi";
 import { membersOf } from "@/mocks/clubStore";
 import { loadClub } from "../loadClub";
 
@@ -32,7 +33,7 @@ export default async function ClubMembersPage({ params }: PageProps<"/clubs/[slu
   const [t, locale] = await Promise.all([getTranslations("clubs"), getLocale()]);
   const members = membersOf(club.slug, locale);
   const animator = role === "animator";
-  const bdi = (chunks: React.ReactNode) => <bdi>{chunks}</bdi>;
+  const bdi = (chunks: React.ReactNode) => <Bidi>{chunks}</Bidi>;
 
   return (
     <div className="flex flex-col gap-8">
@@ -59,7 +60,7 @@ export default async function ClubMembersPage({ params }: PageProps<"/clubs/[slu
                   <Avatar name={member.name} marked={member.role === "animator"} />
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">
-                      <bdi>{member.name}</bdi>
+                      <Bidi>{member.name}</Bidi>
                       {isMe ? <span className="font-normal text-ink-2"> ({t("you")})</span> : null}
                     </p>
                     <Badge tone={member.role === "animator" ? "info" : "neutral"} className="mt-1">

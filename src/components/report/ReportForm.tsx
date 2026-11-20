@@ -8,6 +8,7 @@ import { submitReport, type ReportState } from "@/app/actions/report";
 import { CONTROL_CLASS, Field, FieldGroup } from "@/components/form/Field";
 import { FormErrorSummary, type ErrorSummaryItem } from "@/components/form/FormErrorSummary";
 import { TextField } from "@/components/form/TextField";
+import { Bidi } from "@/components/ui/Bidi";
 import { signInHref } from "@/lib/auth/returnPath";
 import type { ReportField } from "@/lib/report/validate";
 import { REPORT_REASONS, type ReportReason } from "@/mocks/reports";
@@ -137,7 +138,7 @@ export function ReportForm({ songId, memberName }: { songId: string; memberName:
 
         {memberName ? (
           <p className="text-sm text-ink-2">
-            {t.rich("signedInAs", { name: memberName, b: (chunks) => <bdi className="font-medium text-ink">{chunks}</bdi> })}
+            {t.rich("signedInAs", { name: memberName, b: (chunks) => <Bidi className="font-medium text-ink">{chunks}</Bidi> })}
           </p>
         ) : (
           <div className="flex flex-col gap-2">
