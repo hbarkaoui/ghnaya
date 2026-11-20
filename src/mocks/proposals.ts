@@ -1,5 +1,6 @@
 import type { Proposal, ProposalPayload, ProposalStatus } from "@/types/proposal";
 import { getSong } from "./catalog";
+import { moderationSeedProposals } from "./moderationSeed";
 
 /**
  * Propositions fictives, en mémoire, en attendant la table `song_revisions` (plan 3).
@@ -110,6 +111,22 @@ export function createProposalStore(seed: readonly Proposal[]) {
     /** Une seule correction en attente par auteur et par chanson (spec §8.3). */
     hasPending: (authorId: string, songId: string): boolean =>
       items.some((p) => p.authorId === authorId && p.songId === songId && p.status === "pending"),
+    /** Toutes les propositions en attente, tous auteurs confondus (file de modération, tâche 14). */
+    listPending: (): Proposal[] => items.filter((p) => p.status === "pending"),
+    /**
+     * Enregistre la décision d'un modérateur sur une proposition en attente (tâche 14). Les règles
+     * (note obligatoire au rejet, pas d'approbation de sa propre proposition) sont dans lib/moderation.
+     */
+    review(
+      id: string,
+      decision: { status: Exclude<ProposalStatus, "pending">; note: string | null },
+      now = new Date(),
+    ): Proposal | undefined {
+      const proposal = items.find((p) => p.id === id && p.status === "pending");
+      if (!proposal) return undefined;
+      Object.assign(proposal, { status: decision.status, reviewNote: decision.note, reviewedAt: now.toISOString() });
+      return proposal;
+    },
   };
 }
 
@@ -120,7 +137,10 @@ export type ProposalStore = ReturnType<typeof createProposalStore>;
  * rechargement à chaud du serveur de développement ; il repart des exemples à chaque redémarrage.
  */
 const globalStore = globalThis as typeof globalThis & { __ghnayaProposals?: ProposalStore };
-export const proposalStore: ProposalStore = (globalStore.__ghnayaProposals ??= createProposalStore(SEED_PROPOSALS));
+export const proposalStore: ProposalStore = (globalStore.__ghnayaProposals ??= createProposalStore([
+  ...SEED_PROPOSALS,
+  ...moderationSeedProposals(),
+]));
 
 export function countByStatus(proposals: readonly Proposal[]): Record<"all" | ProposalStatus, number> {
   const count = (status: ProposalStatus) => proposals.filter((p) => p.status === status).length;

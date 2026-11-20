@@ -5,15 +5,20 @@ import { searchCatalog } from "./search";
 
 export const SIMILAR_MAX = 3;
 
-/** Le même catalogue sans les paroles, pour ne rapprocher les chansons que par leur titre et leurs artistes. */
-const titlesOnly = new WeakMap<readonly Song[], Song[]>();
+/**
+ * Le même catalogue sans les paroles, pour ne rapprocher les chansons que par leur titre et leurs
+ * artistes. Copie gardée chanson par chanson : le catalogue en mémoire change avec la modération.
+ */
+const titlesOnly = new WeakMap<Song, Song>();
 function withoutLyrics(songs: readonly Song[]): Song[] {
-  let copy = titlesOnly.get(songs);
-  if (!copy) {
-    copy = songs.map((song) => ({ ...song, lyrics: "" }));
-    titlesOnly.set(songs, copy);
-  }
-  return copy;
+  return songs.map((song) => {
+    let copy = titlesOnly.get(song);
+    if (!copy) {
+      copy = { ...song, lyrics: "" };
+      titlesOnly.set(song, copy);
+    }
+    return copy;
+  });
 }
 
 /**

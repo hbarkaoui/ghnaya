@@ -51,14 +51,20 @@ function indexSong(song: Song): IndexedSong {
   };
 }
 
-const indexes = new WeakMap<readonly Song[], IndexedSong[]>();
+/**
+ * Index chanson par chanson : la modération (tâche 14) ajoute, remplace et retire des chansons du
+ * catalogue en mémoire, et seule une chanson nouvelle ou remplacée est indexée de nouveau.
+ */
+const indexes = new WeakMap<Song, IndexedSong>();
 function indexFor(songs: readonly Song[]): IndexedSong[] {
-  let index = indexes.get(songs);
-  if (!index) {
-    index = songs.map(indexSong);
-    indexes.set(songs, index);
-  }
-  return index;
+  return songs.map((song) => {
+    let indexed = indexes.get(song);
+    if (!indexed) {
+      indexed = indexSong(song);
+      indexes.set(song, indexed);
+    }
+    return indexed;
+  });
 }
 
 /** Trigrammes d'un texte, mot par mot, comme pg_trgm : chaque mot est entouré de « ␣␣ » et « ␣ ». */

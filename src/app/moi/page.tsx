@@ -11,7 +11,8 @@ import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
 import { Badge } from "@/components/ui/Badge";
 import { getCurrentUser } from "@/lib/session";
-import { MODERATION_QUEUE_SIZE, accountFor, clubsOf, type ClubRef } from "@/mocks/account";
+import { accountFor, clubsOf, type ClubRef } from "@/mocks/account";
+import { moderationQueueSize } from "@/mocks/moderation";
 import type { DemoUser } from "@/mocks/session";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -30,6 +31,7 @@ export default async function MePage({ searchParams }: PageProps<"/moi">) {
   if (!user) return <VisitorMe accountDeleted={(await searchParams).compte === "supprime"} />;
 
   const { pendingContributions } = accountFor(user);
+  const moderationQueue = user.isModerator ? moderationQueueSize() : 0;
 
   return (
     <>
@@ -66,8 +68,8 @@ export default async function MePage({ searchParams }: PageProps<"/moi">) {
                 Icon={ShieldCheck}
                 label={t("moderation")}
                 badge={
-                  MODERATION_QUEUE_SIZE > 0 ? (
-                    <Badge tone="info">{t("moderationQueue", { n: String(MODERATION_QUEUE_SIZE) })}</Badge>
+                  moderationQueue > 0 ? (
+                    <Badge tone="info">{t("moderationQueue", { n: String(moderationQueue) })}</Badge>
                   ) : undefined
                 }
               />
