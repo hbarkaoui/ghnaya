@@ -156,7 +156,7 @@ Date : 18/11/2026
   - les chiffres occidentaux (0-9) partout, puisque c'est l'usage en Tunisie ;
   - les fragments latins dans une interface arabe en `dir="ltr"` ;
   - les libellés du lexique de l'architecture de l'information, mis en face de chaque écran pour la relecture par un arabophone.
-- [ ] **Vérification de l'accessibilité** : chaque point du brief est contrôlé :
+- [x] **Vérification de l'accessibilité** _(faite le 20/11/2026 ; rapport et essais à faire sur appareil : `AUDIT_ACCESSIBILITE.md`)_ : chaque point du brief est contrôlé :
   - contrastes AA (déjà garantis par les tokens, à confirmer à l'écran) ;
   - focus visible, bleu en clair et safran en sombre ;
   - `lang` et `dir` sur chaque fragment ;

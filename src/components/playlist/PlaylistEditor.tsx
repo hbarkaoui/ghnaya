@@ -293,7 +293,7 @@ export function PlaylistEditor({
       <div className="mt-4 flex flex-wrap gap-3">
         <Link
           href={addSongsHref}
-          className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-md border border-line px-4 font-medium whitespace-nowrap text-ink hover:bg-well"
+          className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-md border border-line px-4 text-center font-medium text-ink hover:bg-well"
         >
           <Plus aria-hidden="true" className="size-4" />
           {t("addSongs")}

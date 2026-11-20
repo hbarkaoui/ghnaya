@@ -11,14 +11,15 @@ export type LyricsTone = "reader" | "page";
 const TONES = {
   reader: {
     box: "bg-reader-control text-reader-control-ink",
-    focus: "focus-visible:outline-reader-focus",
+    // Bouton « Réessayer » : 48 px dans le lecteur (brief), 44 px ailleurs.
+    retry: "min-h-12 focus-visible:outline-reader-focus",
     generating: "reader",
     auto: "reader",
     reviewed: "reader",
   },
   page: {
     box: "bg-well text-ink",
-    focus: "",
+    retry: "min-h-11",
     generating: "neutral",
     auto: "info",
     reviewed: "success",
@@ -76,7 +77,7 @@ export function TranslitStatus({
         <button
           type="button"
           onClick={onRetry}
-          className={`mt-1 inline-flex min-h-11 items-center gap-2 rounded-md px-1 font-medium underline underline-offset-4 ${styles.focus}`}
+          className={`mt-1 inline-flex items-center gap-2 rounded-md px-1 font-medium underline underline-offset-4 ${styles.retry}`}
         >
           <RotateCw aria-hidden="true" className="size-4" />
           {t("retry")}

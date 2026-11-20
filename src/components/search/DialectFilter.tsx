@@ -18,7 +18,9 @@ export async function DialectFilter({
   const options: Array<Dialect | undefined> = [undefined, ...DIALECTS];
 
   return (
-    <div className="flex items-center gap-1">
+    // ms-auto : renvoyé à la ligne (texte agrandi), le filtre reste au bout de la ligne et sa liste, ancrée
+    // sur ce bout (end-0), ne sort pas de l'écran.
+    <div className="ms-auto flex items-center gap-1">
       <details className="group relative">
         <summary
           className={`inline-flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-full border px-4 text-sm font-medium select-none hover:bg-well [&::-webkit-details-marker]:hidden ${
@@ -36,7 +38,7 @@ export async function DialectFilter({
           )}
           <ChevronDown aria-hidden="true" className="size-4 transition-transform duration-(--duration-fast) group-open:rotate-180" />
         </summary>
-        <ul className="absolute end-0 z-20 mt-2 w-60 rounded-lg border border-line-subtle bg-card p-1 shadow-(--shadow-lg)">
+        <ul className="absolute end-0 z-20 mt-2 w-60 max-w-[calc(100vw-2rem)] rounded-lg border border-line-subtle bg-card p-1 shadow-(--shadow-lg)">
           {options.map((dialect) => {
             const selected = dialect === current;
             return (

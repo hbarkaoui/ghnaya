@@ -99,7 +99,8 @@ export default async function PlaylistPage({ params, searchParams }: PageProps<"
     <>
       <PageHeader variant="sub" backHref={backHref} backToHistory />
       <PageMain>
-        <header className="flex items-center gap-4">
+        {/* flex-wrap + basis-40 : texte agrandi, le titre passe sous la couverture au lieu de déborder de l'écran. */}
+        <header className="flex flex-wrap items-center gap-4">
           {playlist.club ? (
             <ClubCover name={playlist.club.name} size="md" />
           ) : (
@@ -107,9 +108,9 @@ export default async function PlaylistPage({ params, searchParams }: PageProps<"
               <ListMusic className="size-7 rtl:-scale-x-100" />
             </span>
           )}
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 grow basis-40">
             {/* Le sens d'écriture est sur le fragment : le titre reste aligné sur l'interface (à droite en arabe). */}
-            <h1 className="font-display text-2xl leading-snug font-semibold text-balance">
+            <h1 className="font-display text-2xl leading-snug font-semibold text-balance break-words">
               <Bidi>{playlist.name}</Bidi>
             </h1>
             <p className="mt-0.5 text-ink-2">

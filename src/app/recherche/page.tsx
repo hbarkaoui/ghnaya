@@ -164,7 +164,7 @@ async function SearchResults({ params, preview }: { params: SearchParams; previe
 
   return (
     <section aria-labelledby="search-count" className="mt-5">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="search-count" className="text-sm text-ink-2">
           {t("search.results", { count: result.total, n: String(result.total) })}
         </h2>

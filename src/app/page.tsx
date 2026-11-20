@@ -20,7 +20,11 @@ function SectionHeader({ id, title, seeAll }: { id: string; title: string; seeAl
         {title}
       </h2>
       {seeAll ? (
-        <Link href={seeAll.href} className="text-sm font-medium text-link underline-offset-4 hover:underline">
+        // Cible de 44 px (marges négatives : la ligne du titre garde sa hauteur).
+        <Link
+          href={seeAll.href}
+          className="-my-2.5 -me-2 inline-flex min-h-11 items-center rounded-md px-2 text-sm font-medium text-link underline-offset-4 hover:underline"
+        >
           {seeAll.label}
         </Link>
       ) : null}

@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -113,6 +113,7 @@ function StatusFilterLink({
   count: number;
   current: boolean;
 }) {
+  // Le filtre actif porte une coche, en plus du bord et du fond : il ne se lit pas à la couleur seule (WCAG 1.4.1).
   return (
     <li>
       <Link
@@ -120,6 +121,7 @@ function StatusFilterLink({
         aria-current={current ? "page" : undefined}
         className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line px-4 text-sm font-medium text-ink hover:bg-well aria-[current=page]:border-focus aria-[current=page]:bg-selected"
       >
+        {current ? <Check aria-hidden="true" className="-ms-1 size-4 shrink-0" /> : null}
         {label}
         <span className="rounded-full bg-well px-2 py-0.5 text-xs text-ink-2">{count}</span>
       </Link>

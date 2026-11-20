@@ -48,8 +48,12 @@ type Props = {
     }
 );
 
+/**
+ * Bouton du lecteur : 48 px fixes (--size-touch-reader), icône en 24 px fixes (attributs de lucide). Quand le
+ * système agrandit le texte, les contrôles gardent leur taille et tiennent toujours sur une ligne.
+ */
 const CONTROL =
-  "inline-flex size-12 shrink-0 items-center justify-center rounded-md bg-reader-control text-reader-control-ink transition-colors duration-(--duration-fast) hover:bg-reader-control-pressed active:bg-reader-control-pressed disabled:opacity-40 focus-visible:outline-reader-focus";
+  "inline-flex size-(--size-touch-reader) shrink-0 items-center justify-center rounded-md bg-reader-control text-reader-control-ink transition-colors duration-(--duration-fast) hover:bg-reader-control-pressed active:bg-reader-control-pressed disabled:opacity-40 focus-visible:outline-reader-focus";
 
 const HINT_KEY = "ghnaya.reader.wakeHintDismissed";
 
@@ -147,6 +151,9 @@ export function ReaderShell(props: Props) {
         previous();
       } else if (e.key === "Escape") {
         close();
+      } else if (e.key === "Tab") {
+        // Contrôles masqués d'un toucher : la touche Tab les rend, sinon ils resteraient hors d'atteinte du clavier.
+        setControlsVisible(true);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -169,7 +176,9 @@ export function ReaderShell(props: Props) {
       data-reader
       data-reader-theme={prefs.theme}
       data-reader-size={prefs.size}
-      className="fixed inset-0 z-(--z-reader) flex flex-col bg-reader-bg text-reader-ink"
+      // overflow-y-auto : en dernier recours, quand le texte agrandi rend l'en-tête et les contrôles plus hauts que
+      // l'écran, le lecteur entier défile ; les contrôles du bas ne sortent jamais hors d'atteinte.
+      className="fixed inset-0 z-(--z-reader) flex flex-col overflow-y-auto overscroll-contain bg-reader-bg text-reader-ink"
     >
       <header
         className={`shrink-0 px-2 pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2 ${CONTROLS_MOTION} ${hideWhenIdle}`}
@@ -177,13 +186,15 @@ export function ReaderShell(props: Props) {
       >
         <div className="mx-auto flex max-w-reader items-center gap-2">
           <button type="button" onClick={close} aria-label={t("close")} className={CONTROL}>
-            <X aria-hidden="true" className="size-6" />
+            <X aria-hidden="true" />
           </button>
+          {/* Titre et sous-titre sur deux lignes au plus, plutôt que tronqués sur une seule : ils restent lisibles
+              à 320 px et quand le texte est agrandi. */}
           <div className="min-w-0 flex-1 text-center">
-            <h1 {...scriptAttrs(title)} className="truncate text-lg font-medium">
+            <h1 {...scriptAttrs(title)} className="line-clamp-2 text-lg font-medium break-words">
               {title}
             </h1>
-            <p className="truncate text-sm text-reader-ink-2">
+            <p className="line-clamp-2 text-sm text-reader-ink-2">
               <span className="font-medium text-reader-accent-text" dir="ltr">
                 {t("position", { current: position, total: String(total) })}
               </span>
@@ -204,10 +215,10 @@ export function ReaderShell(props: Props) {
               aria-label={noteOpen ? t("hideNote") : t("showNote")}
               className={CONTROL}
             >
-              <MessageSquareText aria-hidden="true" className="size-6" />
+              <MessageSquareText aria-hidden="true" />
             </button>
           ) : (
-            <span aria-hidden="true" className="size-12 shrink-0" />
+            <span aria-hidden="true" className="size-(--size-touch-reader) shrink-0" />
           )}
         </div>
         {entry.note && noteOpen && !ended ? (
@@ -223,7 +234,12 @@ export function ReaderShell(props: Props) {
 
       <div
         ref={lyricsRef}
-        className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain px-6"
+        // Zone qui défile, atteignable au clavier dans tous les navigateurs (Safari ne le fait pas seul) :
+        // ↑ / ↓, Espace et Page suivante font défiler les paroles ; ← / → restent pour changer de chanson.
+        tabIndex={0}
+        role="region"
+        aria-label={tLyrics("title")}
+        className="min-h-32 flex-1 touch-pan-y overflow-y-auto overscroll-contain px-6"
         {...swipe}
       >
         {/* Passage d'une chanson à l'autre : les nouvelles paroles (ou l'écran de fin) apparaissent en fondu
@@ -273,13 +289,14 @@ export function ReaderShell(props: Props) {
         <div
           role="status"
           // À partir de 768 px, le message garde la largeur des paroles et des contrôles (720 px au plus).
-          className="mx-3 mb-2 flex items-start gap-3 rounded-md bg-reader-control p-3 text-sm text-reader-control-ink md:mx-auto md:w-full md:max-w-reader"
+          className="mx-3 mb-2 flex shrink-0 flex-wrap items-start gap-3 rounded-md bg-reader-control p-3 text-sm text-reader-control-ink md:mx-auto md:w-full md:max-w-reader"
         >
-          <p className="flex-1">{t("wakeHint")}</p>
+          {/* basis-48 + flex-wrap : texte agrandi, « Compris » passe sous le message au lieu de l'écraser. */}
+          <p className="min-w-0 grow basis-48">{t("wakeHint")}</p>
           <button
             type="button"
             onClick={() => setHintDismissed("1")}
-            className="min-h-11 shrink-0 rounded-md px-3 font-medium underline underline-offset-4 focus-visible:outline-reader-focus"
+            className="min-h-12 shrink-0 rounded-md px-3 font-medium underline underline-offset-4 focus-visible:outline-reader-focus"
           >
             {t("wakeHintDismiss")}
           </button>
@@ -287,7 +304,9 @@ export function ReaderShell(props: Props) {
       ) : null}
 
       <footer
-        className={`shrink-0 px-3 pt-2 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] ${CONTROLS_MOTION} ${hideWhenIdle}`}
+        // Six boutons de 48 px fixes : marges et espaces en px (tokens --space-*), qui ne grandissent pas avec le
+        // texte, et resserrés sous 352 px pour que la rangée tienne jusqu'à 320 px (WCAG 1.4.10).
+        className={`shrink-0 px-(--space-1) pt-2 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] min-[352px]:px-(--space-3) ${CONTROLS_MOTION} ${hideWhenIdle}`}
         {...hiddenProps}
       >
         {modeOpen ? (
@@ -305,7 +324,7 @@ export function ReaderShell(props: Props) {
         <div
           role="group"
           aria-label={t("controls")}
-          className={`mx-auto flex max-w-reader items-center gap-2 ${single ? "justify-center" : "justify-between"}`}
+          className={`mx-auto flex max-w-reader items-center gap-(--space-1) min-[352px]:gap-(--space-2) ${single ? "justify-center" : "justify-between"}`}
         >
           {single ? null : (
             <button
@@ -315,12 +334,12 @@ export function ReaderShell(props: Props) {
               aria-label={t("previous")}
               className={CONTROL}
             >
-              <ChevronLeft aria-hidden="true" className="size-7 rtl:-scale-x-100" />
+              <ChevronLeft aria-hidden="true" size={28} className="rtl:-scale-x-100" />
             </button>
           )}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-(--space-1) min-[352px]:gap-(--space-2)">
             <button type="button" onClick={prefs.smaller} disabled={!prefs.canShrink} aria-label={t("smaller")} className={CONTROL}>
-              <AArrowDown aria-hidden="true" className="size-6" />
+              <AArrowDown aria-hidden="true" />
             </button>
             <button
               type="button"
@@ -330,7 +349,7 @@ export function ReaderShell(props: Props) {
               aria-label={tLyrics("modeLabel")}
               className={`${CONTROL} ${modeOpen ? "bg-reader-control-pressed" : ""}`}
             >
-              <Languages aria-hidden="true" className="size-6" />
+              <Languages aria-hidden="true" />
             </button>
             <button
               type="button"
@@ -339,18 +358,18 @@ export function ReaderShell(props: Props) {
               className={CONTROL}
             >
               {prefs.theme === "dark" ? (
-                <Sun aria-hidden="true" className="size-6" />
+                <Sun aria-hidden="true" />
               ) : (
-                <Moon aria-hidden="true" className="size-6" />
+                <Moon aria-hidden="true" />
               )}
             </button>
             <button type="button" onClick={prefs.larger} disabled={!prefs.canGrow} aria-label={t("larger")} className={CONTROL}>
-              <AArrowUp aria-hidden="true" className="size-6" />
+              <AArrowUp aria-hidden="true" />
             </button>
           </div>
           {single ? null : (
             <button type="button" onClick={next} disabled={ended} aria-label={t("next")} className={CONTROL}>
-              <ChevronRight aria-hidden="true" className="size-7 rtl:-scale-x-100" />
+              <ChevronRight aria-hidden="true" size={28} className="rtl:-scale-x-100" />
             </button>
           )}
         </div>

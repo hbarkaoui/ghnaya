@@ -77,12 +77,20 @@ export function TabBar({
   return (
     // En mobile, ce bloc n'a pas de hauteur : la navigation est fixée en bas et le reste est masqué.
     <div className="md:sticky md:top-0 md:z-(--z-tabbar) md:border-b md:border-line-subtle md:bg-page md:pt-[env(safe-area-inset-top)]">
+      {/* Lien d'évitement (WCAG 2.4.1) : la navigation précède le contenu dans le DOM ; au clavier, le premier
+          Tab le fait apparaître et Entrée saute au <main id="contenu"> de PageMain. Il n'existe qu'avec la barre. */}
+      <a
+        href="#contenu"
+        className="sr-only z-(--z-toast) rounded-md bg-card px-4 font-medium text-link shadow-md focus:not-sr-only focus:fixed focus:start-4 focus:top-[calc(env(safe-area-inset-top)+0.5rem)] focus:inline-flex focus:min-h-11 focus:items-center"
+      >
+        {t("a11y.skipToContent")}
+      </a>
       <div className="md:mx-auto md:flex md:max-w-content md:items-center md:gap-4 md:px-4">
         <nav
           aria-label={t("nav.label")}
           className="fixed inset-x-0 bottom-0 z-(--z-tabbar) border-t border-line-subtle bg-card pb-[env(safe-area-inset-bottom)] md:static md:z-auto md:flex md:min-w-0 md:flex-1 md:items-center md:gap-6 md:border-t-0 md:bg-transparent md:pb-0"
         >
-          <Link href="/" aria-label={t("app.name")} className="hidden shrink-0 rounded-md md:inline-flex">
+          <Link href="/" aria-label={t("app.name")} className="hidden min-h-11 shrink-0 items-center rounded-md md:inline-flex">
             <LogoLockup />
           </Link>
           <ul className="mx-auto grid max-w-content grid-cols-4 md:mx-0 md:flex md:gap-1">
@@ -99,12 +107,16 @@ export function TabBar({
                       aria-hidden="true"
                       className={`block size-1.5 rotate-45 ${active ? "bg-ornament" : "bg-transparent"}`}
                     />
+                    {/* Icône en 24 px fixes (attributs de lucide), libellé en rem : quand le système agrandit le
+                        texte, la barre (--size-tabbar, en rem) grandit pour le libellé, sur deux lignes au besoin. */}
                     <Icon
                       aria-hidden="true"
-                      className={`size-6 ${active ? "text-ink" : "text-ink-2 group-hover:text-ink"}`}
+                      className={`shrink-0 ${active ? "text-ink" : "text-ink-2 group-hover:text-ink"}`}
                       strokeWidth={active ? 2 : 1.75}
                     />
-                    <span className={active ? "font-medium text-ink" : "text-ink-2 group-hover:text-ink"}>
+                    <span
+                      className={`text-center leading-tight ${active ? "font-medium text-ink" : "text-ink-2 group-hover:text-ink"}`}
+                    >
                       {t(key === "clubs" && role === "member" ? "nav.myClub" : `nav.${key}`)}
                     </span>
                   </Link>
