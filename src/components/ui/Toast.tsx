@@ -4,6 +4,7 @@ import { CircleAlert, CircleCheck, Info, type LucideIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { isTabBarHidden } from "@/components/shell/TabBar";
+import { readMotionDuration } from "@/lib/motion/duration";
 
 export type ToastTone = "success" | "info" | "error";
 type ShowToast = (message: string, tone?: ToastTone) => void;
@@ -12,8 +13,14 @@ type ToastState = { id: number; message: string; tone: ToastTone; leaving: boole
 
 /** Temps d'affichage : un message court se lit en 4 s ; une erreur reste un peu plus. */
 const VISIBLE_MS: Record<ToastTone, number> = { success: 4000, info: 4000, error: 6000 };
-/** Fondu de sortie, aligné sur --duration-fast. */
-const LEAVE_MS = 150;
+
+/**
+ * Mouvement (--easing-default, sans rebond) : le toast monte de 8 px en apparaissant (--duration-normal),
+ * puis redescend d'autant en s'effaçant, plus vite (--duration-fast). Le texte est annoncé dès son insertion,
+ * sans attendre la fin du fondu.
+ */
+const ENTER = "duration-(--duration-normal) starting:translate-y-2 starting:opacity-0";
+const LEAVE = "duration-(--duration-fast) translate-y-2 opacity-0";
 
 const ICONS: Record<ToastTone, LucideIcon> = { success: CircleCheck, info: Info, error: CircleAlert };
 
@@ -45,8 +52,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!toast) return;
     if (toast.leaving) {
-      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const timer = window.setTimeout(() => setToast(null), reduced ? 0 : LEAVE_MS);
+      // Retiré à la fin du fondu de sortie : même token que le CSS (0 si le mouvement est réduit).
+      const timer = window.setTimeout(() => setToast(null), readMotionDuration("--duration-fast"));
       return () => window.clearTimeout(timer);
     }
     const timer = window.setTimeout(
@@ -70,8 +77,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           {toast && Icon ? (
             <div
               key={toast.id}
-              className={`flex min-h-12 max-w-full items-center gap-3 rounded-lg bg-inverse px-4 py-3 text-ink-inverse shadow-lg transition-[opacity,translate] duration-(--duration-normal) ease-calm starting:translate-y-2 starting:opacity-0 ${
-                toast.leaving ? "opacity-0" : "opacity-100"
+              className={`flex min-h-12 max-w-full items-center gap-3 rounded-lg bg-inverse px-4 py-3 text-ink-inverse shadow-lg transition-[opacity,translate] ease-calm ${
+                toast.leaving ? LEAVE : ENTER
               }`}
             >
               <Icon aria-hidden="true" className="size-5 shrink-0" />

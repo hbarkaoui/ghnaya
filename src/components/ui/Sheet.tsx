@@ -3,20 +3,14 @@
 import { X } from "lucide-react";
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-
-/** Durée de la sortie, alignée sur --duration-normal (250 ms) ; 0 si le mouvement est réduit. */
-const EXIT_MS = 250;
-/** Glissement vers le bas qui ferme la feuille : 96 px, ou le quart de sa hauteur si elle est plus petite. */
-const DRAG_CLOSE_PX = 96;
-const DRAG_CLOSE_RATIO = 0.25;
-/** Un geste rapide (« lancer ») ferme aussi, même court. */
-const FLICK_PX_PER_MS = 0.5;
-const FLICK_MIN_PX = 24;
+import { readMotionDuration } from "@/lib/motion/duration";
+import { sheetBackdropOpacity, sheetDragOffset, shouldCloseSheet } from "@/lib/motion/sheetDrag";
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+/** Mouvement de la feuille et du fond, à l'ouverture comme à la fermeture (tokens --duration-normal, --easing-default). */
+const MOTION = "duration-(--duration-normal) ease-calm";
 
 /**
  * Rend inerte tout ce qui est hors de la feuille (contenu, barre d'onglets), sauf les régions
@@ -55,7 +49,9 @@ type Props = {
  *  - Fermeture : glissement vers le bas depuis la poignée ou le titre, Échap, toucher sur le fond, ✕.
  *  - Modale : le reste de la page est inerte et ne défile plus ; Tab et Maj+Tab tournent dans la feuille.
  *  - Focus : sur la feuille à l'ouverture (le titre est annoncé), rendu au déclencheur à la fermeture.
- *  - Mouvement : montée et descente en 250 ms avec --easing-default, coupées par prefers-reduced-motion.
+ *  - Mouvement : la feuille monte du bas pendant que le fond apparaît en fondu, et redescend à la fermeture
+ *    (--duration-normal, --easing-default, sans rebond). Au glissement, elle suit le doigt puis termine son
+ *    mouvement depuis là. prefers-reduced-motion ramène les durées à 0 : ouverture et fermeture instantanées.
  */
 export function Sheet({ open, onClose, title, description, closeLabel, returnFocus, children }: Props) {
   // La feuille reste montée pendant sa sortie : `present` suit `open` à l'ouverture, et ne repasse à
@@ -67,7 +63,7 @@ export function Sheet({ open, onClose, title, description, closeLabel, returnFoc
   const rootRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
-  const drag = useRef<{ y: number; t: number; dy: number } | null>(null);
+  const drag = useRef<{ startY: number; startedAt: number; dy: number } | null>(null);
   const titleId = useId();
   const descriptionId = useId();
 
@@ -93,7 +89,8 @@ export function Sheet({ open, onClose, title, description, closeLabel, returnFoc
 
   useEffect(() => {
     if (!closing) return;
-    const timer = window.setTimeout(() => setPresent(false), prefersReducedMotion() ? 0 : EXIT_MS);
+    // Démontage à la fin de la descente : la durée vient du même token que le CSS (0 si le mouvement est réduit).
+    const timer = window.setTimeout(() => setPresent(false), readMotionDuration("--duration-normal"));
     return () => window.clearTimeout(timer);
   }, [closing]);
 
@@ -129,7 +126,7 @@ export function Sheet({ open, onClose, title, description, closeLabel, returnFoc
   function onPointerDown(event: PointerEvent<HTMLDivElement>) {
     if (event.button !== 0 || closing) return;
     if (event.target instanceof Element && event.target.closest("button, a, input, select, textarea")) return;
-    drag.current = { y: event.clientY, t: performance.now(), dy: 0 };
+    drag.current = { startY: event.clientY, startedAt: performance.now(), dy: 0 };
     event.currentTarget.setPointerCapture(event.pointerId);
   }
 
@@ -137,13 +134,14 @@ export function Sheet({ open, onClose, title, description, closeLabel, returnFoc
     const state = drag.current;
     const panel = panelRef.current;
     if (!state || !panel) return;
-    state.dy = Math.max(0, event.clientY - state.y);
+    // La feuille suit le doigt sans transition ; le fond s'estompe à mesure qu'elle descend.
+    state.dy = sheetDragOffset(state.startY, event.clientY);
     panel.style.transition = "none";
     panel.style.translate = `0 ${state.dy}px`;
     const backdrop = backdropRef.current;
     if (backdrop) {
       backdrop.style.transition = "none";
-      backdrop.style.opacity = String(1 - Math.min(1, state.dy / panel.offsetHeight));
+      backdrop.style.opacity = String(sheetBackdropOpacity(state.dy, panel.offsetHeight));
     }
   }
 
@@ -152,17 +150,20 @@ export function Sheet({ open, onClose, title, description, closeLabel, returnFoc
     drag.current = null;
     const panel = panelRef.current;
     if (!state || !panel) return;
-    const velocity = state.dy / Math.max(1, performance.now() - state.t);
-    const farEnough = state.dy > Math.min(DRAG_CLOSE_PX, panel.offsetHeight * DRAG_CLOSE_RATIO);
-    const flicked = velocity > FLICK_PX_PER_MS && state.dy > FLICK_MIN_PX;
-    // On rend la main aux classes : la feuille repart de sa position actuelle, vers le haut ou vers le bas.
+    const close = shouldCloseSheet({
+      dy: state.dy,
+      elapsedMs: performance.now() - state.startedAt,
+      height: panel.offsetHeight,
+    });
+    // On rend la main aux classes : la feuille termine son mouvement depuis sa position sous le doigt,
+    // vers le bas (fermeture) ou vers le haut (elle reste ouverte), avec la même courbe et la même durée.
     panel.style.transition = "";
     panel.style.translate = "";
     if (backdropRef.current) {
       backdropRef.current.style.transition = "";
       backdropRef.current.style.opacity = "";
     }
-    if (!cancelled && (farEnough || flicked)) onClose();
+    if (!cancelled && close) onClose();
   }
 
   return createPortal(
@@ -176,7 +177,7 @@ export function Sheet({ open, onClose, title, description, closeLabel, returnFoc
         ref={backdropRef}
         aria-hidden="true"
         onClick={onClose}
-        className={`absolute inset-0 bg-overlay transition-opacity duration-(--duration-normal) ease-calm starting:opacity-0 ${
+        className={`absolute inset-0 bg-overlay transition-opacity ${MOTION} starting:opacity-0 ${
           closing ? "opacity-0" : "opacity-100"
         }`}
       />
@@ -187,7 +188,7 @@ export function Sheet({ open, onClose, title, description, closeLabel, returnFoc
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}
         tabIndex={-1}
-        className={`absolute inset-x-0 bottom-0 mx-auto flex max-h-[85dvh] w-full max-w-content flex-col rounded-t-lg bg-card pb-[env(safe-area-inset-bottom)] text-ink shadow-lg outline-none transition-transform duration-(--duration-normal) ease-calm starting:translate-y-full ${
+        className={`absolute inset-x-0 bottom-0 mx-auto flex max-h-[85dvh] w-full max-w-content flex-col rounded-t-lg bg-card pb-[env(safe-area-inset-bottom)] text-ink shadow-lg outline-none transition-transform ${MOTION} starting:translate-y-full ${
           closing ? "translate-y-full" : "translate-y-0"
         }`}
       >

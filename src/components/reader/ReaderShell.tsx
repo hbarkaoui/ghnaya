@@ -51,6 +51,13 @@ const CONTROL =
 const HINT_KEY = "ghnaya.reader.wakeHintDismissed";
 
 /**
+ * Contrôles masqués ou affichés d'un toucher sur les paroles : fondu seul (--duration-normal,
+ * --easing-default), sans déplacement, pour que les paroles ne bougent pas. Masqués, ils sortent aussitôt
+ * de l'arbre d'accessibilité (inert, aria-hidden) : rien ne dépend de la fin du fondu.
+ */
+const CONTROLS_MOTION = "transition-opacity duration-(--duration-normal) ease-calm";
+
+/**
  * Lecteur de séance plein écran : sombre par défaut, paroles en 28 px, navigation par glissement
  * (dans le sens de lecture) ou par boutons, écran maintenu allumé, préférences mémorisées.
  * Un toucher sur les paroles masque ou affiche les contrôles.
@@ -162,7 +169,7 @@ export function ReaderShell(props: Props) {
       className="fixed inset-0 z-(--z-reader) flex flex-col bg-reader-bg text-reader-ink"
     >
       <header
-        className={`shrink-0 px-2 pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2 transition-opacity duration-(--duration-normal) ${hideWhenIdle}`}
+        className={`shrink-0 px-2 pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-2 ${CONTROLS_MOTION} ${hideWhenIdle}`}
         {...hiddenProps}
       >
         <div className="mx-auto flex max-w-reader items-center gap-2">
@@ -216,9 +223,11 @@ export function ReaderShell(props: Props) {
         className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain px-6"
         {...swipe}
       >
+        {/* Passage d'une chanson à l'autre : les nouvelles paroles (ou l'écran de fin) apparaissent en fondu
+            (.reader-fade, 250 ms), sans glisser. Le titre et la position changent tout de suite. */}
         <div className="mx-auto max-w-reader py-6">
           {ended && playlist ? (
-            <section className="flex flex-col items-center gap-4 py-12 text-center">
+            <section className="reader-fade flex flex-col items-center gap-4 py-12 text-center">
               <LogoSymbol size={72} />
               <h2 className="font-display text-2xl font-semibold">{t("endTitle")}</h2>
               <p className="text-reader-ink-2">
@@ -246,7 +255,7 @@ export function ReaderShell(props: Props) {
             <>
               <TranslitStatus view={translit.view} status={translit.status} onRetry={translit.retry} tone="reader" />
               <LyricsView
-                key={`${entry.song.id}-${prefs.mode}`}
+                key={`${index}-${prefs.mode}`}
                 lyrics={entry.song.lyrics}
                 translit={translit.text}
                 mode={prefs.mode}
@@ -274,7 +283,7 @@ export function ReaderShell(props: Props) {
       ) : null}
 
       <footer
-        className={`shrink-0 px-3 pt-2 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] transition-opacity duration-(--duration-normal) ${hideWhenIdle}`}
+        className={`shrink-0 px-3 pt-2 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] ${CONTROLS_MOTION} ${hideWhenIdle}`}
         {...hiddenProps}
       >
         {modeOpen ? (
