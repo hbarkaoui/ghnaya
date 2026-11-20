@@ -4,6 +4,7 @@ import { LogIn } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 import { joinClubAction } from "@/app/actions/clubs";
+import { useActionGuard } from "@/components/system/useActionGuard";
 import { BUTTON_PRIMARY } from "@/components/ui/styles";
 
 /**
@@ -12,7 +13,8 @@ import { BUTTON_PRIMARY } from "@/components/ui/styles";
  */
 export function JoinClubForm({ code, label, confirm = false }: { code: string; label: string; confirm?: boolean }) {
   const t = useTranslations("clubs.join");
-  const [state, action, pending] = useActionState(joinClubAction.bind(null, code), null);
+  const { guardState } = useActionGuard();
+  const [state, action, pending] = useActionState(guardState(joinClubAction.bind(null, code)), null);
 
   return (
     <form action={action} className="flex flex-col gap-3">

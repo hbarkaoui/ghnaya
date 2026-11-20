@@ -8,6 +8,7 @@ import { flushSync } from "react-dom";
 import { addSongToPlaylist, createPlaylistWithSong } from "@/app/actions/addToPlaylist";
 import { ClubCover } from "@/components/club/ClubCover";
 import { Badge } from "@/components/ui/Badge";
+import { ACTION_FAILED, useActionGuard } from "@/components/system/useActionGuard";
 import { Sheet } from "@/components/ui/Sheet";
 import { useToast } from "@/components/ui/Toast";
 import { signInHref } from "@/lib/auth/returnPath";
@@ -85,6 +86,7 @@ function SheetBody({
 }: Omit<Props, "open" | "onClose" | "returnFocus"> & { onDone: () => void }) {
   const t = useTranslations();
   const toast = useToast();
+  const { guard } = useActionGuard();
   const redirectToSignIn = useSignInRedirect();
   // Sans playlist, le formulaire de création est ouvert d'emblée.
   const [creating, setCreating] = useState(targets.length === 0);
@@ -95,7 +97,9 @@ function SheetBody({
     if (pendingId) return;
     setPendingId(target.id);
     try {
-      const result = await addSongToPlaylist(target.id, song.id);
+      const result = await guard(addSongToPlaylist(target.id, song.id));
+      // Échec réseau ou serveur : le toast est affiché, la feuille reste ouverte pour réessayer.
+      if (result === ACTION_FAILED) return;
       if (result.status === "signedOut") return redirectToSignIn();
       if (result.status === "added" || result.status === "duplicate") {
         onTargetChange(result.target);
@@ -107,9 +111,6 @@ function SheetBody({
       }
       // Playlist supprimée ou droits retirés entre-temps : la liste n'est plus à jour.
       onDone();
-      toast(t("addToPlaylist.toast.failed"), "error");
-    } catch {
-      // Échec réseau : la feuille reste ouverte pour réessayer.
       toast(t("addToPlaylist.toast.failed"), "error");
     } finally {
       setPendingId(null);
@@ -237,6 +238,7 @@ function QuickCreate({
 }) {
   const t = useTranslations("addToPlaylist");
   const toast = useToast();
+  const { guard } = useActionGuard();
   const [name, setName] = useState("");
   const [destination, setDestination] = useState(clubs[0]?.slug ?? PERSONAL);
   const [error, setError] = useState<PlaylistNameError | null>(null);
@@ -257,11 +259,15 @@ function QuickCreate({
     }
     setPending(true);
     try {
-      const result = await createPlaylistWithSong({
-        name: parsed.name,
-        clubSlug: destination === PERSONAL ? null : destination,
-        songId: song.id,
-      });
+      const result = await guard(
+        createPlaylistWithSong({
+          name: parsed.name,
+          clubSlug: destination === PERSONAL ? null : destination,
+          songId: song.id,
+        }),
+      );
+      // Échec réseau ou serveur : toast affiché, le nom saisi reste pour réessayer.
+      if (result === ACTION_FAILED) return;
       if (result.status === "created") return onCreated(result.target);
       if (result.status === "invalid") {
         setError(result.error);
@@ -269,8 +275,6 @@ function QuickCreate({
         return;
       }
       if (result.status === "signedOut") return onSignedOut();
-      toast(t("toast.failed"), "error");
-    } catch {
       toast(t("toast.failed"), "error");
     } finally {
       setPending(false);

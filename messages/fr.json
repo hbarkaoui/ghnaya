@@ -4,6 +4,34 @@
     "nameAr": "غناية",
     "tagline": "Les paroles de vos chansons, pour chanter ensemble"
   },
+  "system": {
+    "loading": {
+      "list": "Chargement…",
+      "playlists": "Chargement de vos playlists…",
+      "playlist": "Chargement de la playlist…",
+      "clubs": "Chargement des clubs…",
+      "club": "Chargement du club…"
+    },
+    "error": {
+      "metaTitle": "Erreur",
+      "title": "Cette page n'a pas pu s'afficher",
+      "body": "Un problème est survenu de notre côté. Réessayez. S'il continue, revenez à l'accueil.",
+      "retry": "Réessayer",
+      "home": "Revenir à l'accueil",
+      "reference": "Référence pour le support :"
+    },
+    "notFound": {
+      "metaTitle": "Page introuvable",
+      "title": "Cette page est introuvable",
+      "body": "Le lien est peut-être incorrect, ou la page a été déplacée.",
+      "home": "Revenir à l'accueil",
+      "search": "Chercher une chanson"
+    },
+    "actionFailed": {
+      "network": "Connexion impossible. Vérifiez votre réseau, puis réessayez.",
+      "server": "Ghnaya ne répond pas pour le moment. Réessayez dans un instant."
+    }
+  },
   "nav": {
     "label": "Navigation principale",
     "home": "Accueil",

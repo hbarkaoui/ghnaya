@@ -5,6 +5,7 @@ import { TabBar } from "@/components/shell/TabBar";
 import { ToastProvider } from "@/components/ui/Toast";
 import { isRtl } from "@/i18n/locale";
 import { getCurrentUser } from "@/lib/session";
+import { throwIfRootErrorPreview } from "@/mocks/demoPreviewsServer";
 import { fontVariables } from "./fonts";
 import "./globals.css";
 
@@ -27,6 +28,7 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
+  await throwIfRootErrorPreview(); // MAQUETTE : aperçu de global-error (/apercu/etats), inactif en production.
   const [locale, user] = await Promise.all([getLocale(), getCurrentUser()]);
 
   return (

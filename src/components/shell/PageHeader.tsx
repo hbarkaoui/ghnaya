@@ -1,9 +1,9 @@
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { LogoLockup } from "@/components/brand/Logo";
 import { BackLink } from "./BackLink";
 import { LocaleSwitcher } from "./LocaleSwitcher";
+import { HEADER_CLASS, RootHeaderBar } from "./RootHeaderBar";
 
 type Props =
   | { variant: "root"; withLocaleSwitcher?: boolean }
@@ -16,8 +16,6 @@ type Props =
       backToHistory?: boolean;
     };
 
-const HEADER_CLASS =
-  "sticky top-0 z-30 border-b border-line-subtle bg-page pt-[env(safe-area-inset-top)]";
 const BACK_CLASS =
   "inline-flex size-11 shrink-0 items-center justify-center rounded-md text-ink hover:bg-well";
 
@@ -31,14 +29,7 @@ export async function PageHeader(props: Props) {
 
   if (props.variant === "root") {
     return (
-      <header className={HEADER_CLASS}>
-        <div className="mx-auto flex h-14 max-w-content items-center justify-between px-4">
-          <Link href="/" aria-label={t("app.name")} className="rounded-md">
-            <LogoLockup />
-          </Link>
-          {props.withLocaleSwitcher ? <LocaleSwitcher /> : null}
-        </div>
-      </header>
+      <RootHeaderBar homeLabel={t("app.name")}>{props.withLocaleSwitcher ? <LocaleSwitcher /> : null}</RootHeaderBar>
     );
   }
 

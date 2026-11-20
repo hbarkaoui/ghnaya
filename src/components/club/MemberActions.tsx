@@ -4,6 +4,7 @@ import { CircleCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
 import { promoteMemberAction } from "@/app/actions/clubs";
+import { useActionGuard } from "@/components/system/useActionGuard";
 import type { ClubRole } from "@/lib/clubs/membership";
 import { BUTTON_PRIMARY, BUTTON_SECONDARY } from "@/components/ui/styles";
 
@@ -24,7 +25,8 @@ export function MemberActions({
 }) {
   const t = useTranslations("clubs.members");
   const [confirming, setConfirming] = useState(false);
-  const [state, action, pending] = useActionState(promoteMemberAction.bind(null, slug, member.id), null);
+  const { guardState } = useActionGuard();
+  const [state, action, pending] = useActionState(guardState(promoteMemberAction.bind(null, slug, member.id)), null);
 
   if (member.role === "animator") {
     return state?.done ? (

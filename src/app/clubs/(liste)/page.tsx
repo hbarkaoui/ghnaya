@@ -14,6 +14,7 @@ import { BUTTON_PRIMARY } from "@/components/ui/styles";
 import { clubHref, signInHref } from "@/lib/clubs/href";
 import { getCurrentUser } from "@/lib/session";
 import { clubsOf } from "@/mocks/clubStore";
+import { waitDemoLatency } from "@/mocks/demoPreviewsServer";
 
 export async function generateMetadata(): Promise<Metadata> {
   const [t, nav, user] = await Promise.all([getTranslations("clubs"), getTranslations("nav"), getCurrentUser()]);
@@ -28,6 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
  *  - visiteur : une invitation à se connecter.
  */
 export default async function ClubsPage({ searchParams }: PageProps<"/clubs">) {
+  await waitDemoLatency(); // MAQUETTE : délai d'aperçu (/apercu/etats), nul en production.
   const user = await getCurrentUser();
   if (!user) return <VisitorClubs />;
 

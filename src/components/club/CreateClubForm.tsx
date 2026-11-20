@@ -4,6 +4,7 @@ import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
 import { createClubAction, type NameError } from "@/app/actions/clubs";
+import { useActionGuard } from "@/components/system/useActionGuard";
 import { CLUB_NAME_MAX } from "@/lib/clubs/name";
 import { BUTTON_PRIMARY, FIELD, FIELD_ERROR, FIELD_HINT, LABEL } from "@/components/ui/styles";
 import { ClubCover } from "./ClubCover";
@@ -12,7 +13,8 @@ import { nameErrorMessage } from "./nameError";
 /** Création d'un club : le nom, avec l'aperçu de la couverture générée à partir de ce nom. */
 export function CreateClubForm() {
   const t = useTranslations("clubs");
-  const [state, action, pending] = useActionState(createClubAction, null);
+  const { guardState } = useActionGuard();
+  const [state, action, pending] = useActionState(guardState(createClubAction), null);
   const [name, setName] = useState("");
   const error = state?.error as NameError | undefined;
   const preview = name.trim();

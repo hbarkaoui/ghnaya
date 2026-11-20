@@ -17,6 +17,7 @@ import { canCopyPlaylist, canEditPlaylist, canViewPlaylist } from "@/lib/playlis
 import { getCurrentUser } from "@/lib/session";
 import { getPlaylist, getRemovedSong, getSong } from "@/mocks/catalog";
 import { readerPositionsOf } from "@/mocks/playlistStore";
+import { waitDemoLatency } from "@/mocks/demoPreviewsServer";
 
 /** Une playlist n'est visible que par les membres de son club, ou par son propriétaire (spec §10). */
 async function findVisiblePlaylist(id: string) {
@@ -43,6 +44,7 @@ const SECONDARY =
  * Une playlist d'un autre club, ou personnelle d'un autre, est introuvable (not-found.tsx).
  */
 export default async function PlaylistPage({ params, searchParams }: PageProps<"/playlists/[id]">) {
+  await waitDemoLatency(); // MAQUETTE : délai d'aperçu (/apercu/etats), nul en production.
   const [{ id }, { edition }] = await Promise.all([params, searchParams]);
   const found = await findVisiblePlaylist(id);
   if (!found) notFound();

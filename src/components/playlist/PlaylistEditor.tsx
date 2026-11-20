@@ -12,6 +12,7 @@ import {
   restorePlaylistSong,
   savePlaylistNote,
 } from "@/app/actions/playlist";
+import { ACTION_FAILED, useActionGuard } from "@/components/system/useActionGuard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import {
   NAME_MAX_LENGTH,
@@ -66,6 +67,10 @@ const FIELD =
  * le geste sans attendre la réponse (useOptimistic). Après un déplacement, le focus reste sur le bouton
  * utilisé ; après un retrait, il passe sur « Annuler », à la place de la ligne. Les changements sont
  * annoncés aux lecteurs d'écran.
+ *
+ * Un enregistrement qui échoue (réseau coupé, serveur injoignable) affiche un toast d'erreur : l'ordre
+ * revient de lui-même à celui du serveur (fin de la transition optimiste), une ligne retirée revient,
+ * « Annuler » réapparaît si c'est lui qui a échoué, et une note ou un nom restent dans leur champ.
  */
 export function PlaylistEditor({
   playlistId,
@@ -86,6 +91,7 @@ export function PlaylistEditor({
   const t = useTranslations("playlistPage");
   const tEditor = useTranslations("playlistPage.editor");
   const router = useRouter();
+  const { guard } = useActionGuard();
   const nameErrorId = useId();
 
   const [optimisticRows, apply] = useOptimistic(rows, applyOp);
@@ -111,12 +117,15 @@ export function PlaylistEditor({
   }
 
   // Après un déplacement ou un retrait, rendre le focus au bon bouton (le nœud a pu changer de place).
+  // Si la cible n'est pas encore là (ligne remise après un échec, à la fin de la transition), on
+  // réessaie au rendu suivant.
   useLayoutEffect(() => {
     const target = pendingFocus.current;
     if (!target) return;
-    pendingFocus.current = null;
     if (target === "undo") {
-      undoRef.current?.focus();
+      if (!undoRef.current) return;
+      pendingFocus.current = null;
+      undoRef.current.focus();
       return;
     }
     const find = (control: Control) =>
@@ -125,7 +134,10 @@ export function PlaylistEditor({
       );
     const button = find(target.control);
     const fallback = target.control === "up" ? find("down") : find("up");
-    (button && !button.disabled ? button : fallback)?.focus();
+    const next = button && !button.disabled ? button : fallback;
+    if (!next) return;
+    pendingFocus.current = null;
+    next.focus();
   });
 
   function move(row: EditorRow, index: number, direction: Direction) {
@@ -137,7 +149,7 @@ export function PlaylistEditor({
     );
     startTransition(async () => {
       apply({ type: "move", songId: row.songId, direction });
-      await track(movePlaylistSong(playlistId, row.songId, direction));
+      await track(guard(movePlaylistSong(playlistId, row.songId, direction)));
     });
   }
 
@@ -147,26 +159,41 @@ export function PlaylistEditor({
     setAnnouncement(tEditor("removedRow", { title: row.title }));
     startTransition(async () => {
       apply({ type: "remove", songId: row.songId });
-      await track(removePlaylistSong(playlistId, row.songId));
+      const result = await track(guard(removePlaylistSong(playlistId, row.songId)));
+      if (result === ACTION_FAILED) {
+        // La ligne revient : plus rien à annuler, le focus retourne sur son bouton de retrait.
+        pendingFocus.current = { songId: row.songId, control: "remove" };
+        setLastRemoved(null);
+      }
     });
   }
 
   function undo() {
     if (!lastRemoved) return;
-    const { row, label } = lastRemoved;
+    const removed = lastRemoved;
+    const { row, label } = removed;
     pendingFocus.current = { songId: row.songId, control: "remove" };
     setLastRemoved(null);
     setRestoredLabels((current) => ({ ...current, [row.songId]: label }));
     setAnnouncement(tEditor("restored", { title: row.title }));
     startTransition(async () => {
       apply({ type: "restore", row });
-      await track(restorePlaylistSong(playlistId, { songId: row.songId, position: row.position, note: row.note }));
+      const result = await track(
+        guard(restorePlaylistSong(playlistId, { songId: row.songId, position: row.position, note: row.note })),
+      );
+      if (result === ACTION_FAILED) {
+        // La chanson reste retirée : « Annuler » revient, pour réessayer.
+        pendingFocus.current = "undo";
+        setLastRemoved(removed);
+      }
     });
   }
 
   async function saveNote(row: EditorRow, value: string) {
     if (normalizeNote(value) === row.note) return;
-    await track(savePlaylistNote(playlistId, row.songId, value));
+    // Après un échec, la note reste dans son champ : la quitter à nouveau réessaie.
+    const result = await track(guard(savePlaylistNote(playlistId, row.songId, value)));
+    if (result === ACTION_FAILED) return;
     setAnnouncement(tEditor("noteSaved", { title: row.title }));
   }
 
@@ -176,7 +203,8 @@ export function PlaylistEditor({
     const next = normalizePlaylistName(value);
     if (next === null) setNameError(true);
     if (next === null || next === name) return;
-    const result = await track(renamePlaylist(playlistId, value));
+    const result = await track(guard(renamePlaylist(playlistId, value)));
+    if (result === ACTION_FAILED) return;
     if (result.ok) setAnnouncement(tEditor("renamed", { name: result.name }));
     else setNameError(result.error === "empty");
   }
