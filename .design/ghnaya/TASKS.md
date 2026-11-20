@@ -150,7 +150,7 @@ Date : 18/11/2026
   - **À partir de 768 px** : les onglets passent dans une barre en haut à côté du logo ; le contenu est une colonne centrée de 640 px au plus ; les paroles du lecteur font 720 px de large au plus.
   - **À partir de 1024 px** : la vue des différences de la modération passe sur deux colonnes, avant / après.
   - **Points de rupture** : 375, 768 et 1024 px.
-- [ ] **Vérification bilingue complète** : chaque écran est vérifié en arabe, avec :
+- [x] **Vérification bilingue complète** _(faite le 20/11/2026 ; à relire par un arabophone : `RELECTURE_ARABE.md`)_ : chaque écran est vérifié en arabe, avec :
   - la mise en page en miroir ;
   - les icônes de direction retournées (chevrons, retour, précédent / suivant) ;
   - les chiffres occidentaux (0-9) partout, puisque c'est l'usage en Tunisie ;

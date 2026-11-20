@@ -9,6 +9,7 @@ import {
   ProposalTypeBadge,
   SongTitles,
   doneMessage,
+  person,
   personLabel,
 } from "@/components/moderation/parts";
 import { PageHeader } from "@/components/shell/PageHeader";
@@ -64,7 +65,7 @@ export default async function ModerationPage({ searchParams }: PageProps<"/moder
                       title={<SongTitles titleAr={proposal.payload.titleAr} titleLatin={proposal.payload.titleLatin} />}
                       meta={
                         <>
-                          {t("by", { name: await personLabel(proposal.authorId) })}
+                          {t.rich("by", { name: await personLabel(proposal.authorId), person })}
                           <span aria-hidden="true"> · </span>
                           <Age iso={proposal.createdAt} />
                         </>

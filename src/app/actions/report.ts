@@ -8,6 +8,7 @@ import {
   type ReportField,
 } from "@/lib/report/validate";
 import { getCurrentUser } from "@/lib/session";
+import { isolate } from "@/lib/text/isolate";
 import { getSong } from "@/mocks/catalog";
 import { addReport } from "@/mocks/reports";
 
@@ -28,7 +29,9 @@ async function translate(errors: ReportErrors): Promise<Partial<Record<ReportFie
   const out: Partial<Record<ReportField, string>> = {};
   for (const [field, error] of Object.entries(errors) as [ReportField, NonNullable<ReportErrors[ReportField]>][]) {
     const values = Object.fromEntries(Object.entries(error.values ?? {}).map(([k, v]) => [k, format.format(Number(v))]));
-    out[field] = t(error.code, values);
+    // Messages en texte brut (récapitulatif, champ) : l'adresse d'exemple <ltr> est isolée par des
+    // caractères Unicode, l'équivalent d'un fragment dir="ltr" dans la phrase arabe.
+    out[field] = t.markup(error.code, { ...values, ltr: (chunks) => isolate(chunks) });
   }
   return out;
 }

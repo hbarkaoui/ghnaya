@@ -2,6 +2,7 @@ import { ListMusic, Play } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ClubCover } from "@/components/club/ClubCover";
+import { Bidi } from "@/components/ui/Bidi";
 import { readerPositionsOf } from "@/mocks/playlistStore";
 import type { Playlist } from "@/types/catalog";
 
@@ -21,19 +22,20 @@ export async function PlaylistCard({ playlist }: { playlist: Playlist }) {
         <ClubCover name={playlist.club.name} size="md" />
       ) : (
         <span className="inline-flex size-16 shrink-0 items-center justify-center rounded-lg bg-well text-ink-2" aria-hidden="true">
-          <ListMusic className="size-7" />
+          <ListMusic className="size-7 rtl:-scale-x-100" />
         </span>
       )}
       <div className="min-w-0 flex-1">
+        {/* Le sens d'écriture est sur le fragment (Bidi), pas sur le lien bloc : un nom latin reste aligné
+            sur le début de l'interface (à droite en arabe). */}
         <Link
           href={`/playlists/${playlist.id}`}
-          dir="auto"
           className="line-clamp-2 font-medium after:absolute after:inset-0 after:rounded-lg"
         >
-          {playlist.name}
+          <Bidi>{playlist.name}</Bidi>
         </Link>
         <p className="line-clamp-2 text-sm text-ink-2">
-          <span dir="auto">{playlist.club ? playlist.club.name : t("personal")}</span>
+          <Bidi>{playlist.club ? playlist.club.name : t("personal")}</Bidi>
           <span aria-hidden="true"> · </span>
           {t("songCount", { count, n: String(count) })}
         </p>

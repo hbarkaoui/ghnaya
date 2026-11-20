@@ -10,6 +10,7 @@ import { LocaleSwitcher } from "@/components/shell/LocaleSwitcher";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
 import { Badge } from "@/components/ui/Badge";
+import { Bidi } from "@/components/ui/Bidi";
 import { getCurrentUser } from "@/lib/session";
 import { accountFor, clubsOf, type ClubRef } from "@/mocks/account";
 import { moderationQueueSize } from "@/mocks/moderation";
@@ -40,14 +41,14 @@ export default async function MePage({ searchParams }: PageProps<"/moi">) {
         <section aria-labelledby="me-name">
           {/* Le sens du nom est isolé dans le texte ; le titre garde l'alignement de l'interface. */}
           <h1 id="me-name" className="text-2xl font-medium">
-            <bdi>{user.name}</bdi>
+            <Bidi>{user.name}</Bidi>
           </h1>
           <ClubPills user={user} clubs={clubsOf(user)} />
         </section>
 
         <div className="mt-8 flex flex-col gap-6">
           <MenuList>
-            <MenuLink href="/playlists" Icon={ListMusic} label={t("myPlaylists")} />
+            <MenuLink href="/playlists" Icon={ListMusic} label={t("myPlaylists")} flipIcon />
             <MenuLink
               href="/mes-contributions"
               Icon={FileClock}
@@ -117,9 +118,7 @@ async function ClubPills({ user, clubs }: { user: DemoUser; clubs: ClubRef[] }) 
               className="inline-flex min-h-11 items-center gap-2.5 rounded-lg border border-line-subtle bg-card p-0.5 pe-4 transition-colors duration-(--duration-fast) hover:bg-well"
             >
               <ClubCover name={club.name} size="sm" />
-              <span dir="auto" className="text-sm font-medium">
-                {club.name}
-              </span>
+              <Bidi className="text-sm font-medium">{club.name}</Bidi>
             </Link>
           </li>
         ))}

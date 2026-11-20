@@ -20,12 +20,27 @@ export function MenuList({ children, className = "" }: { children: ReactNode; cl
   );
 }
 
-/** Ligne qui mène à une page : icône, libellé, pastille facultative (un compteur), chevron. */
-export function MenuLink({ href, Icon, label, badge }: { href: string; Icon: LucideIcon; label: string; badge?: ReactNode }) {
+/**
+ * Ligne qui mène à une page : icône, libellé, pastille facultative (un compteur), chevron.
+ * `flipIcon` : icône retournée en arabe (direction ou liste, voir tests/unit/i18n/support/rtlIcons.ts).
+ */
+export function MenuLink({
+  href,
+  Icon,
+  label,
+  badge,
+  flipIcon = false,
+}: {
+  href: string;
+  Icon: LucideIcon;
+  label: string;
+  badge?: ReactNode;
+  flipIcon?: boolean;
+}) {
   return (
     <li>
       <Link href={href} className={`${ROW} ${INTERACTIVE}`}>
-        <RowIcon Icon={Icon} />
+        <RowIcon Icon={Icon} flip={flipIcon} />
         <span className="min-w-0 flex-1">{label}</span>
         {badge}
         <ChevronRight aria-hidden="true" className="size-5 shrink-0 text-ink-3 rtl:-scale-x-100" />

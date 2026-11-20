@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { DoneToast } from "@/components/moderation/DoneToast";
-import { Age, NextLink, ReasonBadge, SongTitles, doneMessage, personLabel } from "@/components/moderation/parts";
+import { Age, NextLink, ReasonBadge, SongTitles, doneMessage, person, personLabel } from "@/components/moderation/parts";
 import { ReportForm } from "@/components/moderation/ReportForm";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
@@ -12,6 +12,7 @@ import { ArtistNames } from "@/components/song/ArtistNames";
 import { Badge } from "@/components/ui/Badge";
 import { requireModerator } from "@/lib/moderation/gate";
 import { compareReports, nextInQueue } from "@/lib/moderation/queue";
+import { scriptAttrs } from "@/lib/text/scriptAttrs";
 import { getRemovedSong, getSong } from "@/mocks/catalog";
 import { openReports } from "@/mocks/moderation";
 import { getReport } from "@/mocks/reports";
@@ -78,7 +79,7 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/m
             </h2>
             <p className="mt-1 text-sm text-ink-2">
               {report.reporterId
-                ? t("report.by", { name: await personLabel(report.reporterId) })
+                ? t.rich("report.by", { name: await personLabel(report.reporterId), person })
                 : t("report.byVisitor")}
               <span aria-hidden="true"> · </span>
               <Age iso={report.createdAt} />
@@ -91,8 +92,9 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/m
                 </a>
               </p>
             ) : null}
-            <blockquote dir="auto" className="mt-3 rounded-lg border-s-4 border-line bg-well px-4 py-3 text-ink">
-              {report.details || t("report.noDetails")}
+            {/* Le filet suit le sens de l'interface (sur la boîte), le texte celui de son écriture. */}
+            <blockquote className="mt-3 rounded-lg border-s-4 border-line bg-well px-4 py-3 text-ink">
+              <p {...scriptAttrs(report.details || t("report.noDetails"))}>{report.details || t("report.noDetails")}</p>
             </blockquote>
           </section>
 
@@ -101,12 +103,12 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/m
           ) : (
             <section className="rounded-lg bg-well p-4">
               <p className="text-sm font-medium text-ink-2">{t("report.resolutionNote")}</p>
-              <p dir="auto" className="mt-1 text-ink">
+              <p {...scriptAttrs(report.resolutionNote ?? "")} className="mt-1 text-ink">
                 {report.resolutionNote}
               </p>
               {report.resolvedBy ? (
                 <p className="mt-2 text-sm text-ink-2">
-                  {t("report.resolvedBy", { name: await personLabel(report.resolvedBy) })}
+                  {t.rich("report.resolvedBy", { name: await personLabel(report.resolvedBy), person })}
                 </p>
               ) : null}
             </section>

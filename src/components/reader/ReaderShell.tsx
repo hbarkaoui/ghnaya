@@ -20,6 +20,9 @@ import { LyricsView } from "@/components/lyrics/LyricsView";
 import { TranslitStatus } from "@/components/lyrics/TranslitStatus";
 import { TranslitToggle } from "@/components/lyrics/TranslitToggle";
 import { useTranslit } from "@/components/lyrics/useTranslit";
+import { Bidi } from "@/components/ui/Bidi";
+import { isolate } from "@/lib/text/isolate";
+import { scriptAttrs } from "@/lib/text/scriptAttrs";
 import { useLocalStorage } from "@/lib/useLocalStorage";
 import type { ReaderEntry } from "@/types/catalog";
 import { useReaderPrefs } from "./useReaderPrefs";
@@ -177,7 +180,7 @@ export function ReaderShell(props: Props) {
             <X aria-hidden="true" className="size-6" />
           </button>
           <div className="min-w-0 flex-1 text-center">
-            <h1 dir="auto" className="truncate text-lg font-medium">
+            <h1 {...scriptAttrs(title)} className="truncate text-lg font-medium">
               {title}
             </h1>
             <p className="truncate text-sm text-reader-ink-2">
@@ -187,7 +190,7 @@ export function ReaderShell(props: Props) {
               {subtitle ? (
                 <>
                   <span aria-hidden="true"> · </span>
-                  <span dir="auto">{subtitle}</span>
+                  <Bidi>{subtitle}</Bidi>
                 </>
               ) : null}
             </p>
@@ -213,7 +216,7 @@ export function ReaderShell(props: Props) {
             className="mx-auto mt-2 max-w-reader rounded-md bg-reader-control px-3 py-2 text-sm text-reader-control-ink"
           >
             <span className="sr-only">{t("noteLabel")} : </span>
-            <span dir="auto">{entry.note}</span>
+            <Bidi>{entry.note}</Bidi>
           </p>
         ) : null}
       </header>
@@ -231,7 +234,7 @@ export function ReaderShell(props: Props) {
               <LogoSymbol size={72} />
               <h2 className="font-display text-2xl font-semibold">{t("endTitle")}</h2>
               <p className="text-reader-ink-2">
-                {t("endBody", { total: String(total), name: playlist.name })}
+                {t("endBody", { count: total, n: String(total), name: isolate(playlist.name) })}
               </p>
               <div className="mt-2 flex flex-wrap justify-center gap-3">
                 <button
@@ -354,7 +357,9 @@ export function ReaderShell(props: Props) {
       </footer>
 
       <p aria-live="polite" className="sr-only">
-        {ended ? t("endTitle") : t("announce", { current: position, total: String(total), title })}
+        {ended
+          ? t("endTitle")
+          : t.rich("announce", { current: position, total: String(total), title, song: (chunks) => <Bidi>{chunks}</Bidi> })}
       </p>
     </div>
   );

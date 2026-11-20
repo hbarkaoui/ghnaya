@@ -1,6 +1,8 @@
 import { ChevronRight, Copyright, FilePlus2, Flag, PencilLine, UserRound } from "lucide-react";
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
+import type { ReactNode } from "react";
+import { Bidi } from "@/components/ui/Bidi";
 import { SubTabs } from "@/components/ui/SubTabs";
 import { Badge } from "@/components/ui/Badge";
 import { formatAge } from "@/lib/moderation/age";
@@ -38,6 +40,9 @@ export async function personLabel(userId: string): Promise<string> {
   const t = await getTranslations("moderation");
   return personName(userId) ?? t("unknownAuthor");
 }
+
+/** Balise `<person>` des messages (« Proposée par <person>{name}</person> ») : nom isolé et balisé selon son écriture. */
+export const person = (chunks: ReactNode) => <Bidi>{chunks}</Bidi>;
 
 /** Toast de confirmation après une décision (`?statut=`), ou rien. */
 export async function doneMessage(raw: string | string[] | undefined): Promise<string | null> {

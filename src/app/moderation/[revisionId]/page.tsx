@@ -13,6 +13,7 @@ import {
   ProposalTypeBadge,
   SongTitles,
   doneMessage,
+  person,
   personLabel,
 } from "@/components/moderation/parts";
 import { ReviewForm } from "@/components/moderation/ReviewForm";
@@ -22,6 +23,7 @@ import { ArtistNames } from "@/components/song/ArtistNames";
 import { changedFields, type ComparedField } from "@/lib/moderation/apply";
 import { requireModerator } from "@/lib/moderation/gate";
 import { compareProposals, nextInQueue } from "@/lib/moderation/queue";
+import { scriptAttrs } from "@/lib/text/scriptAttrs";
 import { getRemovedSong, getSong } from "@/mocks/catalog";
 import { pendingProposals } from "@/mocks/moderation";
 import { formatProposalDate, proposalStore } from "@/mocks/proposals";
@@ -84,7 +86,7 @@ export default async function ProposalReviewPage({ params, searchParams }: PageP
             </div>
             <ArtistNames artists={displayArtists(proposal)} className="mt-1 block text-ink-2" />
             <p className="mt-2 text-sm text-ink-2">
-              {t("by", { name: await personLabel(proposal.authorId) })}
+              {t.rich("by", { name: await personLabel(proposal.authorId), person })}
               <span aria-hidden="true"> · </span>
               <Age iso={proposal.createdAt} />
             </p>
@@ -114,7 +116,7 @@ export default async function ProposalReviewPage({ params, searchParams }: PageP
               {proposal.reviewNote ? (
                 <>
                   <p className="mt-2 text-sm font-medium text-ink-2">{t("proposal.reviewNote")}</p>
-                  <p dir="auto" className="mt-1 text-ink">
+                  <p {...scriptAttrs(proposal.reviewNote ?? "")} className="mt-1 text-ink">
                     {proposal.reviewNote}
                   </p>
                 </>

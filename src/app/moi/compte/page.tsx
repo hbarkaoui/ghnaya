@@ -8,6 +8,7 @@ import { SignInInvite } from "@/components/me/SignInInvite";
 import { LocaleSwitcher } from "@/components/shell/LocaleSwitcher";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
+import { Bidi } from "@/components/ui/Bidi";
 import { getCurrentUser } from "@/lib/session";
 import { accountFor, soleAnimatorClubs, type ClubRef } from "@/mocks/account";
 
@@ -48,7 +49,7 @@ export default async function AccountPage() {
             <div className="flex min-h-14 flex-col justify-center px-4 py-2">
               <dt className="text-sm text-ink-2">{t("name")}</dt>
               <dd className="font-medium">
-                <bdi>{user.name}</bdi>
+                <Bidi>{user.name}</Bidi>
               </dd>
             </div>
             <div className="flex min-h-14 flex-col justify-center px-4 py-2">
@@ -100,7 +101,7 @@ async function LastAnimatorNotice({ clubs }: { clubs: ClubRef[] }) {
           <li key={club.slug} className="flex flex-col gap-2">
             <span className="flex items-center gap-2.5 font-medium">
               <ClubCover name={club.name} size="sm" />
-              <span dir="auto">{club.name}</span>
+              <Bidi>{club.name}</Bidi>
             </span>
             <span className="flex flex-wrap gap-2">
               <Link href={`/clubs/${club.slug}/membres`} className={linkClass}>

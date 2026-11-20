@@ -3,10 +3,11 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { DoneToast } from "@/components/moderation/DoneToast";
 import { ModerationItem } from "@/components/moderation/ModerationItem";
-import { Age, ModerationTabs, ReasonBadge, SongTitles, doneMessage, personLabel } from "@/components/moderation/parts";
+import { Age, ModerationTabs, ReasonBadge, SongTitles, doneMessage, person, personLabel } from "@/components/moderation/parts";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
 import { Badge } from "@/components/ui/Badge";
+import { Bidi } from "@/components/ui/Bidi";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { requireModerator } from "@/lib/moderation/gate";
 import { getRemovedSong, getSong } from "@/mocks/catalog";
@@ -72,7 +73,9 @@ export default async function ReportsPage({ searchParams }: PageProps<"/moderati
 async function ReportItem({ report }: { report: Report }) {
   const t = await getTranslations("moderation");
   const song = getSong(report.songId) ?? getRemovedSong(report.songId);
-  const reporter = report.reporterId ? t("report.by", { name: await personLabel(report.reporterId) }) : t("report.byVisitor");
+  const reporter = report.reporterId
+    ? t.rich("report.by", { name: await personLabel(report.reporterId), person })
+    : t("report.byVisitor");
 
   return (
     <ModerationItem
@@ -102,7 +105,7 @@ async function ReportItem({ report }: { report: Report }) {
           <Age iso={report.createdAt} />
         </>
       }
-      excerpt={report.details ? <span dir="auto">{report.details}</span> : undefined}
+      excerpt={report.details ? <Bidi>{report.details}</Bidi> : undefined}
     />
   );
 }

@@ -57,7 +57,8 @@ export function MagicLinkForm({ retour }: { retour: string }) {
           {error ? (
             <p id={ERROR_ID} className="flex items-start gap-1.5 text-sm text-error">
               <CircleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
-              <span>{t(`errors.${error}`)}</span>
+              {/* L'adresse d'exemple reste un fragment de gauche à droite dans la phrase arabe. */}
+              <span>{t.rich(`errors.${error}`, { ltr: (chunks) => <span dir="ltr">{chunks}</span> })}</span>
             </p>
           ) : null}
         </div>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { NewPlaylistForm } from "@/components/club/NewPlaylistForm";
 import { PlaylistCard } from "@/components/playlist/PlaylistCard";
+import { Bidi } from "@/components/ui/Bidi";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusNotice } from "@/components/ui/StatusNotice";
 import { clubPlaylists } from "@/mocks/clubStore";
@@ -25,7 +26,7 @@ export default async function ClubPlaylistsPage({ params, searchParams }: PagePr
   const { club, role } = await loadClub(slug);
   const t = await getTranslations("clubs");
   const playlists = clubPlaylists(club.slug);
-  const bdi = (chunks: React.ReactNode) => <bdi>{chunks}</bdi>;
+  const bdi = (chunks: React.ReactNode) => <Bidi>{chunks}</Bidi>;
 
   return (
     <div className="flex flex-col gap-4">

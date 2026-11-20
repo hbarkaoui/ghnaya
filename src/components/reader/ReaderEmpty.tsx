@@ -2,6 +2,7 @@ import { ListMusic, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { LogoSymbol } from "@/components/brand/Logo";
+import { Bidi } from "@/components/ui/Bidi";
 
 // Mêmes contrôles que le ReaderShell (module client : sa constante n'est pas importable ici).
 const CONTROL =
@@ -22,8 +23,8 @@ export async function ReaderEmpty({
   const t = await getTranslations();
   const playlistHref = `/playlists/${playlist.id}`;
   const action = canEdit
-    ? { href: `/recherche?playlist=${encodeURIComponent(playlist.id)}`, label: t("playlistPage.addSongs"), Icon: Plus }
-    : { href: playlistHref, label: t("playlistPage.backToPlaylist"), Icon: ListMusic };
+    ? { href: `/recherche?playlist=${encodeURIComponent(playlist.id)}`, label: t("playlistPage.addSongs"), Icon: Plus, flip: false }
+    : { href: playlistHref, label: t("playlistPage.backToPlaylist"), Icon: ListMusic, flip: true };
 
   return (
     <div data-reader className="fixed inset-0 z-(--z-reader) flex flex-col bg-reader-bg text-reader-ink">
@@ -32,8 +33,8 @@ export async function ReaderEmpty({
           <Link href={playlistHref} replace aria-label={t("reader.close")} className={CONTROL}>
             <X aria-hidden="true" className="size-6" />
           </Link>
-          <p dir="auto" className="min-w-0 flex-1 truncate text-center text-sm text-reader-ink-2">
-            {playlist.name}
+          <p className="min-w-0 flex-1 truncate text-center text-sm text-reader-ink-2">
+            <Bidi>{playlist.name}</Bidi>
           </p>
           <span aria-hidden="true" className="size-12 shrink-0" />
         </div>
@@ -51,7 +52,7 @@ export async function ReaderEmpty({
           replace
           className="mt-2 inline-flex min-h-12 items-center gap-2 rounded-md bg-reader-control-ink px-5 font-medium text-reader-bg focus-visible:outline-reader-focus"
         >
-          <action.Icon aria-hidden="true" className="size-5" />
+          <action.Icon aria-hidden="true" className={`size-5 ${action.flip ? "rtl:-scale-x-100" : ""}`} />
           {action.label}
         </Link>
       </main>
