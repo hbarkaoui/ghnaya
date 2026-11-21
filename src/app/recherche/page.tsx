@@ -1,5 +1,6 @@
 import { Clock, Info, Plus } from "lucide-react";
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
@@ -13,6 +14,9 @@ import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Pagination } from "@/components/ui/Pagination";
+import { clientIp } from "@/lib/ratelimit/clientIp";
+import { hitRateLimit, SEARCH_RATE_LIMIT } from "@/lib/ratelimit/fixedWindow";
+import { MIN_SIGNIFICANT, prepareQuery } from "@/lib/search/query";
 import { parseSearchParams, searchHref, type SearchParams } from "@/lib/search/searchParams";
 import { searchSongs } from "@/lib/search/searchSongs";
 import { PAGE_SIZE } from "@/lib/search/types";
@@ -98,9 +102,13 @@ async function SearchResults({ params, preview }: { params: SearchParams; previe
   const t = await getTranslations();
   const { q, page, dialect } = params;
 
-  // MAQUETTE : limite de requêtes simulée en développement (?apercu=limite). Le plan 1 (tâche 9)
-  // branchera ici hitRateLimit(`search:${clientIp}`, 60, 60).
-  if (preview === "limite") return <RateLimited />;
+  // Requête trop courte : aucune recherche, donc rien à compter.
+  if (prepareQuery(q).significant >= MIN_SIGNIFICANT) {
+    // Plan 1, tâche 9 : 60 recherches par minute et par adresse IP. `?apercu=limite` simule l'état en développement.
+    const { limit, windowSeconds } = SEARCH_RATE_LIMIT;
+    const { allowed } = await hitRateLimit(`search:${clientIp(await headers())}`, limit, windowSeconds);
+    if (!allowed || preview === "limite") return <RateLimited />;
+  }
 
   const smallPages = preview === "pagination";
   const result = smallPages ? await searchWithSmallPages(q, { dialect, page }) : await searchSongs(q, { dialect, page });

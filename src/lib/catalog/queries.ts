@@ -96,3 +96,22 @@ export async function getArtistPage(id: string, page: number, pageSize = ARTIST_
     })),
   };
 }
+
+/** Parmi `ids`, ceux des chansons publiées en base (une seule requête ; les identifiants invalides sont ignorés). */
+export async function publishedSongIds(ids: readonly string[]): Promise<Set<string>> {
+  const uuids = ids.filter(isUuid);
+  if (uuids.length === 0) return new Set();
+  const list = sql.join(
+    uuids.map((id) => sql`${id}`),
+    sql`, `,
+  );
+  const res = await db.execute<{ id: string }>(sql`SELECT id FROM songs WHERE id IN (${list}) AND status = 'published'`);
+  return new Set(res.rows.map((r) => r.id));
+}
+
+/** Chanson connue de la base, publiée ou retirée. */
+export async function songIdExists(id: string): Promise<boolean> {
+  if (!isUuid(id)) return false;
+  const res = await db.execute(sql`SELECT 1 FROM songs WHERE id = ${id}`);
+  return res.rows.length > 0;
+}

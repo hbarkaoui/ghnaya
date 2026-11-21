@@ -13,7 +13,8 @@ import {
   type ProposalField,
 } from "@/lib/contribution/validate";
 import { getCurrentUser } from "@/lib/session";
-import { getSong, SONGS } from "@/mocks/catalog";
+import { getSong } from "@/lib/catalog/read";
+import { SONGS } from "@/mocks/catalog";
 import { proposalStore } from "@/mocks/proposals";
 
 /** Réponse à un envoi refusé : les messages d'erreur, déjà traduits, champ par champ. */
@@ -57,7 +58,7 @@ export async function submitProposal(
     attempt: previous.attempt + 1,
   });
 
-  const song = songId ? getSong(songId) : undefined;
+  const song = songId ? await getSong(songId) : undefined;
   if (songId && !song) return fail({ form: { code: "songMissing" } });
   if (song && proposalStore.hasPending(user.id, song.id)) return fail({ form: { code: "pendingExists" } });
 

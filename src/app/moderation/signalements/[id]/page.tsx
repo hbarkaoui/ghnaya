@@ -13,7 +13,8 @@ import { Badge } from "@/components/ui/Badge";
 import { requireModerator } from "@/lib/moderation/gate";
 import { compareReports, nextInQueue } from "@/lib/moderation/queue";
 import { scriptAttrs } from "@/lib/text/scriptAttrs";
-import { getRemovedSong, getSong } from "@/mocks/catalog";
+import { getSong } from "@/lib/catalog/read";
+import { getRemovedSong } from "@/mocks/catalog";
 import { openReports } from "@/mocks/moderation";
 import { getReport } from "@/mocks/reports";
 
@@ -34,7 +35,7 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/m
   if (!report) notFound();
 
   const [t, done] = await Promise.all([getTranslations("moderation"), doneMessage((await searchParams).statut)]);
-  const published = getSong(report.songId);
+  const published = await getSong(report.songId);
   const song = published ?? getRemovedSong(report.songId);
   const next = nextInQueue(openReports(), report, compareReports);
 

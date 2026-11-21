@@ -10,7 +10,8 @@ import { Badge } from "@/components/ui/Badge";
 import { Bidi } from "@/components/ui/Bidi";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { requireModerator } from "@/lib/moderation/gate";
-import { getRemovedSong, getSong } from "@/mocks/catalog";
+import { getSong } from "@/lib/catalog/read";
+import { getRemovedSong } from "@/mocks/catalog";
 import { openReports, pendingProposals } from "@/mocks/moderation";
 import { listReports, type Report } from "@/mocks/reports";
 
@@ -72,7 +73,7 @@ export default async function ReportsPage({ searchParams }: PageProps<"/moderati
 
 async function ReportItem({ report }: { report: Report }) {
   const t = await getTranslations("moderation");
-  const song = getSong(report.songId) ?? getRemovedSong(report.songId);
+  const song = (await getSong(report.songId)) ?? getRemovedSong(report.songId);
   const reporter = report.reporterId
     ? t.rich("report.by", { name: await personLabel(report.reporterId), person })
     : t("report.byVisitor");

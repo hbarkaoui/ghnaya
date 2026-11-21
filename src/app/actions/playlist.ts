@@ -15,7 +15,8 @@ import { canCopyPlaylist, canEditPlaylist } from "@/lib/playlist/rights";
 import { copyPlaylist } from "@/lib/playlist/rows";
 import { getCurrentUser } from "@/lib/session";
 import { getPlaylist } from "@/mocks/catalog";
-import { addPlaylist, savePlaylist, songExists } from "@/mocks/playlistStore";
+import { songExists } from "@/lib/catalog/read";
+import { addPlaylist, savePlaylist } from "@/mocks/playlistStore";
 
 /**
  * Actions du mode édition d'une playlist et de « Copier dans mes playlists ».
@@ -55,7 +56,7 @@ export async function restorePlaylistSong(
   item: { songId: string; position: number; note: string | null },
 ): Promise<void> {
   const playlist = await editablePlaylist(playlistId);
-  if (!playlist || !item || !isText(item.songId) || !songExists(item.songId) || !Number.isInteger(item.position)) return;
+  if (!playlist || !item || !isText(item.songId) || !(await songExists(item.songId)) || !Number.isInteger(item.position)) return;
   const note = isText(item.note) ? normalizeNote(item.note) : null;
   savePlaylist(playlist.id, { items: insertItem(playlist.items, { songId: item.songId, position: item.position, note }) });
   refreshPages();

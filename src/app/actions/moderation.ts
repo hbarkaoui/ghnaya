@@ -14,7 +14,7 @@ import {
   parseReportAction,
   statusAfter,
 } from "@/lib/moderation/review";
-import { getSong } from "@/mocks/catalog";
+import { getSong } from "@/lib/catalog/read";
 import { openReports, pendingProposals } from "@/mocks/moderation";
 import { proposalStore } from "@/mocks/proposals";
 import { getReport, resolveReport } from "@/mocks/reports";
@@ -55,7 +55,7 @@ export async function reviewProposal(
   if (!checked.ok) return fail(t(checked.error, { max: String(NOTE_MAX) }));
 
   if (decision === "approve") {
-    const song = proposal.songId ? getSong(proposal.songId) : undefined;
+    const song = proposal.songId ? await getSong(proposal.songId) : undefined;
     if (proposal.songId && !song) return fail(t("songGone"));
     songStore.publish(
       songFromProposal(proposal.payload, song, {
@@ -93,7 +93,7 @@ export async function handleReport(
     report,
     action,
     note: formData.get("note"),
-    songPublished: getSong(report.songId) !== undefined,
+    songPublished: (await getSong(report.songId)) !== undefined,
   });
   if (!checked.ok) return fail(t(checked.error, { max: String(NOTE_MAX) }));
 

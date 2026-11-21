@@ -9,7 +9,7 @@ import {
 } from "@/lib/report/validate";
 import { getCurrentUser } from "@/lib/session";
 import { isolate } from "@/lib/text/isolate";
-import { getSong } from "@/mocks/catalog";
+import { getSong } from "@/lib/catalog/read";
 import { addReport } from "@/mocks/reports";
 
 /**
@@ -51,7 +51,7 @@ export async function submitReport(songId: string, previous: ReportState, formDa
     attempt,
   });
 
-  const song = getSong(songId);
+  const song = await getSong(songId);
   if (!song) return fail({ form: { code: "songMissing" } });
 
   const user = await getCurrentUser();

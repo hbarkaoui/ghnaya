@@ -5,11 +5,11 @@ import { ReaderShell } from "@/components/reader/ReaderShell";
 import { artistsLine } from "@/components/song/artistName";
 import { songDisplayTitle } from "@/components/song/songTitle";
 import { toReaderEntry } from "@/lib/reader/entry";
-import { getSong } from "@/mocks/catalog";
+import { getSong } from "@/lib/catalog/read";
 
 export async function generateMetadata({ params }: PageProps<"/chanson/[id]/lecture">): Promise<Metadata> {
   const { id } = await params;
-  const song = getSong(id);
+  const song = await getSong(id);
   const locale = await getLocale();
   return { title: song ? songDisplayTitle(song, locale) : undefined, robots: { index: false } };
 }
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps<"/chanson/[id]/lect
  */
 export default async function SongReaderPage({ params }: PageProps<"/chanson/[id]/lecture">) {
   const { id } = await params;
-  const song = getSong(id);
+  const song = await getSong(id);
   if (!song) notFound();
   const locale = await getLocale();
 

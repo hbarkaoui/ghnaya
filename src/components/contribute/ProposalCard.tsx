@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { ArtistNames } from "@/components/song/ArtistNames";
 import { scriptAttrs } from "@/lib/text/scriptAttrs";
-import { getSong } from "@/mocks/catalog";
+import { getSong } from "@/lib/catalog/read";
 import { formatProposalDate } from "@/mocks/proposals";
 import type { ArtistRef } from "@/types/catalog";
 import type { Proposal } from "@/types/proposal";
@@ -20,7 +20,7 @@ const displayArtists = (proposal: Proposal): ArtistRef[] =>
 export async function ProposalCard({ proposal }: { proposal: Proposal }) {
   const [t, locale] = await Promise.all([getTranslations("contributions"), getLocale()]);
   const { titleAr, titleLatin } = proposal.payload;
-  const song = proposal.songId ? getSong(proposal.songId) : undefined;
+  const song = proposal.songId ? await getSong(proposal.songId) : undefined;
 
   return (
     <li className="rounded-lg border border-line-subtle bg-card p-4">

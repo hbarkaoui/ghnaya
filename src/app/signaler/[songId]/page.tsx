@@ -7,13 +7,13 @@ import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
 import { ArtistNames } from "@/components/song/ArtistNames";
 import { getCurrentUser } from "@/lib/session";
-import { getSong } from "@/mocks/catalog";
+import { getSong } from "@/lib/catalog/read";
 
 export async function generateMetadata({ params }: PageProps<"/signaler/[songId]">): Promise<Metadata> {
   const { songId } = await params;
   const t = await getTranslations();
   return {
-    title: getSong(songId) ? t("reportForm.metaTitle") : t("song.notFoundMeta"),
+    title: (await getSong(songId)) ? t("reportForm.metaTitle") : t("song.notFoundMeta"),
     robots: { index: false },
   };
 }
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: PageProps<"/signaler/[songId]
  */
 export default async function ReportPage({ params }: PageProps<"/signaler/[songId]">) {
   const { songId } = await params;
-  const song = getSong(songId);
+  const song = await getSong(songId);
   if (!song) notFound();
   const [t, user] = await Promise.all([getTranslations("reportForm"), getCurrentUser()]);
 

@@ -12,11 +12,11 @@ import { artistsLine } from "@/components/song/artistName";
 import { SongLyrics } from "@/components/song/SongLyrics";
 import { songDisplayTitle } from "@/components/song/songTitle";
 import { Badge } from "@/components/ui/Badge";
-import { getSong } from "@/mocks/catalog";
+import { getSong } from "@/lib/catalog/read";
 
 export async function generateMetadata({ params }: PageProps<"/chanson/[id]">): Promise<Metadata> {
   const { id } = await params;
-  const song = getSong(id);
+  const song = await getSong(id);
   const [locale, t] = await Promise.all([getLocale(), getTranslations("song")]);
   if (!song) return { title: t("notFoundMeta") };
   return { title: songDisplayTitle(song, locale), description: artistsLine(song.artists, locale) };
@@ -32,7 +32,7 @@ const SECONDARY_ACTION =
  */
 export default async function SongPage({ params }: PageProps<"/chanson/[id]">) {
   const { id } = await params;
-  const song = getSong(id);
+  const song = await getSong(id);
   if (!song) notFound();
 
   const t = await getTranslations();

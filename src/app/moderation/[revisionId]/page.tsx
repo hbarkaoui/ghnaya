@@ -24,7 +24,8 @@ import { changedFields, type ComparedField } from "@/lib/moderation/apply";
 import { requireModerator } from "@/lib/moderation/gate";
 import { compareProposals, nextInQueue } from "@/lib/moderation/queue";
 import { scriptAttrs } from "@/lib/text/scriptAttrs";
-import { getRemovedSong, getSong } from "@/mocks/catalog";
+import { getSong } from "@/lib/catalog/read";
+import { getRemovedSong } from "@/mocks/catalog";
 import { pendingProposals } from "@/mocks/moderation";
 import { formatProposalDate, proposalStore } from "@/mocks/proposals";
 import type { ArtistRef, Song } from "@/types/catalog";
@@ -59,7 +60,7 @@ export default async function ProposalReviewPage({ params, searchParams }: PageP
   const index = queue.findIndex((p) => p.id === proposal.id);
   const next = nextInQueue(queue, proposal, compareProposals);
   const isCorrection = proposal.songId !== null;
-  const song = proposal.songId ? getSong(proposal.songId) : undefined;
+  const song = proposal.songId ? await getSong(proposal.songId) : undefined;
   const removedSong = proposal.songId && !song ? getRemovedSong(proposal.songId) : undefined;
   const own = proposal.authorId === user.id;
   const { payload } = proposal;

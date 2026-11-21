@@ -10,11 +10,11 @@ import { artistDisplayName } from "@/components/song/artistName";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Pagination } from "@/components/ui/Pagination";
 import { artistHref, parseArtistParams } from "@/lib/artist/routes";
-import { getArtistPage } from "@/mocks/artists";
+import { getArtistPage } from "@/lib/catalog/read";
 
 export async function generateMetadata({ params, searchParams }: PageProps<"/artiste/[id]">): Promise<Metadata> {
   const [{ id }, raw] = await Promise.all([params, searchParams]);
-  const data = getArtistPage(id, parseArtistParams(raw).page);
+  const data = await getArtistPage(id, parseArtistParams(raw).page);
   const [locale, t] = await Promise.all([getLocale(), getTranslations("artist")]);
   if (!data) return { title: t("metaNotFound") };
   return {
@@ -30,7 +30,7 @@ export async function generateMetadata({ params, searchParams }: PageProps<"/art
 export default async function ArtistPage({ params, searchParams }: PageProps<"/artiste/[id]">) {
   const [{ id }, raw] = await Promise.all([params, searchParams]);
   const { page } = parseArtistParams(raw);
-  const data = getArtistPage(id, page);
+  const data = await getArtistPage(id, page);
   if (!data) notFound();
 
   const t = await getTranslations("artist");

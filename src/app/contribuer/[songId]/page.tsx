@@ -11,7 +11,8 @@ import { knownArtists } from "@/lib/contribution/artists";
 import { formValuesFromSong } from "@/lib/contribution/correction";
 import { contributionsHref, loginHref } from "@/lib/contribution/routes";
 import { getCurrentUser } from "@/lib/session";
-import { getSong, SONGS } from "@/mocks/catalog";
+import { getSong } from "@/lib/catalog/read";
+import { SONGS } from "@/mocks/catalog";
 import { proposalStore } from "@/mocks/proposals";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -26,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
  */
 export default async function CorrectionPage({ params }: PageProps<"/contribuer/[songId]">) {
   const { songId } = await params;
-  const song = getSong(songId);
+  const song = await getSong(songId);
   if (!song) notFound();
   const user = await getCurrentUser();
   // Tâche 16 : AuthGate remplacera ce renvoi.

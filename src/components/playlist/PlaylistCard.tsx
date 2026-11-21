@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ClubCover } from "@/components/club/ClubCover";
 import { Bidi } from "@/components/ui/Bidi";
-import { readerPositionsOf } from "@/mocks/playlistStore";
+import { readerPositionsOf } from "@/lib/catalog/read";
 import type { Playlist } from "@/types/catalog";
 
 /**
@@ -14,7 +14,7 @@ import type { Playlist } from "@/types/catalog";
 export async function PlaylistCard({ playlist }: { playlist: Playlist }) {
   const t = await getTranslations("playlists");
   // Chansons lisibles seulement : une chanson retirée n'est pas comptée (comme sur la page de la playlist).
-  const count = readerPositionsOf(playlist).size;
+  const count = (await readerPositionsOf(playlist)).size;
 
   return (
     <li className="relative flex flex-wrap items-center gap-3 rounded-lg border border-line-subtle bg-card p-3 transition-colors duration-(--duration-fast) hover:bg-well">

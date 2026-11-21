@@ -16,8 +16,8 @@ import { Bidi } from "@/components/ui/Bidi";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { canCopyPlaylist, canEditPlaylist, canViewPlaylist } from "@/lib/playlist/rights";
 import { getCurrentUser } from "@/lib/session";
-import { getPlaylist, getRemovedSong, getSong } from "@/mocks/catalog";
-import { readerPositionsOf } from "@/mocks/playlistStore";
+import { getSong, readerPositionsOf } from "@/lib/catalog/read";
+import { getPlaylist, getRemovedSong } from "@/mocks/catalog";
 import { waitDemoLatency } from "@/mocks/demoPreviewsServer";
 
 /** Une playlist n'est visible que par les membres de son club, ou par son propriétaire (spec §10). */
@@ -58,14 +58,14 @@ export default async function PlaylistPage({ params, searchParams }: PageProps<"
   const addSongsHref = `/recherche?playlist=${encodeURIComponent(playlist.id)}`;
   const backHref = playlist.club ? `/clubs/${playlist.club.slug}` : "/playlists";
 
-  const positions = readerPositionsOf(playlist);
-  const rows = [...playlist.items]
-    .sort((a, b) => a.position - b.position)
-    .map((item) => ({
-      ...item,
-      song: getSong(item.songId) ?? getRemovedSong(item.songId) ?? null,
-      number: positions.get(item.songId) ?? null,
-    }));
+  const positions = await readerPositionsOf(playlist);
+  const items = [...playlist.items].sort((a, b) => a.position - b.position);
+  const songs = await Promise.all(items.map((item) => getSong(item.songId)));
+  const rows = items.map((item, i) => ({
+    ...item,
+    song: songs[i] ?? getRemovedSong(item.songId) ?? null,
+    number: positions.get(item.songId) ?? null,
+  }));
 
   if (editing) {
     const labels: Record<string, ReactNode> = {};

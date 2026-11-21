@@ -54,20 +54,20 @@ L'interface a été construite avant ce plan, sur des données fictives (`.desig
 
 | Tâche | État | Ce qui reste, ou ce qui change |
 |---|---|---|
-| 1. Socle | En partie faite | Next.js, Tailwind, next-intl, Vitest et les scripts `test`, `typecheck` et `lint` existent. Reste : les dépendances de la base, `.env`, les projets Vitest `unit` et `integration` (dans `vitest.config.mts`), les scripts `db:*` et `tsconfig` en ES2022. pnpm 12 autorise les scripts de compilation par `allowBuilds` dans `pnpm-workspace.yaml`, et non par `onlyBuiltDependencies`. |
+| 1. Socle | Faite le 21/11/2026 | Next.js, Tailwind, next-intl, Vitest et les scripts `test`, `typecheck` et `lint` existent. Reste : les dépendances de la base, `.env`, les projets Vitest `unit` et `integration` (dans `vitest.config.mts`), les scripts `db:*` et `tsconfig` en ES2022. pnpm 12 autorise les scripts de compilation par `allowBuilds` dans `pnpm-workspace.yaml`, et non par `onlyBuiltDependencies`. |
 | 2. Normalisation | Faite | `src/lib/text`, `tests/unit/text/normalize.test.ts`. |
 | 3. Clé de consonnes | Faite | `searchKey.ts`, `searchKeyMap.ts` et leurs tests. |
-| 4. Titres | À faire | Sans changement. |
-| 5. Schéma | À faire | `DIALECTS` et `Dialect` restent dans `@/types/catalog`, et le schéma les importe : une seule liste. |
-| 6. Écriture du catalogue | À faire | Sans changement. |
-| 7. Recherche | En partie faite | Les types, `prepareQuery` et `findSnippet` existent (`src/lib/search/query.ts`). Reste : la requête SQL dans `searchSongs`. Voir aussi « Jeu de test » et l'écart 4 ci-dessous. |
-| 8. Lecture du catalogue | À faire, adaptée | `getSongById` renvoie le type `Song` des écrans. La page artiste est paginée par 50 (IA, « Croissance du contenu ») : `getArtistPage(id, page)` renvoie la forme `ArtistPage` déjà utilisée par l'écran, à la place de `getArtistWithSongs`. |
-| 9. Limite de débit | À faire | Branchée dans `/recherche`. L'aperçu `?apercu=limite` reste pour le développement. |
+| 4. Titres | Faite le 21/11/2026 | Sans changement. |
+| 5. Schéma | Faite le 21/11/2026 | `DIALECTS` et `Dialect` restent dans `@/types/catalog`, et le schéma les importe : une seule liste. |
+| 6. Écriture du catalogue | Faite le 21/11/2026 | Sans changement. |
+| 7. Recherche | Faite le 21/11/2026 | Les types, `prepareQuery` et `findSnippet` existent (`src/lib/search/query.ts`). Reste : la requête SQL dans `searchSongs`. Voir aussi « Jeu de test » et l'écart 4 ci-dessous. |
+| 8. Lecture du catalogue | Faite le 21/11/2026, adaptée | `getSongById` renvoie le type `Song` des écrans. La page artiste est paginée par 50 (IA, « Croissance du contenu ») : `getArtistPage(id, page)` renvoie la forme `ArtistPage` déjà utilisée par l'écran, à la place de `getArtistWithSongs`. |
+| 9. Limite de débit | Faite le 21/11/2026 | Branchée dans `/recherche`. L'aperçu `?apercu=limite` reste pour le développement. |
 | 10. Import LRCLIB | À faire | Le code et ses tests n'ont pas besoin de l'export réel. Le premier passage sur l'export (plusieurs Go à télécharger) se fait à part, avec l'accord de l'utilisateur. |
 | 11. Domaine public | À faire | Sans changement. |
 | 12. Interface, accueil, recherche | Remplacée | Déjà construite : langue, messages, mise en page, manifeste, page d'erreur, `SearchBar`, `SongResultItem`, `/recherche`. Reste seulement le branchement, dans la tâche 13 adaptée. |
-| 13. Fiche chanson, page artiste | Remplacée par le branchement | Les pages existent. On les branche sur la base par la passerelle décrite plus bas. |
-| 14. Bout en bout | À faire | Demande de télécharger les navigateurs de Playwright, avec accord. |
+| 13. Fiche chanson, page artiste | Faite le 21/11/2026 (branchement) | Les pages existent. On les branche sur la base par la passerelle décrite plus bas. |
+| 14. Bout en bout | À faire (le script `seed-fixtures` de l'étape 1 est écrit) | Demande de télécharger les navigateurs de Playwright, avec accord. |
 | 15. Benchmark | À faire | Après le premier import réel. |
 | 16. CI, Docker, déploiement | À faire | Le dépôt n'a pas encore de remote GitHub. |
 

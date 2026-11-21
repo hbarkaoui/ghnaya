@@ -8,7 +8,8 @@ import {
 } from "@/lib/playlist/addToPlaylist";
 import { canEditPlaylist } from "@/lib/playlist/rights";
 import { getCurrentUser } from "@/lib/session";
-import { getPlaylist, getSong } from "@/mocks/catalog";
+import { getSong } from "@/lib/catalog/read";
+import { getPlaylist } from "@/mocks/catalog";
 import { clubsAnimatedBy, storeNewPlaylist, storeSongInPlaylist } from "@/mocks/playlistMemory";
 
 /** Délai simulé d'un aller-retour avec la base, pour voir l'état « en cours » de la feuille. */
@@ -31,7 +32,7 @@ export async function addSongToPlaylist(playlistId: string, songId: string): Pro
   if (!user) return { status: "signedOut" };
 
   const playlist = typeof playlistId === "string" ? getPlaylist(playlistId) : undefined;
-  if (!playlist || typeof songId !== "string" || !getSong(songId)) return { status: "notFound" };
+  if (!playlist || typeof songId !== "string" || !(await getSong(songId))) return { status: "notFound" };
   if (!canEditPlaylist(user, playlist)) return { status: "forbidden" };
 
   const result = storeSongInPlaylist(playlist, songId);
@@ -60,7 +61,7 @@ export async function createPlaylistWithSong(input: {
 
   const parsed = parsePlaylistName(input?.name);
   if (!parsed.ok) return { status: "invalid", error: parsed.error };
-  if (typeof input.songId !== "string" || !getSong(input.songId)) return { status: "notFound" };
+  if (typeof input.songId !== "string" || !(await getSong(input.songId))) return { status: "notFound" };
 
   let club = null;
   if (input.clubSlug != null) {

@@ -1,6 +1,5 @@
-import { readablePositions } from "@/lib/playlist/rows";
 import type { Playlist } from "@/types/catalog";
-import { PLAYLISTS, getPlaylist, getRemovedSong, getSong } from "./catalog";
+import { PLAYLISTS, getPlaylist } from "./catalog";
 
 /**
  * MAQUETTE : modifications des playlists, en mémoire. Elles durent le temps du serveur de
@@ -20,11 +19,4 @@ export function addPlaylist(playlist: Playlist): void {
   PLAYLISTS.push(playlist);
 }
 
-/** Chanson connue de la base, publiée ou retirée (pour annuler un retrait sans accepter n'importe quel identifiant). */
-export const songExists = (id: string) => getSong(id) !== undefined || getRemovedSong(id) !== undefined;
-
-/** Une chanson est lisible tant qu'elle n'a pas été retirée. */
-export const isReadableSong = (id: string) => getSong(id) !== undefined;
-
-/** Numéros du lecteur pour les chansons lisibles de la playlist (les chansons retirées n'en ont pas). */
-export const readerPositionsOf = (playlist: Playlist) => readablePositions(playlist.items, isReadableSong);
+// songExists et readerPositionsOf : voir la passerelle `@/lib/catalog/read` (UUID en base, sinon fictif).
