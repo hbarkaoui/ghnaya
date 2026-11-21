@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { artistDisplayName, artistsLine } from "@/components/song/artistName";
+import { artistDisplayName, artistsExcept, artistsLine } from "@/components/song/artistName";
 
 const SABER = { nameAr: "صابر الرباعي", nameLatin: "Saber Rebai" };
 
@@ -32,5 +32,17 @@ describe("artistsLine", () => {
   it("se replie sur les invités sans artiste principal, et rend une chaîne vide sans artiste", () => {
     expect(artistsLine([feat("b", "صابر الرباعي", "Saber Rebai")], "fr")).toBe("Saber Rebai");
     expect(artistsLine([], "fr")).toBe("");
+  });
+});
+
+describe("artistsExcept", () => {
+  const ref = (id: string, role: "main" | "feat" = "main") => ({ id, nameAr: null, nameLatin: id, role });
+
+  it("retire l'artiste de la page, pour ne garder que les autres (page artiste)", () => {
+    expect(artistsExcept([ref("a-balti"), ref("a-saber", "feat")], "a-saber")).toEqual([ref("a-balti")]);
+  });
+
+  it("rend une liste vide quand l'artiste chante seul", () => {
+    expect(artistsExcept([ref("a-saber")], "a-saber")).toEqual([]);
   });
 });

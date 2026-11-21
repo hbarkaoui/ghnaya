@@ -600,6 +600,16 @@
     "notFoundAction": "ابحثوا عن أغنية",
     "notFoundMeta": "أغنية غير موجودة"
   },
+  "artist": {
+    "metaNotFound": "فنان غير موجود",
+    "songsTitle": "الأغاني",
+    "songCount": "{count, plural, zero {لا أغاني} one {أغنية واحدة} two {أغنيتان} few {{n} أغانٍ} many {{n} أغنية} other {{n} أغنية}}",
+    "notFoundTitle": "هذا الفنان غير موجود",
+    "notFoundBody": "ربما الرابط غير صحيح، أو لا توجد أي أغنية منشورة لهذا الفنان في غناية.",
+    "emptyPageTitle": "لا أغاني في هذه الصفحة",
+    "emptyPageBody": "أغاني هذا الفنان موزّعة على صفحات أقل.",
+    "firstPage": "العودة إلى الصفحة الأولى"
+  },
   "addToPlaylist": {
     "button": "إضافة إلى قائمة",
     "buttonShort": "إضافة",

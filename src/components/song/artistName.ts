@@ -27,3 +27,6 @@ export function artistsLine(artists: ArtistRef[], locale: string): string {
     shown.map((a) => artistDisplayName(a, locale).name),
   );
 }
+
+/** Les artistes d'une chanson sauf un : sur la page d'un artiste, chaque résultat ne nomme que les autres. */
+export const artistsExcept = (artists: ArtistRef[], id: string): ArtistRef[] => artists.filter((a) => a.id !== id);

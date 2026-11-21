@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 import { ArtistNames } from "@/components/song/ArtistNames";
+import { artistsExcept } from "@/components/song/artistName";
 import { highlightSnippet } from "@/lib/search/highlight";
 import { prepareQuery } from "@/lib/search/query";
 import type { SongHit } from "@/lib/search/types";
@@ -12,19 +13,23 @@ import type { SongHit } from "@/lib/search/types";
  *
  * `actions` : emplacement des actions de la ligne, en bout de carte et au-dessus du lien (« Ajouter à
  * une playlist » dans Chercher, avec AddToPlaylistButton ; ↑ ↓ ✕ dans une playlist en édition).
+ * `omitArtistId` : sur la page d'un artiste, la ligne ne nomme que les autres artistes de la chanson.
  */
 export async function SongResultItem({
   hit,
   query,
   actions,
+  omitArtistId,
 }: {
   hit: SongHit;
   /** Requête d'origine, pour surligner le passage trouvé dans l'extrait. */
   query?: string;
   actions?: ReactNode;
+  omitArtistId?: string;
 }) {
   const t = await getTranslations("search");
   const segments = hit.snippet ? highlightSnippet(hit.snippet, prepareQuery(query ?? "")) : null;
+  const artists = omitArtistId ? artistsExcept(hit.artists, omitArtistId) : hit.artists;
 
   return (
     <li className="relative flex items-start gap-3 rounded-lg border border-line-subtle bg-card p-4 transition-colors duration-(--duration-fast) hover:bg-well">
@@ -43,7 +48,7 @@ export async function SongResultItem({
             </span>
           ) : null}
         </Link>
-        <ArtistNames artists={hit.artists} className="mt-0.5 block text-sm text-ink-2" />
+        <ArtistNames artists={artists} className="mt-0.5 block text-sm text-ink-2" />
         {segments ? (
           <p className="mt-3 border-s-2 border-ornament ps-3 text-ink-2">
             <span className="sr-only">{t("snippetLabel")} </span>

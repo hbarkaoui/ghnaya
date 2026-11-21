@@ -600,6 +600,16 @@
     "notFoundAction": "Chercher une chanson",
     "notFoundMeta": "Chanson introuvable"
   },
+  "artist": {
+    "metaNotFound": "Artiste introuvable",
+    "songsTitle": "Chansons",
+    "songCount": "{count, plural, one {{n} chanson} other {{n} chansons}}",
+    "notFoundTitle": "Cet artiste est introuvable",
+    "notFoundBody": "Le lien est peut-être incorrect, ou aucune chanson de cet artiste n'est publiée sur Ghnaya.",
+    "emptyPageTitle": "Plus de chansons sur cette page",
+    "emptyPageBody": "Les chansons de cet artiste tiennent sur moins de pages.",
+    "firstPage": "Revenir à la première page"
+  },
   "addToPlaylist": {
     "button": "Ajouter à une playlist",
     "buttonShort": "Ajouter",

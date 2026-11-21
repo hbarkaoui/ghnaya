@@ -8,8 +8,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * 404 générale : toute adresse inconnue (un lien d'artiste, tant que /artiste n'existe pas, une adresse
- * mal recopiée) et tout `notFound()` sans not-found.tsx plus proche.
+ * 404 générale : toute adresse inconnue (une adresse mal recopiée) et tout `notFound()` sans
+ * not-found.tsx plus proche.
  */
 export default async function NotFound() {
   const t = await getTranslations("system.notFound");
