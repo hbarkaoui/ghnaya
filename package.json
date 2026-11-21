@@ -17,7 +17,8 @@
     "import:lrclib": "tsx scripts/import/lrclib.ts",
     "import:public-domain": "tsx scripts/import/publicDomain.ts",
     "bench:search": "tsx scripts/bench-search.ts",
-    "reindex:search": "tsx scripts/reindex-search.ts"
+    "reindex:search": "tsx scripts/reindex-search.ts",
+    "user:role": "tsx scripts/user-role.ts"
   },
   "dependencies": {
     "better-auth": "^1.7.27",

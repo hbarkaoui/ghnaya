@@ -30,6 +30,17 @@ pnpm typecheck && pnpm lint
 
 `pnpm test:integration` migre puis utilise la base `ghanni_test`.
 
+## Rôles
+
+Un admin attribue les rôles en ligne de commande. La personne doit s'être connectée une fois, pour que son compte existe.
+
+```bash
+pnpm user:role sami@example.com --animator
+pnpm user:role rania@example.com --role moderator --no-animator
+```
+
+`--animator` ou `--no-animator` change le rôle d'animateur ; `--role member|moderator|admin` change le rôle global. Seuls les champs donnés changent. En production : `DATABASE_URL=<url directe> pnpm user:role …`.
+
 ## Import LRCLIB
 
 1. Télécharger le dernier export depuis https://lrclib.net/db-dumps, puis le décompresser s'il est compressé (`gunzip lrclib-db-dump-*.sqlite3.gz`). Le fichier fait plusieurs dizaines de Go : le traitement se fait en local, jamais sur le serveur.
