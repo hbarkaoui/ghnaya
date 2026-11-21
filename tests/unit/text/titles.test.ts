@@ -10,6 +10,13 @@ describe("splitArtists", () => {
   it("dédoublonne sans tenir compte de la casse ni des accents", () => {
     expect(splitArtists("Saber Rebaï & saber rebai")).toEqual(["Saber Rebaï"]);
   });
+  it("découpe sur le point-virgule, latin ou arabe", () => {
+    expect(splitArtists("Kadim Al Sahir; Balqees")).toEqual(["Kadim Al Sahir", "Balqees"]);
+    expect(splitArtists("Khaled;Rachid Taha؛ فيروز")).toEqual(["Khaled", "Rachid Taha", "فيروز"]);
+  });
+  it("découpe sur l'octet nul, séparateur des tags ID3v2.4 que PostgreSQL refuse", () => {
+    expect(splitArtists("Rachid Taha\u0000Khaled\u0000Faudel")).toEqual(["Rachid Taha", "Khaled", "Faudel"]);
+  });
 });
 
 describe("cleanImportedTitle", () => {

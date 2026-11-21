@@ -45,6 +45,15 @@ describe("transformTrack", () => {
     const c = transformTrack({ ...track, name: "Nebni (feat. Balti)" }, ALIASES) as Candidate;
     expect(c.artists.map((a) => a.nameLatin)).toEqual(["Saber Rebai", "Balti"]);
   });
+
+  it("retire les octets nuls du titre et des paroles, que PostgreSQL refuse", () => {
+    const c = transformTrack(
+      { ...track, name: "Beyond These Doors \u0000 Get up", plainLyrics: "سطر\u0000 تجريبي" },
+      ALIASES,
+    ) as Candidate;
+    expect(c.titleLatin).toBe("Beyond These Doors / Get up");
+    expect(c.lyrics).toBe("سطر تجريبي");
+  });
 });
 
 describe("keepBest", () => {

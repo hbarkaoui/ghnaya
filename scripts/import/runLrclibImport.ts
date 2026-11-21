@@ -92,7 +92,9 @@ export async function runLrclibImport(opts: {
       report[outcome] += 1;
     } catch (e) {
       report.errors += 1;
-      if (report.errors <= MAX_LOGGED_ERRORS) log(`Erreur sur LRCLIB #${c.lrclibId} : ${String(e)}`);
+      // Drizzle enveloppe l'erreur PostgreSQL : son message ne donne que la requête, la raison est dans `cause`.
+      const reason = e instanceof Error && e.cause ? e.cause : e;
+      if (report.errors <= MAX_LOGGED_ERRORS) log(`Erreur sur LRCLIB #${c.lrclibId} : ${String(reason)}`);
     }
   }
   return report;

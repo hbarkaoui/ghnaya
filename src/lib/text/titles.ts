@@ -6,7 +6,9 @@ const NOISE =
   /\s*[(\[][^)\]]*(official|video|clip|lyric|audio|\bhd\b|\bhq\b|4k|visuali[sz]er|exclusive|كلمات|فيديو|كليب|حصري)[^)\]]*[)\]]/giu;
 const FEAT_IN_TITLE = /\s*[(\[]\s*(?:feat\.?|ft\.?|featuring)\s+([^)\]]+)[)\]]/iu;
 const TRACK_NUMBER = /^\s*\d{1,3}\s*[.\-)]\s*/u;
-const ARTIST_SEP = /\s*(?:,|&|\bfeat\.?(?=\s)|\bft\.?(?=\s)|\bfeaturing\b)\s*/iu;
+const ARTIST_SEP = /\s*(?:,|&|;|؛|\bfeat\.?(?=\s)|\bft\.?(?=\s)|\bfeaturing\b)\s*/iu;
+/** Séparateur des valeurs multiples des tags ID3v2.4, présent dans l'export LRCLIB ; PostgreSQL le refuse. */
+const NUL = "\u0000";
 
 function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -15,7 +17,7 @@ function escapeRegExp(s: string): string {
 export function splitArtists(raw: string): string[] {
   const seen = new Set<string>();
   const out: string[] = [];
-  for (const part of raw.split(ARTIST_SEP)) {
+  for (const part of raw.replaceAll(NUL, ";").split(ARTIST_SEP)) {
     const name = part.trim();
     const key = normalizeLatin(name);
     if (name && !seen.has(key)) {

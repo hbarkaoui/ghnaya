@@ -20,15 +20,23 @@ export interface Candidate {
   dedupeKey: string;
 }
 
+/** Séparateur des valeurs multiples des tags ID3v2.4 : PostgreSQL refuse cet octet dans un texte. */
+const NUL = "\u0000";
+
 export function transformTrack(track: LrclibTrack, aliases: AliasIndex): Candidate | { rejected: Rejection } {
-  const lyrics = track.plainLyrics.replace(/\r\n?/g, "\n").trim();
+  const lyrics = track.plainLyrics.replaceAll(NUL, "").replace(/\r\n?/g, "\n").trim();
   if (!lyrics) return { rejected: "empty_lyrics" };
   if (arabicRatio(lyrics) < MIN_ARABIC_RATIO) return { rejected: "not_arabic" };
 
   const artistNames = splitArtists(track.artistName);
   if (artistNames.length === 0) return { rejected: "no_artist" };
 
-  const cleaned = cleanImportedTitle(track.name, artistNames);
+  const name = track.name
+    .split(NUL)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .join(" / ");
+  const cleaned = cleanImportedTitle(name, artistNames);
   const titles = splitTitleScripts(cleaned.title);
   const title = titles.titleAr ?? titles.titleLatin;
   if (!title) return { rejected: "empty_title" };
