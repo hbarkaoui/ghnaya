@@ -49,10 +49,18 @@ export async function continueWithGoogle(formData: FormData): Promise<void> {
   const retour = safeReturnPath(formData.get("retour"));
   if (!isGoogleEnabled()) redirect(signInHref(retour), RedirectType.replace);
 
-  const { url } = await getAuth().api.signInSocial({
-    body: { provider: "google", callbackURL: retour, errorCallbackURL: `${signInHref(retour)}&error=google` },
-    headers: await headers(),
-  });
-  if (!url) redirect(`${signInHref(retour)}&error=google`, RedirectType.replace);
+  const failed = `${signInHref(retour)}&error=google`;
+  let url: string | undefined;
+  try {
+    // Better Auth ajoute son propre `error=…` à `errorCallbackURL` : on ne le préremplit pas.
+    ({ url } = await getAuth().api.signInSocial({
+      body: { provider: "google", callbackURL: retour, errorCallbackURL: signInHref(retour) },
+      headers: await headers(),
+    }));
+  } catch (error) {
+    console.error("continueWithGoogle", error);
+  }
+  // `redirect()` lève : hors du try/catch.
+  if (!url) redirect(failed, RedirectType.replace);
   redirect(url);
 }

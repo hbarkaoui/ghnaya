@@ -9,6 +9,7 @@ export const MAGIC_LINK_SENT_MAX_AGE = 15 * 60;
 export const MAGIC_LINK_SENT_COOKIE_OPTIONS = {
   path: SIGN_IN_PATH,
   httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
   sameSite: "lax" as const,
   maxAge: MAGIC_LINK_SENT_MAX_AGE,
 };

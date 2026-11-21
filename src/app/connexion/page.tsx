@@ -7,6 +7,7 @@ import { MagicLinkForm } from "@/components/auth/MagicLinkForm";
 import { SignInLayout } from "@/components/auth/SignInLayout";
 import { LogoSymbol } from "@/components/brand/Logo";
 import { isGoogleEnabled } from "@/lib/auth/auth";
+import { signInErrorKey } from "@/lib/auth/signInError";
 import { safeReturnPath } from "@/lib/auth/returnPath";
 import { getCurrentUser } from "@/lib/session";
 
@@ -23,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function SignInPage({ searchParams }: PageProps<"/connexion">) {
   const { retour: rawRetour, error } = await searchParams;
   const retour = safeReturnPath(rawRetour);
-  const errorKey = typeof error === "string" && error !== "" ? (error === "INVALID_TOKEN" ? "linkInvalid" : "google") : null;
+  const errorKey = signInErrorKey(error);
   if (await getCurrentUser()) redirect(retour);
   const t = await getTranslations("signIn");
 
