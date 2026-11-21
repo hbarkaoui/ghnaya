@@ -46,6 +46,58 @@ Ce plan crée déjà les colonnes `lyrics_translit`, `translit_status` et `impor
 2. **Dédoublonnage.** En plus de `unique(source, source_ref)`, une contrainte unique partielle porte sur `(source, dedupe_key)`. L'import met à jour une chanson existante (upsert) sur cette clé, ce qui reste idempotent même si LRCLIB publie une meilleure version d'une chanson sous un autre identifiant.
 3. **Chanson retirée.** Une chanson retirée renvoie une page « introuvable ou retirée » avec le statut **404**, et non 410 : l'App Router de Next.js ne sait pas renvoyer 410 depuis une page.
 
+## Adaptation au code existant (21/11/2026)
+
+L'interface a été construite avant ce plan, sur des données fictives (`.design/ghnaya/TASKS.md`, 22 tâches, fusionnées dans `main`). Ce plan reste la référence du back-end. Cette section dit ce qui change. Elle l'emporte sur le texte des tâches quand les deux divergent.
+
+### État des tâches
+
+| Tâche | État | Ce qui reste, ou ce qui change |
+|---|---|---|
+| 1. Socle | En partie faite | Next.js, Tailwind, next-intl, Vitest et les scripts `test`, `typecheck` et `lint` existent. Reste : les dépendances de la base, `.env`, les projets Vitest `unit` et `integration` (dans `vitest.config.mts`), les scripts `db:*` et `tsconfig` en ES2022. pnpm 12 autorise les scripts de compilation par `allowBuilds` dans `pnpm-workspace.yaml`, et non par `onlyBuiltDependencies`. |
+| 2. Normalisation | Faite | `src/lib/text`, `tests/unit/text/normalize.test.ts`. |
+| 3. Clé de consonnes | Faite | `searchKey.ts`, `searchKeyMap.ts` et leurs tests. |
+| 4. Titres | À faire | Sans changement. |
+| 5. Schéma | À faire | `DIALECTS` et `Dialect` restent dans `@/types/catalog`, et le schéma les importe : une seule liste. |
+| 6. Écriture du catalogue | À faire | Sans changement. |
+| 7. Recherche | En partie faite | Les types, `prepareQuery` et `findSnippet` existent (`src/lib/search/query.ts`). Reste : la requête SQL dans `searchSongs`. Voir aussi « Jeu de test » et l'écart 4 ci-dessous. |
+| 8. Lecture du catalogue | À faire, adaptée | `getSongById` renvoie le type `Song` des écrans. La page artiste est paginée par 50 (IA, « Croissance du contenu ») : `getArtistPage(id, page)` renvoie la forme `ArtistPage` déjà utilisée par l'écran, à la place de `getArtistWithSongs`. |
+| 9. Limite de débit | À faire | Branchée dans `/recherche`. L'aperçu `?apercu=limite` reste pour le développement. |
+| 10. Import LRCLIB | À faire | Le code et ses tests n'ont pas besoin de l'export réel. Le premier passage sur l'export (plusieurs Go à télécharger) se fait à part, avec l'accord de l'utilisateur. |
+| 11. Domaine public | À faire | Sans changement. |
+| 12. Interface, accueil, recherche | Remplacée | Déjà construite : langue, messages, mise en page, manifeste, page d'erreur, `SearchBar`, `SongResultItem`, `/recherche`. Reste seulement le branchement, dans la tâche 13 adaptée. |
+| 13. Fiche chanson, page artiste | Remplacée par le branchement | Les pages existent. On les branche sur la base par la passerelle décrite plus bas. |
+| 14. Bout en bout | À faire | Demande de télécharger les navigateurs de Playwright, avec accord. |
+| 15. Benchmark | À faire | Après le premier import réel. |
+| 16. CI, Docker, déploiement | À faire | Le dépôt n'a pas encore de remote GitHub. |
+
+### Base locale
+
+En local, PostgreSQL 16 est installé par Homebrew (`postgresql@16`) et écoute sur le port **5433**, avec le rôle `ghanni` et les bases `ghanni` et `ghanni_test` en `en_US.UTF-8`. Les URL de `.env.example` sont donc les mêmes qu'avec Docker. Le `docker-compose.yml` de la tâche 1 est écrit quand même, pour la CI et pour un autre poste.
+
+### Jeu de test
+
+Le jeu de test est le **catalogue fictif** (`src/mocks/catalog.ts`), et non `FIXTURE_SONGS`. Ses paroles sont déjà inventées, sauf Chebbi (domaine public). Ses requêtes de référence sont déjà adaptées (`tests/unit/search/searchSongs.test.ts`). Et c'est le jeu que montrent les écrans. `seedFixtures(db)` l'écrit en base et renvoie la correspondance entre l'identifiant fictif (`s-sidi-mansour`) et l'UUID en base. Les requêtes de référence passent dans `tests/fixtures/search-golden.ts`.
+
+### Passerelle entre le catalogue fictif et la base
+
+Les identifiants fictifs sont des slugs (`s-sidi-mansour`, `a-saber`), ceux de la base sont des UUID. Les playlists, les clubs, les propositions et les signalements restent fictifs jusqu'aux plans 2 et 3, et ils citent des chansons fictives. Pourtant, une chanson trouvée par la recherche doit pouvoir être ouverte, lue, ajoutée à une playlist, signalée ou corrigée.
+
+`src/lib/catalog/read.ts` (`server-only`) est donc la seule porte de lecture du catalogue pour les écrans :
+- `getSong(id)` : un UUID est lu en base (`getSongById`) ; sinon, dans le catalogue fictif ;
+- `getArtistPage(id, page)` : même règle.
+
+Tous les appels actuels de `getSong` du catalogue fictif passent par elle, et deviennent asynchrones. Les plans 2 et 3 retireront la branche fictive en déplaçant les playlists, les propositions et les signalements en base.
+
+Limites connues jusque-là :
+- la modération (`songStore`) ne modifie que le catalogue fictif ;
+- l'encadré « existe peut-être déjà » de `/contribuer` cherche dans le catalogue fictif ;
+- l'aperçu `?apercu=pagination` de `/recherche` cherche dans le catalogue fictif.
+
+### Écart 4 : clé de consonnes courte
+
+Repris de la maquette (`src/mocks/search.ts`) : la clé de consonnes n'est pas comparée aux titres et aux artistes en dessous de 3 consonnes. Sinon, « ya lella » (clé `l`) ressort presque tout le catalogue, car `l` figure dans la plupart des clés.
+
 ## Structure des fichiers
 
 ```text
