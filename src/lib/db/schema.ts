@@ -1,7 +1,19 @@
 // Plan 1, tâche 5 : schéma du catalogue (spec §5). Les listes de valeurs viennent des types des écrans,
 // pour qu'il n'y en ait qu'une. Chemin relatif : drizzle-kit ne résout pas l'alias `@/`.
 import { sql } from "drizzle-orm";
-import { boolean, integer, pgEnum, pgTable, primaryKey, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  check,
+  index,
+  integer,
+  pgEnum,
+  pgTable,
+  primaryKey,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from "drizzle-orm/pg-core";
 import { DIALECTS, SONG_SOURCES, TRANSLIT_STATUSES } from "../../types/catalog";
 
 export { DIALECTS, SONG_SOURCES };
@@ -86,4 +98,142 @@ export const rateLimits = pgTable(
     count: integer("count").notNull(),
   },
   (t) => [primaryKey({ columns: [t.key, t.windowStart] })],
+);
+
+// Plan 2, tâche 1 : comptes (tables imposées par Better Auth, spec §5 adaptée), clubs et playlists (spec §5, §10).
+export const globalRoleEnum = pgEnum("global_role", ["member", "moderator", "admin"]);
+export const localeEnum = pgEnum("locale", ["fr", "ar"]);
+export const clubRoleEnum = pgEnum("club_role", ["animator", "member"]);
+
+export const users = pgTable(
+  "users",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    emailVerified: boolean("email_verified").notNull().default(false),
+    image: text("image"),
+    globalRole: globalRoleEnum("global_role").notNull().default("member"),
+    isAnimator: boolean("is_animator").notNull().default(false),
+    locale: localeEnum("locale").notNull().default("fr"),
+    ...timestamps,
+  },
+  (t) => [uniqueIndex("users_email_uq").on(t.email)],
+);
+
+export const sessions = pgTable(
+  "sessions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    token: text("token").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    ipAddress: text("ip_address"),
+    userAgent: text("user_agent"),
+    ...timestamps,
+  },
+  (t) => [uniqueIndex("sessions_token_uq").on(t.token), index("sessions_user_idx").on(t.userId)],
+);
+
+export const accounts = pgTable(
+  "accounts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    accountId: text("account_id").notNull(),
+    providerId: text("provider_id").notNull(),
+    accessToken: text("access_token"),
+    refreshToken: text("refresh_token"),
+    idToken: text("id_token"),
+    accessTokenExpiresAt: timestamp("access_token_expires_at", { withTimezone: true }),
+    refreshTokenExpiresAt: timestamp("refresh_token_expires_at", { withTimezone: true }),
+    scope: text("scope"),
+    password: text("password"),
+    ...timestamps,
+  },
+  (t) => [index("accounts_user_idx").on(t.userId)],
+);
+
+export const verifications = pgTable(
+  "verifications",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    identifier: text("identifier").notNull(),
+    value: text("value").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    ...timestamps,
+  },
+  (t) => [index("verifications_identifier_idx").on(t.identifier)],
+);
+
+export const clubs = pgTable(
+  "clubs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    slug: text("slug").notNull(),
+    description: text("description"),
+    inviteCode: text("invite_code").notNull(),
+    // Le créateur peut supprimer son compte une fois le club confié à un autre animateur.
+    createdBy: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
+    ...timestamps,
+  },
+  (t) => [uniqueIndex("clubs_slug_uq").on(t.slug), uniqueIndex("clubs_invite_code_uq").on(t.inviteCode)],
+);
+
+export const clubMembers = pgTable(
+  "club_members",
+  {
+    clubId: uuid("club_id")
+      .notNull()
+      .references(() => clubs.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    role: clubRoleEnum("role").notNull().default("member"),
+    ...timestamps,
+  },
+  (t) => [primaryKey({ columns: [t.clubId, t.userId] }), index("club_members_user_idx").on(t.userId)],
+);
+
+export const playlists = pgTable(
+  "playlists",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    ownerUserId: uuid("owner_user_id").references(() => users.id, { onDelete: "cascade" }),
+    clubId: uuid("club_id").references(() => clubs.id, { onDelete: "cascade" }),
+    createdBy: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
+    ...timestamps,
+  },
+  (t) => [
+    check("playlists_owner_ck", sql`(${t.ownerUserId} IS NULL) <> (${t.clubId} IS NULL)`),
+    index("playlists_owner_idx").on(t.ownerUserId),
+    index("playlists_club_idx").on(t.clubId),
+  ],
+);
+
+export const playlistItems = pgTable(
+  "playlist_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    playlistId: uuid("playlist_id")
+      .notNull()
+      .references(() => playlists.id, { onDelete: "cascade" }),
+    // Pas de cascade : une chanson n'est jamais supprimée, seulement retirée (spec §5, retrait doux).
+    songId: uuid("song_id")
+      .notNull()
+      .references(() => songs.id),
+    position: integer("position").notNull(),
+    note: text("note"),
+    ...timestamps,
+  },
+  (t) => [
+    uniqueIndex("playlist_items_position_uq").on(t.playlistId, t.position),
+    uniqueIndex("playlist_items_song_uq").on(t.playlistId, t.songId),
+  ],
 );
