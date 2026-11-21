@@ -1,0 +1,17 @@
+# PostgreSQL 16 pour la CI et pour un poste avec Docker. En local sur macOS, le plan 1 utilise aussi
+# postgresql@16 de Homebrew, réglé sur le même port (5433) : les URL de .env.example valent pour les deux.
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ghanni
+      POSTGRES_PASSWORD: ghanni
+      POSTGRES_DB: ghanni
+      LANG: en_US.utf8
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/initdb:/docker-entrypoint-initdb.d
+volumes:
+  pgdata:
