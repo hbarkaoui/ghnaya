@@ -1,13 +1,14 @@
 import "server-only";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { APIError } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
 import { magicLink } from "better-auth/plugins";
 import { db } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
 import { magicLinkEmail } from "@/lib/mail/magicLinkEmail";
 import { sendMail } from "@/lib/mail/transport";
-import { defaultNameFromEmail } from "./name";
+import { defaultNameFromEmail, normalizeUserName } from "./name";
 
 /**
  * Comptes et sessions (plan 2, tâche 3). Sessions en base (tables `sessions`, `accounts`, `verifications`),
@@ -40,14 +41,29 @@ const createAuth = () =>
     databaseHooks: {
       user: {
         create: {
-          // Lien magique : Better Auth crée le compte avec un nom vide (écart 3).
-          before: async (user) => ({ data: { ...user, name: user.name?.trim() || defaultNameFromEmail(user.email) } }),
+          // Lien magique : Better Auth crée le compte avec un nom vide, ou celui du corps de la demande (écart 3).
+          // Un nom absent ou invalide est remplacé par celui tiré de l'adresse.
+          before: async (user) => {
+            const check = normalizeUserName(user.name);
+            return { data: { ...user, name: check.ok ? check.name : defaultNameFromEmail(user.email) } };
+          },
+        },
+        update: {
+          // Même règle que `lib/account` : un nom invalide est refusé, un nom valide est écrit nettoyé.
+          before: async (data) => {
+            if (!("name" in data)) return;
+            const check = normalizeUserName(data.name);
+            if (!check.ok) throw new APIError("BAD_REQUEST", { message: `Invalid user name: ${check.error}` });
+            return { data: { ...data, name: check.name } };
+          },
         },
       },
     },
     plugins: [
       magicLink({
         expiresIn: MAGIC_LINK_TTL_SECONDS,
+        // En base, le jeton est haché : une fuite de la table `verifications` ne donne aucun lien valable.
+        storeToken: "hashed",
         sendMagicLink: async ({ email, url, metadata }) => {
           const locale = metadata?.locale === "ar" ? "ar" : "fr";
           await sendMail({ to: email, ...magicLinkEmail({ url, locale }), link: url });

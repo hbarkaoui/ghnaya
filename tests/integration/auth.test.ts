@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { getAuth } from "@/lib/auth/auth";
 import { db } from "@/lib/db/client";
-import { sessions, users } from "@/lib/db/schema";
+import { sessions, users, verifications } from "@/lib/db/schema";
 import { readOutbox } from "@/lib/mail/transport";
 import { resetDb } from "./helpers";
 
@@ -56,5 +56,43 @@ describe("connexion par lien magique", () => {
     const token = new URL((await readOutbox("rania@example.com"))!.link!).searchParams.get("token")!;
     await getAuth().api.magicLinkVerify({ query: { token }, headers: new Headers() });
     await expect(getAuth().api.magicLinkVerify({ query: { token }, headers: new Headers() })).rejects.toThrow();
+  });
+
+  it("un nom trop long à l'inscription est remplacé par celui tiré de l'adresse", async () => {
+    const email = "long@example.com";
+    await getAuth().api.signInMagicLink({ body: { email, name: "x".repeat(200) }, headers: new Headers() });
+    const token = new URL((await readOutbox(email))!.link!).searchParams.get("token")!;
+    await getAuth().api.magicLinkVerify({ query: { token }, headers: new Headers() });
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    expect(user.name).toBe("long");
+  });
+
+  it("un nom valide à l'inscription est gardé, espaces nettoyés", async () => {
+    const email = "salma@example.com";
+    await getAuth().api.signInMagicLink({ body: { email, name: "  Salma   Ben Ali " }, headers: new Headers() });
+    const token = new URL((await readOutbox(email))!.link!).searchParams.get("token")!;
+    await getAuth().api.magicLinkVerify({ query: { token }, headers: new Headers() });
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    expect(user.name).toBe("Salma Ben Ali");
+  });
+
+  it("une mise à jour du nom est validée et normalisée", async () => {
+    await signInByMagicLink("yasmine@example.com");
+    const [user] = await db.select().from(users).where(eq(users.email, "yasmine@example.com"));
+    const { internalAdapter } = await getAuth().$context;
+    await expect(internalAdapter.updateUser(user.id, { name: "x".repeat(61) })).rejects.toThrow();
+    await expect(internalAdapter.updateUser(user.id, { name: "   " })).rejects.toThrow();
+    await internalAdapter.updateUser(user.id, { name: " Yasmine   Trabelsi " });
+    const [after] = await db.select().from(users).where(eq(users.id, user.id));
+    expect(after.name).toBe("Yasmine Trabelsi");
+  });
+
+  it("garde le jeton du lien haché en base", async () => {
+    await getAuth().api.signInMagicLink({ body: { email: "hana@example.com" }, headers: new Headers() });
+    const token = new URL((await readOutbox("hana@example.com"))!.link!).searchParams.get("token")!;
+    const rows = await db.select().from(verifications);
+    expect(rows).toHaveLength(1);
+    expect(rows[0].identifier).not.toBe(token);
+    expect(JSON.stringify(rows[0])).not.toContain(token);
   });
 });
