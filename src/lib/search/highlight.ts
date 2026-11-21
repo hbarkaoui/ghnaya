@@ -1,6 +1,6 @@
 import { normalizeArabic } from "@/lib/text/normalizeArabic";
 import { CHAR_MAP, LATIN_DIGRAPHS } from "@/lib/text/searchKeyMap";
-import { LYRICS_KEY_MIN_LENGTH, type PreparedQuery } from "./query";
+import { lyricsWords, usesLyricsKey, type PreparedQuery } from "./query";
 
 export interface SnippetSegment {
   text: string;
@@ -88,24 +88,41 @@ function locate(mapped: Mapped, needle: string): [number, number] | null {
   return index < 0 ? null : [mapped.from[index], mapped.to[index + needle.length - 1]];
 }
 
+/** Plages de la ligne à surligner, triées, étendues aux mots entiers et fusionnées quand seuls des espaces les séparent. */
+function wholeWordRanges(line: string, ranges: Array<[number, number]>): Array<[number, number]> {
+  const out: Array<[number, number]> = [];
+  for (let [start, end] of [...ranges].sort((a, b) => a[0] - b[0])) {
+    while (start > 0 && WORD_CHAR.test(line[start - 1])) start -= 1;
+    while (end < line.length && WORD_CHAR.test(line[end])) end += 1;
+    const last = out.at(-1);
+    if (last && line.slice(last[1], start).trim() === "") last[1] = Math.max(last[1], end);
+    else out.push([start, end]);
+  }
+  return out;
+}
+
 /**
  * Découpe une ligne d'extrait (renvoyée par findSnippet) pour surligner le passage trouvé.
- * Mêmes règles que findSnippet : d'abord l'arabe normalisé, puis la clé de consonnes (arabizi).
+ * Mêmes règles que findSnippet : d'abord l'arabe normalisé, puis la clé de consonnes (requête en latin),
+ * puis chacun des mots de `lyricsWords`.
  * Le surlignage couvre des mots entiers : couper un mot arabe au milieu casserait la liaison des lettres.
  */
 export function highlightSnippet(line: string, q: PreparedQuery): SnippetSegment[] {
-  const range =
-    (q.ar ? locate(mapArabic(line), q.ar) : null) ??
-    (q.key.length >= LYRICS_KEY_MIN_LENGTH ? locate(mapSearchKey(line), q.key) : null);
-  if (!range) return [{ text: line, hit: false }];
+  const arabic = mapArabic(line);
+  const phrase = (q.ar ? locate(arabic, q.ar) : null) ?? (usesLyricsKey(q) ? locate(mapSearchKey(line), q.key) : null);
+  const ranges = phrase
+    ? [phrase]
+    : lyricsWords(q)
+        .map((word) => locate(arabic, word))
+        .filter((range): range is [number, number] => range !== null);
+  if (ranges.length === 0) return [{ text: line, hit: false }];
 
-  let [start, end] = range;
-  while (start > 0 && WORD_CHAR.test(line[start - 1])) start -= 1;
-  while (end < line.length && WORD_CHAR.test(line[end])) end += 1;
-
-  return [
-    { text: line.slice(0, start), hit: false },
-    { text: line.slice(start, end), hit: true },
-    { text: line.slice(end), hit: false },
-  ].filter((segment) => segment.text.length > 0);
+  const segments: SnippetSegment[] = [];
+  let at = 0;
+  for (const [start, end] of wholeWordRanges(line, ranges)) {
+    segments.push({ text: line.slice(at, start), hit: false }, { text: line.slice(start, end), hit: true });
+    at = end;
+  }
+  segments.push({ text: line.slice(at), hit: false });
+  return segments.filter((segment) => segment.text.length > 0);
 }

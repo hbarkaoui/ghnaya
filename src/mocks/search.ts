@@ -2,6 +2,7 @@ import {
   findSnippet,
   LYRICS_KEY_MIN_LENGTH,
   LYRICS_KEY_SCORE_MIN_LENGTH,
+  lyricsWords,
   MIN_SIGNIFICANT,
   prepareQuery,
   SCORE,
@@ -22,7 +23,8 @@ import type { Song } from "@/types/catalog";
  * attendant PostgreSQL et pg_trgm. Mêmes colonnes de recherche (tâche 6), même barème :
  *  - titre ou artiste qui commence par la requête : 10 points en texte exact, 5 par la clé seule ;
  *  - similarité word_similarity, la plus forte des trois colonnes : jusqu'à 6 points ;
- *  - passage trouvé dans les paroles : 3 points (par la clé, à partir de 6 consonnes).
+ *  - passage trouvé dans les paroles : 3 points (par la clé, à partir de 6 consonnes) ; des paroles qui
+ *    n'ont que tous les mots de la requête arabe sont trouvées, sans points.
  * Les valeurs et les seuils viennent de `@/lib/search/query`.
  * Tri par score décroissant, puis par titre.
  */
@@ -136,7 +138,9 @@ function scoreSong(indexed: IndexedSong, q: PreparedQuery): Scored | null {
   }
   const arLyrics = q.ar !== "" && indexed.lyricsSearchAr.includes(q.ar);
   const keyLyrics = q.lat !== "" && q.key.length >= LYRICS_KEY_MIN_LENGTH && indexed.lyricsSearchKey.includes(q.key);
-  const lyricsMatch = arLyrics || keyLyrics;
+  const words = lyricsWords(q);
+  const wordLyrics = words.length > 0 && words.every((w) => indexed.lyricsSearchAr.includes(w));
+  const lyricsMatch = arLyrics || keyLyrics || wordLyrics;
   if (!titleMatch && !lyricsMatch) return null;
   const prefixScore = textPrefix ? SCORE.textPrefix : keyPrefix ? SCORE.keyPrefix : 0;
   const lyricsScored = arLyrics || (keyLyrics && q.key.length >= LYRICS_KEY_SCORE_MIN_LENGTH);

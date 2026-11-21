@@ -5,6 +5,7 @@ import {
   findSnippet,
   LYRICS_KEY_MIN_LENGTH,
   LYRICS_KEY_SCORE_MIN_LENGTH,
+  lyricsWords,
   MIN_SIGNIFICANT,
   prepareQuery,
   SCORE,
@@ -35,7 +36,8 @@ const or = (parts: SQL[]): SQL => (parts.length > 0 ? sql`(${sql.join(parts, sql
 /**
  * Barème de la spec §6.2 (valeurs dans `SCORE`) : titre ou artiste qui commence par la requête, en texte
  * exact (10 points) ou seulement par sa clé (5 points) ; meilleure word_similarity des colonnes, jusqu'à
- * 6 points ; passage trouvé dans les paroles, 3 points.
+ * 6 points ; passage trouvé dans les paroles, 3 points. Des paroles qui n'ont que tous les mots de la requête arabe
+ * (`lyricsWords`) sont trouvées, sans points.
  */
 function buildClauses(q: PreparedQuery): { score: SQL; lyricsMatch: SQL; where: SQL } {
   const textPrefix: SQL[] = [];
@@ -68,6 +70,12 @@ function buildClauses(q: PreparedQuery): { score: SQL; lyricsMatch: SQL; where: 
     const found = contains(COL.lyricsSearchAr, q.ar);
     lyrics.push(found);
     scoredLyrics.push(found);
+    const words = lyricsWords(q);
+    if (words.length > 0) {
+      // Chaque mot passe par l'index GIN de la colonne, et PostgreSQL croise les résultats.
+      const each = words.map((w) => contains(COL.lyricsSearchAr, w));
+      lyrics.push(sql`(${sql.join(each, sql` AND `)})`);
+    }
   }
   // Spec §6.2 : la clé ne cherche dans les paroles que pour une requête en latin ; en arabe, le texte
   // normalisé suffit, et une clé de 4 consonnes se retrouve dans les paroles d'une chanson sur dix.

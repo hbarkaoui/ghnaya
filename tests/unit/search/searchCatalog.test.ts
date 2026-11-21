@@ -52,3 +52,33 @@ describe("searchCatalog : pagination", () => {
     expect(searchCatalog(CATALOG, "ghanni", { page: 0 }).page).toBe(1);
   });
 });
+
+describe("searchCatalog : paroles cherchées mot par mot", () => {
+  const song = (id: string, lyrics: string): Song => ({
+    id,
+    titleAr: null,
+    titleLatin: `Chanson ${id}`,
+    lyrics,
+    lyricsTranslit: null,
+    translitStatus: "none",
+    dialect: "eg",
+    source: "lrclib",
+    artists: [],
+  });
+
+  it("trouve les paroles qui ont tous les mots de la requête, après celles qui ont la phrase exacte", () => {
+    // Version chantée de « فات الميعاد », reprises comprises : la phrase exacte n'y est pas.
+    const catalog = [
+      song("chantee", "تفيد بإيه، إيه، إيه يا ندم\nوتعمل إيه يا عتاب"),
+      song("exacte", "تفيد بإيه يا ندم وتعمل إيه يا عتاب"),
+      song("partielle", "تفيد يا ندم"),
+    ];
+    const res = searchCatalog(catalog, "تفيد بإيه يا ندم");
+    expect(res.items.map((i) => i.id)).toEqual(["exacte", "chantee"]);
+    expect(res.items[1].snippet).toBe("تفيد بإيه، إيه، إيه يا ندم");
+  });
+
+  it("ne cherche pas mot par mot une requête d'un seul mot de 3 lettres ou plus", () => {
+    expect(searchCatalog([song("loin", "ندم بعيد عن الحب")], "يا الندم").items).toEqual([]);
+  });
+});

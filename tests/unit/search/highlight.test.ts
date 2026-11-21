@@ -33,6 +33,14 @@ describe("highlightSnippet", () => {
     ]);
   });
 
+  it("à défaut de la phrase exacte, surligne chacun des mots de la requête", () => {
+    expect(highlightSnippet("تفيد بإيه، إيه، إيه يا ندم", prepareQuery("تفيد بإيه يا ندم"))).toEqual([
+      { text: "تفيد بإيه", hit: true },
+      { text: "، إيه، إيه يا ", hit: false },
+      { text: "ندم", hit: true },
+    ]);
+  });
+
   it("ne surligne rien quand la ligne ne correspond pas", () => {
     expect(highlightSnippet("خلّي الغناية تكمّل", prepareQuery("zzzz"))).toEqual([
       { text: "خلّي الغناية تكمّل", hit: false },

@@ -80,6 +80,16 @@ describe("searchSongs : barème, sur les échecs du benchmark réel (tâche 15)"
     await addSong("Chitana", "El Hass", "سطر تجريبي");
     expect((await searchSongs("el hawa sotan")).items[0]?.titleLatin).toBe("El Hawa Sultan");
   });
+
+  it("trouve des paroles qui ont tous les mots de la requête, après celles qui ont la phrase exacte", async () => {
+    // La version gardée de « فات الميعاد » chante les reprises : « تفيد بإيه يا ندم » n'y est pas en entier.
+    await addSong("Fat El Maad", "Oum Kalthoum", "تفيد بإيه، إيه، إيه يا ندم\nوتعمل إيه يا عتاب");
+    await addSong("Fat El Maad (Paused)", "Oum Kalthoum", "تفيد بإيه يا ندم وتعمل إيه يا عتاب");
+    await addSong("Ala Bali", "Sherine", "تفيد يا ندم");
+    const items = (await searchSongs("تفيد بإيه يا ندم")).items;
+    expect(items.map((i) => i.titleLatin)).toEqual(["Fat El Maad (Paused)", "Fat El Maad"]);
+    expect(items[1].snippet).toBe("تفيد بإيه، إيه، إيه يا ندم");
+  });
 });
 
 describe("searchSongs : comportements", () => {

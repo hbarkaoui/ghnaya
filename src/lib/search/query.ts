@@ -32,6 +32,15 @@ export const LYRICS_KEY_SCORE_MIN_LENGTH = 6;
  * ressemble autant, par la clé, à « Chitana el hass » que, par le texte, à « El Hawa Sultan »).
  */
 export const SCORE = { textPrefix: 10, keyPrefix: 5, similarity: 6, keySimilarityFactor: 0.8, lyrics: 3 } as const;
+/**
+ * Tâche 15 : à défaut de la phrase exacte, une requête arabe d'au moins `LYRICS_WORDS_MIN` mots de
+ * `LYRICS_WORD_MIN_LENGTH` lettres ou plus trouve aussi les paroles qui ont tous ces mots, dans n'importe quel
+ * ordre. Les versions chantées reprennent et intercalent des mots : « تفيد بإيه يا ندم » n'est pas en entier dans
+ * « تفيد بإيه، إيه، إيه يا ندم ». Ces chansons ne gagnent pas de points : avec leur similarité de titre, elles
+ * passeraient devant celle qui a la phrase exacte (« ليه تبكي ما انا قلبي » devant « جرح الناس »).
+ */
+export const LYRICS_WORD_MIN_LENGTH = 3;
+export const LYRICS_WORDS_MIN = 2;
 /** Seuil de word_similarity (opérateur <% de pg_trgm). À ajuster avec `pnpm bench:search`. */
 export const WORD_SIMILARITY_THRESHOLD = 0.5;
 const MAX_QUERY_LENGTH = 200;
@@ -54,12 +63,36 @@ export function prepareQuery(raw: string): PreparedQuery {
   };
 }
 
+/** Mots de la requête arabe cherchés un par un dans les paroles, ou aucun (voir `LYRICS_WORDS_MIN`). */
+export function lyricsWords(q: PreparedQuery): string[] {
+  const words = [...new Set(q.ar.split(" ").filter((w) => w.length >= LYRICS_WORD_MIN_LENGTH))];
+  return words.length >= LYRICS_WORDS_MIN ? words : [];
+}
+
+/** Spec §6.2 : la clé ne cherche dans les paroles que pour une requête en latin. */
+export const usesLyricsKey = (q: PreparedQuery): boolean => q.lat !== "" && q.key.length >= LYRICS_KEY_MIN_LENGTH;
+
+/**
+ * Première ligne qui a la phrase cherchée (arabe normalisé, ou clé pour une requête en latin). À défaut, la
+ * ligne qui a le plus de mots de `lyricsWords`, puisque la chanson peut les avoir répartis sur plusieurs lignes.
+ */
 export function findSnippet(lyrics: string, q: PreparedQuery): string | null {
-  for (const line of lyrics.split("\n")) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-    if (q.ar && normalizeArabic(trimmed).includes(q.ar)) return trimmed;
-    if (q.key.length >= LYRICS_KEY_MIN_LENGTH && toSearchKey(trimmed).includes(q.key)) return trimmed;
+  const lines = lyrics
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const exact = lines.find(
+    (line) => (q.ar && normalizeArabic(line).includes(q.ar)) || (usesLyricsKey(q) && toSearchKey(line).includes(q.key)),
+  );
+  if (exact) return exact;
+
+  const words = lyricsWords(q);
+  let best: string | null = null;
+  let bestCount = 0;
+  for (const line of lines) {
+    const normalized = normalizeArabic(line);
+    const count = words.filter((w) => normalized.includes(w)).length;
+    if (count > bestCount) [best, bestCount] = [line, count];
   }
-  return null;
+  return best;
 }
