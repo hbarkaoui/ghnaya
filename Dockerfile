@@ -10,7 +10,8 @@ RUN corepack enable
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY . .
-RUN pnpm build
+# public/ est vide, donc absent d'un clone git (et de la CI) : on le crée pour que l'étape finale puisse le copier.
+RUN mkdir -p public && pnpm build
 
 FROM node:22-slim AS run
 WORKDIR /app
