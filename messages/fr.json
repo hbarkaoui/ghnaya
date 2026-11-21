@@ -789,5 +789,15 @@
     },
     "emptyFilteredBody": "Vos autres propositions sont dans « Toutes ».",
     "seeAll": "Voir toutes mes propositions"
+  },
+  "mail": {
+    "magicLink": {
+      "subject": "Votre lien de connexion à Ghnaya",
+      "greeting": "Bonjour,",
+      "body": "Touchez le bouton ci-dessous pour vous connecter à Ghnaya. Le lien est valable 15 minutes et ne sert qu'une fois.",
+      "button": "Me connecter",
+      "fallback": "Si le bouton ne marche pas, copiez cette adresse dans votre navigateur :",
+      "ignore": "Vous n'avez rien demandé ? Ignorez cet e-mail : personne ne pourra se connecter sans ce lien."
+    }
   }
 }
