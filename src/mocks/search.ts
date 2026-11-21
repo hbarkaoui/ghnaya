@@ -1,9 +1,12 @@
 import {
   findSnippet,
   LYRICS_KEY_MIN_LENGTH,
+  LYRICS_KEY_SCORE_MIN_LENGTH,
   MIN_SIGNIFICANT,
   prepareQuery,
+  SCORE,
   TITLE_KEY_MIN_LENGTH,
+  WHOLE_KEY_MIN_LENGTH,
   WORD_SIMILARITY_THRESHOLD,
   type PreparedQuery,
 } from "@/lib/search/query";
@@ -17,9 +20,10 @@ import type { Song } from "@/types/catalog";
 /**
  * MAQUETTE : la recherche du plan 1 (tâche 7) rejouée en mémoire sur les chansons fictives, en
  * attendant PostgreSQL et pg_trgm. Mêmes colonnes de recherche (tâche 6), même barème :
- *  - titre ou artiste qui commence par la requête : 10 points ;
+ *  - titre ou artiste qui commence par la requête : 10 points en texte exact, 5 par la clé seule ;
  *  - similarité word_similarity, la plus forte des trois colonnes : jusqu'à 6 points ;
- *  - passage trouvé dans les paroles : 3 points.
+ *  - passage trouvé dans les paroles : 3 points (par la clé, à partir de 6 consonnes).
+ * Les valeurs et les seuils viennent de `@/lib/search/query`.
  * Tri par score décroissant, puis par titre.
  */
 
@@ -107,27 +111,40 @@ interface Scored {
 }
 
 function scoreSong(indexed: IndexedSong, q: PreparedQuery): Scored | null {
-  const parts: Array<[string, string]> = [
-    [q.ar, indexed.searchAr],
-    [q.lat, indexed.searchLatin],
+  const parts: Array<[string, string, "text" | "key"]> = [
+    [q.ar, indexed.searchAr, "text"],
+    [q.lat, indexed.searchLatin, "text"],
   ];
-  if (q.key.length >= TITLE_KEY_MIN_LENGTH) parts.push([q.key, indexed.searchKey]);
+  if (q.key.length >= TITLE_KEY_MIN_LENGTH) parts.push([q.key, indexed.searchKey, "key"]);
 
-  let prefix = false;
+  let textPrefix = false;
+  let keyPrefix = false;
   let similarity = 0;
   let titleMatch = false;
-  for (const [value, column] of parts) {
+  for (const [value, column, kind] of parts) {
     if (!value) continue;
     const sim = wordSimilarity(value, column);
-    similarity = Math.max(similarity, sim);
-    if (` ${column}`.includes(` ${value}`)) prefix = true;
+    similarity = Math.max(similarity, kind === "key" ? SCORE.keySimilarityFactor * sim : sim);
+    if (` ${column}`.includes(` ${value}`)) {
+      if (kind === "text") textPrefix = true;
+      else keyPrefix = true;
+    }
     if (sim >= WORD_SIMILARITY_THRESHOLD || column.includes(value)) titleMatch = true;
   }
-  const lyricsMatch =
-    (q.ar !== "" && indexed.lyricsSearchAr.includes(q.ar)) ||
-    (q.key.length >= LYRICS_KEY_MIN_LENGTH && indexed.lyricsSearchKey.includes(q.key));
+  if (q.key.length >= WHOLE_KEY_MIN_LENGTH && q.key.length < TITLE_KEY_MIN_LENGTH) {
+    if (` ${indexed.searchKey} `.includes(` ${q.key} `)) keyPrefix = titleMatch = true;
+  }
+  const arLyrics = q.ar !== "" && indexed.lyricsSearchAr.includes(q.ar);
+  const keyLyrics = q.lat !== "" && q.key.length >= LYRICS_KEY_MIN_LENGTH && indexed.lyricsSearchKey.includes(q.key);
+  const lyricsMatch = arLyrics || keyLyrics;
   if (!titleMatch && !lyricsMatch) return null;
-  return { indexed, lyricsMatch, score: (prefix ? 10 : 0) + 6 * similarity + (lyricsMatch ? 3 : 0) };
+  const prefixScore = textPrefix ? SCORE.textPrefix : keyPrefix ? SCORE.keyPrefix : 0;
+  const lyricsScored = arLyrics || (keyLyrics && q.key.length >= LYRICS_KEY_SCORE_MIN_LENGTH);
+  return {
+    indexed,
+    lyricsMatch,
+    score: prefixScore + SCORE.similarity * similarity + (lyricsScored ? SCORE.lyrics : 0),
+  };
 }
 
 const sortTitle = (song: Song) => song.titleLatin ?? song.titleAr ?? "";

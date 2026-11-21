@@ -1,5 +1,7 @@
 import { eq, sql } from "drizzle-orm";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { upsertArtist } from "@/lib/catalog/artists";
+import { upsertSong } from "@/lib/catalog/songs";
 import { db } from "@/lib/db/client";
 import { songs } from "@/lib/db/schema";
 import { searchSongs } from "@/lib/search/searchSongs";
@@ -26,6 +28,57 @@ describe("searchSongs : requêtes de référence", () => {
   it.each(GOLDEN_QUERIES)("« %s » place %s dans le top 3", async (query, ref) => {
     const res = await searchSongs(query);
     expect(res.items.slice(0, 3).map((i) => i.id)).toContain(ids.get(ref));
+  });
+});
+
+describe("searchSongs : barème, sur les échecs du benchmark réel (tâche 15)", () => {
+  let ids = new Map<string, string>();
+  beforeEach(async () => {
+    await resetDb();
+    ids = await seedFixtures(db);
+  });
+
+  async function addSong(titleLatin: string, artist: string, lyrics: string): Promise<void> {
+    const a = await upsertArtist(db, { nameLatin: artist });
+    await upsertSong(db, {
+      titleLatin,
+      lyrics,
+      dialect: "other",
+      source: "lrclib",
+      sourceRef: `bench-${titleLatin}`,
+      artists: [{ ...a, role: "main" }],
+    });
+  }
+
+  it("place un début de texte exact devant un simple début de clé", async () => {
+    // « saber rebai » et « Saber Ayoub » ont la même clé « sbrb » : seul le texte les distingue.
+    await addSong("Ah Ya Leil", "Saber Ayoub", "سطر تجريبي");
+    const items = (await searchSongs("saber rebai")).items;
+    const saber = [ids.get("s-sidi-mansour"), ids.get("s-ala-nar")].map((id) => items.findIndex((i) => i.id === id));
+    expect(Math.min(...saber)).toBeGreaterThanOrEqual(0);
+    expect(items.findIndex((i) => i.titleLatin === "Ah Ya Leil")).toBeGreaterThan(Math.max(...saber));
+  });
+
+  it("trouve un titre entier dont la clé n'a que 2 consonnes", async () => {
+    // « nasaya » (clé « ns ») ressemble davantage, en trigrammes, à « maya nasri » qu'à « nassaya ».
+    await addSong("Nassaya", "Lotfi Bouchnak", "نساية من وقت الصغرى");
+    await addSong("3ayish Beek", "Maya Nasri", "سطر تجريبي");
+    await addSong("Aaddiha Li", "Maya Nasri", "سطر تجريبي");
+    expect((await searchSongs("nasaya")).items[0]?.titleLatin).toBe("Nassaya");
+  });
+
+  it("ne laisse pas une suite de 5 consonnes trouvée dans des paroles passer devant un titre proche", async () => {
+    // La clé « lhstn » de « el hawa sotan » apparaît, à cheval sur deux mots, dans « ala hastanna ».
+    await addSong("El Hawa Sultan", "George Wassouf", "يا عاشقين الهوى سلطان");
+    await addSong("Ala Hesabi", "The Synaptik", "ala hastanna ya habibi");
+    expect((await searchSongs("el hawa sotan")).items[0]?.titleLatin).toBe("El Hawa Sultan");
+  });
+
+  it("préfère une similarité de texte à une similarité de clé de même niveau", async () => {
+    // « lhstn » ressemble autant à la clé « ctnlhs » de « Chitana el hass » que le texte au titre attendu.
+    await addSong("El Hawa Sultan", "George Wassouf", "يا عاشقين الهوى سلطان");
+    await addSong("Chitana", "El Hass", "سطر تجريبي");
+    expect((await searchSongs("el hawa sotan")).items[0]?.titleLatin).toBe("El Hawa Sultan");
   });
 });
 

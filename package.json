@@ -16,7 +16,8 @@
     "seed:fixtures": "tsx scripts/seed-fixtures.ts",
     "import:lrclib": "tsx scripts/import/lrclib.ts",
     "import:public-domain": "tsx scripts/import/publicDomain.ts",
-    "bench:search": "tsx scripts/bench-search.ts"
+    "bench:search": "tsx scripts/bench-search.ts",
+    "reindex:search": "tsx scripts/reindex-search.ts"
   },
   "dependencies": {
     "dotenv": "^18.0.10",

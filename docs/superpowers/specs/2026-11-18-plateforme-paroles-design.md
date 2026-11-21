@@ -175,12 +175,12 @@ playlist_items(id, playlist_id, song_id, position, note text null, unique(playli
 **`normalizeLatin`** met en minuscules, retire les accents et la ponctuation, et réduit les espaces.
 
 **`toSearchKey`** produit le **squelette de consonnes** commun aux deux écritures.
-- **Côté arabe** : chaque consonne devient une classe canonique. Les lettres ا, و, ي, ى et ء sont retirées, qu'elles servent de voyelle ou de consonne.
+- **Côté arabe** : chaque consonne devient une classe canonique. Les lettres ا, و, ي, ى et ء sont retirées, qu'elles servent de voyelle ou de consonne. ع est retirée aussi, car les titres latins des plateformes l'omettent souvent : « Enta Omri », « Fat El Maad » (plan 1, tâche 15).
 - **Côté latin, ou arabizi** :
   - les digrammes sont reconnus d'abord : `ch` et `sh` deviennent ش, `kh` devient خ, `gh` devient غ, `th` devient ث, `dh` devient ذ, `ou` est une voyelle ;
-  - les chiffres prennent leur valeur de lettre : `3` = ع, `5` = خ, `7` = ح, `8` = غ, `9` = ق ;
+  - les chiffres prennent leur valeur de lettre : `5` = خ, `7` = ح, `8` = غ, `9` = ق ;
   - `g`, qui note le ق prononcé à la tunisienne, est rangé dans la classe ك/ق ;
-  - les lettres a, e, i, o, u, w, y ainsi que le chiffre `2` sont retirés, par symétrie avec le côté arabe.
+  - les lettres a, e, i, o, u, w, y ainsi que les chiffres `2` (ء) et `3` (ع) sont retirés, par symétrie avec le côté arabe.
 - **Dans les deux cas** :
   - les consonnes doublées sont réduites à une seule, puisque la shadda disparaît côté arabe ;
   - **les espaces sont supprimés**, car l'article et la conjonction sont collés en arabe mais séparés en arabizi : « والعذاب » s'écrit « wel 3azab ».
@@ -195,9 +195,10 @@ playlist_items(id, playlist_id, song_id, position, note text null, unique(playli
 
 1. `detectScript(q)` renvoie `arabic`, `latin` ou `mixed`. On calcule alors `qAr`, `qLat` et `qKey`.
 2. Une seule requête SQL attribue un score à chaque chanson publiée :
-   - **titre ou artiste qui commence par la requête** (`search_ar`, `search_latin` ou `search_key`) : poids 10 ;
-   - **similarité par trigrammes** (`similarity()`) sur `search_ar`, `search_latin` et `search_key` : poids 6 ;
-   - **passage trouvé dans les paroles** (`lyrics_search_ar ILIKE`, ou `lyrics_search_key ILIKE` pour une requête en latin), à partir de 3 caractères significatifs : poids 3.
+   - **titre ou artiste qui commence par la requête** : poids 10 en texte exact (`search_ar` ou `search_latin`), 5 par la clé seule (`search_key`), car deux noms différents peuvent partager une clé (« Saber Rebai » et « Saber Ayoub » donnent `sbrb`). Une clé de 2 consonnes ne sert que si elle est celle d'un titre ou d'un nom entier (« nasaya » et « Nassaya » donnent `ns`) ;
+   - **similarité par trigrammes** (`word_similarity()`) sur `search_ar`, `search_latin` et `search_key` : poids 6. Celle de `search_key` est multipliée par 0,8 : la clé n'a qu'une quinzaine de symboles et pas d'espaces, donc ses trigrammes prouvent moins ;
+   - **passage trouvé dans les paroles** (`lyrics_search_ar LIKE`, ou `lyrics_search_key LIKE` pour une requête en latin à partir de 4 consonnes) : poids 3. Par la clé, le passage ne rapporte des points qu'à partir de 6 consonnes : une suite plus courte se trouve par hasard, à cheval sur deux mots, dans les paroles d'une chanson sur dix.
+   - Ces valeurs sont réunies dans `SCORE` (`lib/search/query.ts`) et mesurées par le benchmark (§6.3).
 3. Les résultats sont triés par score décroissant, puis par titre. Les filtres optionnels portent sur l'artiste et le dialecte. Les pages font 20 résultats.
 4. **Extrait** : si le score vient des paroles, on renvoie la première ligne qui correspond.
 5. **Requêtes vides ou trop courtes.** Une requête de moins de 2 caractères significatifs ne lance pas de recherche, et l'interface invite à taper davantage.

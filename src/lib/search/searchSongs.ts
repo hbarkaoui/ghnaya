@@ -4,9 +4,12 @@ import type { Dialect } from "@/lib/db/schema";
 import {
   findSnippet,
   LYRICS_KEY_MIN_LENGTH,
+  LYRICS_KEY_SCORE_MIN_LENGTH,
   MIN_SIGNIFICANT,
   prepareQuery,
+  SCORE,
   TITLE_KEY_MIN_LENGTH,
+  WHOLE_KEY_MIN_LENGTH,
   WORD_SIMILARITY_THRESHOLD,
   type PreparedQuery,
 } from "./query";
@@ -24,38 +27,63 @@ const COL = {
 // aucun caractère spécial de LIKE (% ou _) ne peut s'y trouver.
 const contains = (column: SQL, value: string): SQL => sql`${column} LIKE ${`%${value}%`}`;
 const wordStart = (column: SQL, value: string): SQL => sql`(' ' || ${column}) LIKE ${`% ${value}%`}`;
+// Expression régulière plutôt que `' ' || colonne LIKE` : pg_trgm la sert par l'index GIN de la colonne.
+// Une clé ne contient que des lettres minuscules : aucun caractère spécial ne peut s'y glisser.
+const wholeWord = (column: SQL, value: string): SQL => sql`${column} ~ ${`(^| )${value}( |$)`}`;
 const or = (parts: SQL[]): SQL => (parts.length > 0 ? sql`(${sql.join(parts, sql` OR `)})` : sql`false`);
 
 /**
- * Barème de la spec §6.2 : titre ou artiste qui commence par la requête, 10 points ; meilleure
- * word_similarity des trois colonnes, jusqu'à 6 points ; passage trouvé dans les paroles, 3 points.
+ * Barème de la spec §6.2 (valeurs dans `SCORE`) : titre ou artiste qui commence par la requête, en texte
+ * exact (10 points) ou seulement par sa clé (5 points) ; meilleure word_similarity des colonnes, jusqu'à
+ * 6 points ; passage trouvé dans les paroles, 3 points.
  */
 function buildClauses(q: PreparedQuery): { score: SQL; lyricsMatch: SQL; where: SQL } {
-  const prefix: SQL[] = [];
+  const textPrefix: SQL[] = [];
+  const keyPrefix: SQL[] = [];
   const similarity: SQL[] = [];
-  const lyrics: SQL[] = [];
   const match: SQL[] = [];
-  const parts: Array<[string, SQL]> = [
+  const texts: Array<[string, SQL]> = [
     [q.ar, COL.searchAr],
     [q.lat, COL.searchLatin],
   ];
-  if (q.key.length >= TITLE_KEY_MIN_LENGTH) parts.push([q.key, COL.searchKey]);
-  for (const [value, column] of parts) {
+  for (const [value, column] of texts) {
     if (!value) continue;
-    prefix.push(wordStart(column, value));
+    textPrefix.push(wordStart(column, value));
     similarity.push(sql`word_similarity(${value}, ${column})`);
     match.push(sql`${value} <% ${column}`, contains(column, value));
   }
-  if (q.ar) lyrics.push(contains(COL.lyricsSearchAr, q.ar));
-  if (q.key.length >= LYRICS_KEY_MIN_LENGTH) lyrics.push(contains(COL.lyricsSearchKey, q.key));
+  if (q.key.length >= TITLE_KEY_MIN_LENGTH) {
+    keyPrefix.push(wordStart(COL.searchKey, q.key));
+    similarity.push(sql`${SCORE.keySimilarityFactor} * word_similarity(${q.key}, ${COL.searchKey})`);
+    match.push(sql`${q.key} <% ${COL.searchKey}`, contains(COL.searchKey, q.key));
+  } else if (q.key.length >= WHOLE_KEY_MIN_LENGTH) {
+    const whole = wholeWord(COL.searchKey, q.key);
+    keyPrefix.push(whole);
+    match.push(whole);
+  }
+
+  const lyrics: SQL[] = [];
+  const scoredLyrics: SQL[] = [];
+  if (q.ar) {
+    const found = contains(COL.lyricsSearchAr, q.ar);
+    lyrics.push(found);
+    scoredLyrics.push(found);
+  }
+  // Spec §6.2 : la clé ne cherche dans les paroles que pour une requête en latin ; en arabe, le texte
+  // normalisé suffit, et une clé de 4 consonnes se retrouve dans les paroles d'une chanson sur dix.
+  if (q.lat && q.key.length >= LYRICS_KEY_MIN_LENGTH) {
+    const found = contains(COL.lyricsSearchKey, q.key);
+    lyrics.push(found);
+    if (q.key.length >= LYRICS_KEY_SCORE_MIN_LENGTH) scoredLyrics.push(found);
+  }
   match.push(...lyrics);
 
-  const lyricsMatch = or(lyrics);
   const best = similarity.length > 0 ? sql.join(similarity, sql`, `) : sql`0`;
-  const score = sql`((CASE WHEN ${or(prefix)} THEN 10 ELSE 0 END)
-    + 6 * GREATEST(${best})
-    + (CASE WHEN ${lyricsMatch} THEN 3 ELSE 0 END))`;
-  return { score, lyricsMatch, where: or(match) };
+  const score = sql`((CASE WHEN ${or(textPrefix)} THEN ${SCORE.textPrefix}
+      WHEN ${or(keyPrefix)} THEN ${SCORE.keyPrefix} ELSE 0 END)
+    + ${SCORE.similarity} * GREATEST(${best})
+    + (CASE WHEN ${or(scoredLyrics)} THEN ${SCORE.lyrics} ELSE 0 END))`;
+  return { score, lyricsMatch: or(lyrics), where: or(match) };
 }
 
 interface RawRow extends Record<string, unknown> {

@@ -46,7 +46,7 @@ describe("upsertSong", () => {
     expect(second).toEqual({ id: first.id, outcome: "updated" });
     const [row] = await db.select().from(songs).where(eq(songs.id, first.id));
     expect(row.sourceRef).toBe("200");
-    expect(row.searchKey).toBe("sdmnsr sbrlrb3 sbrb");
+    expect(row.searchKey).toBe("sdmnsr sbrlrb sbrb");
     const links = await db.select().from(songArtists).where(eq(songArtists.songId, first.id));
     expect(links).toHaveLength(1);
   });

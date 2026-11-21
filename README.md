@@ -46,8 +46,14 @@ L'import ne garde que les paroles dont au moins la moitié des lettres sont arab
 `pnpm bench:search --sample 1000` mesure la latence (objectif : p95 ≤ 300 ms) et la précision sur
 `data/search-golden.yaml`. À relancer après chaque import important ou chaque changement de `lib/search`.
 Il sort en échec (code 1) si le p95 dépasse l'objectif ou si une requête de référence n'a pas son titre
-dans les 3 premiers résultats. Les requêtes de référence visent les données réelles : sur le catalogue
-fictif, celles dont la chanson n'y figure pas échouent.
+(ou son artiste) dans les 3 premiers résultats. Les requêtes de référence visent les données réelles : sur
+le catalogue fictif, celles dont la chanson n'y figure pas échouent.
+
+Après un changement de `lib/text` (table des consonnes, normalisation), les colonnes de recherche déjà
+écrites sont périmées. `pnpm reindex:search` les recalcule, avec la clé de dédoublonnage, sans relancer
+d'import (moins de 4 minutes pour 81 000 chansons en local). Il signale, sans les toucher, les chansons qui
+prendraient la clé de dédoublonnage d'une autre : ce sont en général des doublons, à fusionner à la main.
+Lancer ensuite `VACUUM ANALYZE songs` : la réécriture de toutes les lignes encombre les index GIN.
 
 ## Intégration continue
 

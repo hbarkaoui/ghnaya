@@ -8,7 +8,11 @@ const SAME_KEY: Array<[string, string, string]> = [
   ["سيدى منصور", "sidi mansur", "sdmnsr"],
   ["ولا", "wala", "l"],
   ["غنّي", "Ghanni", "gn"],
-  ["أنا والعذاب", "Ana wel 3azab", "nl3zb"],
+  ["أنا والعذاب", "Ana wel 3azab", "nlzb"],
+  // ع est muet : les titres latins des plateformes l'omettent souvent (« Omri », « Maad »).
+  ["انت عمري", "Enta Omri", "ntmr"],
+  ["انت عمري", "enta 3omri", "ntmr"],
+  ["فات الميعاد", "Fat El Maad", "ftlmd"],
   ["ڨلبي", "galbi", "klb"],
   ["حبيبي", "habibi", "hb"],
   ["حبي", "7obi", "hb"],

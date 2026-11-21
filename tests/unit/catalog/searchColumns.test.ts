@@ -6,7 +6,7 @@ describe("searchColumns", () => {
     expect(artistSearchColumns({ nameAr: "صابر الرباعي", nameLatin: "Saber Rebai", aliases: ["Saber Rebaï"] })).toEqual({
       searchAr: "صابر الرباعي",
       searchLatin: "saber rebai",
-      searchKey: "sbrlrb3 sbrb",
+      searchKey: "sbrlrb sbrb",
     });
   });
   it("chanson : titre puis artistes, paroles normalisées", () => {
@@ -18,8 +18,8 @@ describe("searchColumns", () => {
     });
     expect(cols.searchAr).toBe("سيدي منصور صابر الرباعي");
     expect(cols.searchLatin).toBe("sidi mansour saber rebai");
-    expect(cols.searchKey).toBe("sdmnsr sbrlrb3 sbrb");
+    expect(cols.searchKey).toBe("sdmnsr sbrlrb sbrb");
     expect(cols.lyricsSearchAr).toBe("يا ليل يا عين");
-    expect(cols.lyricsSearchKey).toBe("l3n");
+    expect(cols.lyricsSearchKey).toBe("ln");
   });
 });

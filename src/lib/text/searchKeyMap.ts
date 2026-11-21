@@ -22,7 +22,8 @@ export const CHAR_MAP: Readonly<Record<string, string>> = {
   "ر": "r",
   "س": "s", "ص": "s",
   "ش": "c", "چ": "c",
-  "ع": "3",
+  // ع est muet, comme le « 3 » de l'arabizi : les titres latins l'omettent souvent (« Enta Omri », « Fat El Maad »).
+  "ع": "",
   "غ": "g",
   "ف": "f", "ڤ": "f",
   "ق": "k", "ك": "k", "ڨ": "k", "گ": "k", "ک": "k",
@@ -32,6 +33,6 @@ export const CHAR_MAP: Readonly<Record<string, string>> = {
   b: "b", p: "b", t: "t", j: "j", h: "h", d: "d", z: "z", r: "r", s: "s",
   f: "f", v: "f", k: "k", q: "k", g: "k", c: "k", x: "ks", l: "l", m: "m", n: "n",
   a: "", e: "", i: "", o: "", u: "", w: "", y: "",
-  "3": "3", "5": "x", "7": "h", "8": "g", "9": "k",
-  "0": "", "1": "", "2": "", "4": "", "6": "",
+  "5": "x", "7": "h", "8": "g", "9": "k",
+  "0": "", "1": "", "2": "", "3": "", "4": "", "6": "",
 };
