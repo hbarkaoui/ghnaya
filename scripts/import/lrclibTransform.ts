@@ -8,7 +8,23 @@ import type { LrclibTrack } from "./lrclibReader";
 
 /** Une piste est gardée si au moins la moitié des lettres de ses paroles sont arabes. */
 export const MIN_ARABIC_RATIO = 0.5;
-export type Rejection = "empty_lyrics" | "not_arabic" | "no_artist" | "empty_title";
+export type Rejection = "empty_lyrics" | "not_arabic" | "persian_or_urdu" | "no_artist" | "empty_title";
+
+const count = (text: string, letters: string): number => {
+  let n = 0;
+  for (const ch of text) if (letters.includes(ch)) n += 1;
+  return n;
+};
+
+/**
+ * Tâche 15 : le persan et l'ourdou s'écrivent avec l'alphabet arabe et passent `MIN_ARABIC_RATIO` ; ils
+ * faisaient 40 % du premier import. Deux signes : les claviers persan et ourdou tapent ی et ک (U+06CC,
+ * U+06A9) au lieu de ي et ك, et ces langues ont des lettres propres (پ ژ ٹ ڈ ڑ ں ے). چ et گ n'en sont pas :
+ * l'arabe irakien et du Golfe les écrit aussi.
+ */
+export function looksPersianOrUrdu(lyrics: string): boolean {
+  return count(lyrics, "یک") > count(lyrics, "يك") || count(lyrics, "پژٹڈڑںے") >= 2;
+}
 
 export interface Candidate {
   lrclibId: number;
@@ -27,6 +43,7 @@ export function transformTrack(track: LrclibTrack, aliases: AliasIndex): Candida
   const lyrics = track.plainLyrics.replaceAll(NUL, "").replace(/\r\n?/g, "\n").trim();
   if (!lyrics) return { rejected: "empty_lyrics" };
   if (arabicRatio(lyrics) < MIN_ARABIC_RATIO) return { rejected: "not_arabic" };
+  if (looksPersianOrUrdu(lyrics)) return { rejected: "persian_or_urdu" };
 
   const artistNames = splitArtists(track.artistName);
   if (artistNames.length === 0) return { rejected: "no_artist" };

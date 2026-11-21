@@ -41,6 +41,22 @@ describe("transformTrack", () => {
     expect(transformTrack({ ...track, artistName: " , " }, ALIASES)).toEqual({ rejected: "no_artist" });
   });
 
+  it("rejette le persan et l'ourdou, écrits avec l'alphabet arabe", () => {
+    const reject = (plainLyrics: string) => transformTrack({ ...track, plainLyrics }, ALIASES);
+    // Clavier persan : ی et ک au lieu de ي et ك.
+    expect(reject("این که من بی تو")).toEqual({ rejected: "persian_or_urdu" });
+    // Persan tapé avec les lettres arabes, mais avec پ : « رازقی پرپر شد ».
+    expect(reject("رازقي پرپر شد\nباغ در چله نشست")).toEqual({ rejected: "persian_or_urdu" });
+    // Ourdou : ے et ں.
+    expect(reject("دل میں ایک لہر سی اٹھی ہے")).toEqual({ rejected: "persian_or_urdu" });
+  });
+
+  it("garde l'arabe irakien et du Golfe, qui écrit aussi چ et گ", () => {
+    expect(transformTrack({ ...track, plainLyrics: "شلون أنساك وأنت چنت گلبي\nگلبي يا گلبي" }, ALIASES)).not.toHaveProperty(
+      "rejected",
+    );
+  });
+
   it("ajoute les invités trouvés dans le titre", () => {
     const c = transformTrack({ ...track, name: "Nebni (feat. Balti)" }, ALIASES) as Candidate;
     expect(c.artists.map((a) => a.nameLatin)).toEqual(["Saber Rebai", "Balti"]);

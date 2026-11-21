@@ -33,7 +33,7 @@ export async function runLrclibImport(opts: {
   const log = opts.log ?? (() => undefined);
   const report: ImportReport = {
     read: 0,
-    rejected: { empty_lyrics: 0, not_arabic: 0, no_artist: 0, empty_title: 0 },
+    rejected: { empty_lyrics: 0, not_arabic: 0, persian_or_urdu: 0, no_artist: 0, empty_title: 0 },
     candidates: 0,
     unique: 0,
     merged: 0,

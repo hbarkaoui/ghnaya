@@ -39,7 +39,7 @@ pnpm typecheck && pnpm lint
 4. Lancer l'import réel, avec `DATABASE_URL` pointant vers la base cible :
    `NODE_OPTIONS=--max-old-space-size=8192 pnpm import:lrclib --dump ./lrclib.sqlite3`
 
-L'import ne garde que les paroles dont au moins la moitié des lettres sont arabes. Il ne modifie jamais une chanson verrouillée, ni le statut d'aucune chanson. Relancé, il met à jour les mêmes chansons.
+L'import ne garde que les paroles dont au moins la moitié des lettres sont arabes. Il écarte le persan et l'ourdou, qui s'écrivent avec le même alphabet : leurs claviers tapent ی et ک au lieu de ي et ك, et ces langues ont des lettres propres (پ, ژ, ے…). Il ne modifie jamais une chanson verrouillée, ni le statut d'aucune chanson. Relancé, il met à jour les mêmes chansons.
 
 ## Benchmark de la recherche
 
