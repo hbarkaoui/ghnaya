@@ -11,10 +11,10 @@ import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
 import { Badge } from "@/components/ui/Badge";
 import { Bidi } from "@/components/ui/Bidi";
+import type { CurrentUser } from "@/lib/auth/types";
 import { getCurrentUser } from "@/lib/session";
 import { accountFor, clubsOf, type ClubRef } from "@/mocks/account";
 import { moderationQueueSize } from "@/mocks/moderation";
-import type { DemoUser } from "@/mocks/session";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("me");
@@ -90,7 +90,7 @@ export default async function MePage({ searchParams }: PageProps<"/moi">) {
  * Pastilles de club : le club d'un membre, les clubs d'un animateur (règle des clubs).
  * Sans club : un membre rejoint par un lien d'invitation ; seul un animateur peut créer un club.
  */
-async function ClubPills({ user, clubs }: { user: DemoUser; clubs: ClubRef[] }) {
+async function ClubPills({ user, clubs }: { user: CurrentUser; clubs: ClubRef[] }) {
   const t = await getTranslations("me");
 
   if (clubs.length === 0) {

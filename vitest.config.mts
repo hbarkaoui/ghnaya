@@ -29,6 +29,8 @@ export default defineConfig({
           fileParallelism: false,
           env: {
             DATABASE_URL: process.env.DATABASE_URL_TEST ?? "postgres://ghanni:ghanni@localhost:5433/ghanni_test",
+            BETTER_AUTH_SECRET: "secret-de-test-secret-de-test-0123",
+            BETTER_AUTH_URL: "http://localhost:3000",
           },
         },
       },

@@ -5,7 +5,6 @@ import { resetDemoClubsAction } from "@/app/actions/clubs";
 import { setDemoSession } from "@/app/actions/demo";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
-import { getDemoSession } from "@/lib/session";
 import { getClub } from "@/mocks/clubStore";
 import type { DemoSession } from "@/mocks/session";
 
@@ -24,7 +23,7 @@ const DEMO_CLUBS = ["les-jasmins", "malouf-sfax", "chorale-du-bardo", "nghanniw"
 /** Page d'aperçu (développement uniquement) : choisir le cas de démonstration, en attendant les comptes. */
 export default async function DemoSessionPage() {
   if (process.env.NODE_ENV === "production") notFound();
-  const current = await getDemoSession();
+  const current: DemoSession = "member";
 
   return (
     <>

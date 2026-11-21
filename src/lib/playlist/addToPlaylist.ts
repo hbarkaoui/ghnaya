@@ -7,7 +7,7 @@ import { canEditPlaylist, type PlaylistViewer } from "./rights";
  * la feuille (validation du nom avant l'envoi).
  */
 
-/** Ce qu'il faut savoir de l'utilisateur pour décider de ses droits (DemoUser, puis la session du plan 2). */
+/** Ce qu'il faut savoir de l'utilisateur pour décider de ses droits (CurrentUser). */
 export type PlaylistEditor = PlaylistViewer;
 
 /**
