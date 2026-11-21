@@ -41,7 +41,7 @@ export function LyricsView({ lyrics, translit = null, mode = "ar", className = "
   if (mode === "both" && translit) {
     const latin = toStanzas(translit);
     return (
-      <div lang="ar" dir="rtl" className={`font-lyrics text-lyrics ${className}`}>
+      <div data-testid="lyrics" lang="ar" dir="rtl" className={`font-lyrics text-lyrics ${className}`}>
         {arabic.map((lines, s) => (
           <div key={s} className="mb-(--reader-stanza-gap) last:mb-0">
             {lines.map((line, l) => (
@@ -63,7 +63,7 @@ export function LyricsView({ lyrics, translit = null, mode = "ar", className = "
   }
 
   return (
-    <div lang="ar" dir="rtl" className={`font-lyrics text-lyrics ${className}`}>
+    <div data-testid="lyrics" lang="ar" dir="rtl" className={`font-lyrics text-lyrics ${className}`}>
       {arabic.map((lines, i) => (
         <p key={i} className="mb-(--reader-stanza-gap) whitespace-pre-line last:mb-0">
           {lines.join("\n")}

@@ -67,7 +67,7 @@ L'interface a été construite avant ce plan, sur des données fictives (`.desig
 | 11. Domaine public | Faite le 21/11/2026 | Sans changement. `pnpm import:public-domain --dry-run` : 1 chanson, aucun refus. |
 | 12. Interface, accueil, recherche | Remplacée | Déjà construite : langue, messages, mise en page, manifeste, page d'erreur, `SearchBar`, `SongResultItem`, `/recherche`. Reste seulement le branchement, dans la tâche 13 adaptée. |
 | 13. Fiche chanson, page artiste | Faite le 21/11/2026 (branchement) | Les pages existent. On les branche sur la base par la passerelle décrite plus bas. |
-| 14. Bout en bout | À faire (le script `seed-fixtures` de l'étape 1 est écrit) | Demande de télécharger les navigateurs de Playwright, avec accord. |
+| 14. Bout en bout | Faite le 21/11/2026, adaptée | Parcours réécrits pour l'interface construite (libellés, titre `h1` à deux langues, bascule FR · ع), `data-testid="lyrics"` ajouté à `LyricsView`, et un 6e parcours pour la passerelle : chanson trouvée en base, ajoutée à une playlist fictive, lue dans le lecteur. |
 | 15. Benchmark | À faire | Après le premier import réel. |
 | 16. CI, Docker, déploiement | À faire | Le dépôt n'a pas encore de remote GitHub. |
 
