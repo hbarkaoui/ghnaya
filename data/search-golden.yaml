@@ -1,0 +1,20 @@
+# Plan 1, tâche 15 : requêtes de référence de `pnpm bench:search`, sur les données réelles importées.
+# expected_title est comparé, via la clé de consonnes, au titre arabe ou latin des 3 premiers résultats.
+#
+# Premières entrées : titres vus dans LRCLIB lors de l'étude, forme exacte à vérifier après l'import réel.
+# À compléter jusqu'à au moins 50 entrées, 10 par catégorie, choisies AVANT de lancer le benchmark :
+#   1. titre en arabe ;
+#   2. titre en arabizi, avec variantes de voyelles (« mansur », « mansor ») ;
+#   3. nom d'artiste, en arabe et en latin (expected_title parmi ses chansons) ;
+#   4. 3 à 5 mots consécutifs tirés des paroles ;
+#   5. faute de frappe sur un titre (lettre doublée ou manquante).
+- { query: sidi mansour, expected_title: Sidi Mansour }
+- { query: سيدي منصور, expected_title: Sidi Mansour }
+- { query: sidi mansur, expected_title: Sidi Mansour }
+- { query: انت عمري, expected_title: انت عمري }
+- { query: enta 3omri, expected_title: انت عمري }
+- { query: حبيتك بالصيف, expected_title: حبيتك بالصيف }
+- { query: habaytak bel saif, expected_title: حبيتك بالصيف }
+- { query: فات الميعاد, expected_title: فات الميعاد }
+- { query: fat el mi3ad, expected_title: فات الميعاد }
+- { query: ya lili, expected_title: Ya Lili }

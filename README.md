@@ -41,6 +41,14 @@ pnpm typecheck && pnpm lint
 
 L'import ne garde que les paroles dont au moins la moitié des lettres sont arabes. Il ne modifie jamais une chanson verrouillée, ni le statut d'aucune chanson. Relancé, il met à jour les mêmes chansons.
 
+## Benchmark de la recherche
+
+`pnpm bench:search --sample 1000` mesure la latence (objectif : p95 ≤ 300 ms) et la précision sur
+`data/search-golden.yaml`. À relancer après chaque import important ou chaque changement de `lib/search`.
+Il sort en échec (code 1) si le p95 dépasse l'objectif ou si une requête de référence n'a pas son titre
+dans les 3 premiers résultats. Les requêtes de référence visent les données réelles : sur le catalogue
+fictif, celles dont la chanson n'y figure pas échouent.
+
 ## Intégration continue
 
 `.github/workflows/ci.yml` lance, à chaque push et pull request, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:integration` et `pnpm test:e2e` contre un PostgreSQL 16 de service, puis construit l'image Docker et vérifie qu'elle sert l'accueil.
