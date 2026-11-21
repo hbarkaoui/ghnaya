@@ -14,7 +14,14 @@ import { toSearchKey } from "@/lib/text/searchKey";
 
 const P95_TARGET_MS = 300;
 const GOLDEN_FILE = "data/search-golden.yaml";
-const Golden = z.array(z.object({ query: z.string().min(1), expected_title: z.string().min(1) }));
+// expected_artist sert aux requêtes sur un nom d'artiste : un artiste prolifique a bien plus de 3 chansons,
+// donc aucun titre précis n'a de raison d'être dans le top 3, alors qu'une de ses chansons, si.
+const Golden = z.array(
+  z.union([
+    z.object({ query: z.string().min(1), expected_title: z.string().min(1) }).strict(),
+    z.object({ query: z.string().min(1), expected_artist: z.string().min(1) }).strict(),
+  ]),
+);
 
 function percentile(sortedMs: number[], p: number): number {
   return sortedMs[Math.min(sortedMs.length - 1, Math.floor((p / 100) * sortedMs.length))] ?? 0;
@@ -67,11 +74,21 @@ async function main(): Promise<void> {
   for (const g of golden) {
     const { ms, value } = await timed(() => searchSongs(g.query));
     durations.push(ms);
-    const key = toSearchKey(g.expected_title);
     const top3 = value.items.slice(0, 3);
-    if (!top3.some((h) => toSearchKey(h.titleAr ?? "") === key || toSearchKey(h.titleLatin ?? "") === key)) {
-      const got = top3.map((h) => h.titleAr ?? h.titleLatin).join(" | ") || "aucun résultat";
-      misses.push(`« ${g.query} » → attendu « ${g.expected_title} », obtenu : ${got}`);
+    const sameKey = (key: string, names: { ar: string | null; latin: string | null }) =>
+      toSearchKey(names.ar ?? "") === key || toSearchKey(names.latin ?? "") === key;
+    if ("expected_artist" in g) {
+      const key = toSearchKey(g.expected_artist);
+      if (!top3.some((h) => h.artists.some((a) => sameKey(key, { ar: a.nameAr, latin: a.nameLatin })))) {
+        const got = top3.map((h) => h.artists.map((a) => a.nameLatin ?? a.nameAr).join(", ")).join(" | ");
+        misses.push(`« ${g.query} » → attendu l'artiste « ${g.expected_artist} », obtenu : ${got || "aucun résultat"}`);
+      }
+    } else {
+      const key = toSearchKey(g.expected_title);
+      if (!top3.some((h) => sameKey(key, { ar: h.titleAr, latin: h.titleLatin }))) {
+        const got = top3.map((h) => h.titleAr ?? h.titleLatin).join(" | ") || "aucun résultat";
+        misses.push(`« ${g.query} » → attendu « ${g.expected_title} », obtenu : ${got}`);
+      }
     }
   }
 

@@ -1,20 +1,82 @@
 # Plan 1, tâche 15 : requêtes de référence de `pnpm bench:search`, sur les données réelles importées.
-# expected_title est comparé, via la clé de consonnes, au titre arabe ou latin des 3 premiers résultats.
+# expected_title est comparé, via la clé de consonnes, au titre arabe ou latin des 3 premiers résultats ;
+# expected_artist, aux noms des artistes de ces 3 résultats.
 #
-# Premières entrées : titres vus dans LRCLIB lors de l'étude, forme exacte à vérifier après l'import réel.
-# À compléter jusqu'à au moins 50 entrées, 10 par catégorie, choisies AVANT de lancer le benchmark :
-#   1. titre en arabe ;
-#   2. titre en arabizi, avec variantes de voyelles (« mansur », « mansor ») ;
-#   3. nom d'artiste, en arabe et en latin (expected_title parmi ses chansons) ;
-#   4. 3 à 5 mots consécutifs tirés des paroles ;
-#   5. faute de frappe sur un titre (lettre doublée ou manquante).
-- { query: sidi mansour, expected_title: Sidi Mansour }
+# Choisies le 21/11/2026 dans la base issue de l'export LRCLIB du 19/11/2026, avant le premier benchmark :
+# une requête qui échoue se corrige dans la recherche, jamais en changeant la requête.
+
+# 1. Titre en arabe (dont des chansons dont la base n'a que le titre latin).
 - { query: سيدي منصور, expected_title: Sidi Mansour }
-- { query: sidi mansur, expected_title: Sidi Mansour }
 - { query: انت عمري, expected_title: انت عمري }
-- { query: enta 3omri, expected_title: انت عمري }
 - { query: حبيتك بالصيف, expected_title: حبيتك بالصيف }
-- { query: habaytak bel saif, expected_title: حبيتك بالصيف }
 - { query: فات الميعاد, expected_title: فات الميعاد }
+- { query: حلوة يا بلدي, expected_title: حلوة يا بلدي }
+- { query: برغم الظروف, expected_title: برغم الظروف }
+- { query: خلص تارك, expected_title: خلص تارك }
+- { query: الهوى سلطان, expected_title: الهوى سلطان }
+- { query: بحبك من زمان, expected_title: بحبك من زمان }
+- { query: بكتب اسمك يا حبيبي, expected_title: بكتب اسمك ياحبيبي }
+- { query: شايف البحر شو كبير, expected_title: شايف البحر شو كبير }
+- { query: وحياتي عندك, expected_title: وحياتي عندك }
+- { query: أنا ليا مين غيرك, expected_title: أنا ليا مين غيرك }
+- { query: صايغين الذهب, expected_title: صايغين الذهب }
+- { query: نسّاية, expected_title: Nassaya }
+
+# 2. Titre en arabizi, avec variantes de voyelles et chiffres (3 = ع, 7 = ح).
+- { query: sidi mansour, expected_title: Sidi Mansour }
+- { query: sidi mansur, expected_title: Sidi Mansour }
+- { query: enta 3omri, expected_title: انت عمري }
+- { query: habaytak bel saif, expected_title: حبيتك بالصيف }
 - { query: fat el mi3ad, expected_title: فات الميعاد }
 - { query: ya lili, expected_title: Ya Lili }
+- { query: helwa ya baladi, expected_title: حلوة يا بلدي }
+- { query: khalas tarek, expected_title: خلص تارك }
+- { query: el hawa sultan, expected_title: الهوى سلطان }
+- { query: ba7ebak men zaman, expected_title: بحبك من زمان }
+- { query: ta7t el yasmina, expected_title: Tah Tel Yassmina }
+- { query: nasaya, expected_title: Nassaya }
+- { query: ya lalla winek, expected_title: Ya Lella Winek }
+- { query: kif chbaht khyalek, expected_title: Kif Chbaht Khyelik }
+- { query: wahyati 3andak, expected_title: وحياتي عندك }
+- { query: sayghin el dhahab, expected_title: صايغين الذهب }
+
+# 3. Nom d'artiste, en arabe et en latin : expected_artist doit signer une des 3 premières chansons.
+- { query: رولا سعد, expected_artist: رولا سعد }
+- { query: إيهاب توفيق, expected_artist: إيهاب توفيق }
+- { query: زياد برجي, expected_artist: زياد برجي }
+- { query: عازار حبيب, expected_artist: عازار حبيب }
+- { query: لؤي مرهج, expected_artist: لؤي مرهج }
+- { query: عبد السلام حوى, expected_artist: عبد السلام حوى }
+- { query: Amina Fakhet, expected_artist: Amina Fakhet }
+- { query: Abdelwahab Doukali, expected_artist: Abdelwahab Doukkali }
+- { query: Ahlam El Archaoui, expected_artist: Ahlam El Archaoui }
+- { query: Farida Obeid, expected_artist: Farida Obeid }
+- { query: فيروز, expected_artist: Fairuz }
+- { query: oum kalthoum, expected_artist: أم كلثوم }
+- { query: لطفي بوشناق, expected_artist: Lotfi Bouchnak }
+- { query: saber rebai, expected_artist: صابر الرباعي }
+
+# 4. 3 à 5 mots consécutifs tirés des paroles (hors titre).
+- { query: تحت الياسمينة اتكيت عدلت العود, expected_title: Tah Tel Yassmina }
+- { query: وشوفولي خاتم حلو يستاهل, expected_title: صايغين الذهب }
+- { query: نساية من وقت الصغرى, expected_title: Nassaya }
+- { query: نحلف بيميني نبني لك قبة, expected_title: Ya Lella Winek }
+- { query: صغير وفي قلبي غمة, expected_title: Ya Lili }
+- { query: شقيت البحور يا خواتي, expected_title: Dima Labes }
+- { query: يا هم العمر يا دمع الزهر, expected_title: شايف البحر شو كبير }
+- { query: ليه تبكي ما انا قلبي, expected_title: جرح الناس }
+- { query: تفيد بإيه يا ندم, expected_title: فات الميعاد }
+- { query: خدني معاك من غير ما تفكر, expected_title: وحياتي عندك }
+- { query: kelma helwa w kelmeten, expected_title: حلوة يا بلدي }
+
+# 5. Faute de frappe sur un titre : lettre doublée ou manquante.
+- { query: sidi manssour, expected_title: Sidi Mansour }
+- { query: el hawa sotan, expected_title: الهوى سلطان }
+- { query: helwa ya balladi, expected_title: حلوة يا بلدي }
+- { query: tah tel yasminna, expected_title: Tah Tel Yassmina }
+- { query: dima labbes, expected_title: Dima Labes }
+- { query: fat el miaad, expected_title: فات الميعاد }
+- { query: nassaaya, expected_title: Nassaya }
+- { query: الهوى سلطن, expected_title: الهوى سلطان }
+- { query: صاغين الذهب, expected_title: صايغين الذهب }
+- { query: بحبك من زمااان, expected_title: بحبك من زمان }
