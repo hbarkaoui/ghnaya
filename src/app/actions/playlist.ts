@@ -11,12 +11,17 @@ import {
   setItemNote,
   type Direction,
 } from "@/lib/playlist/edit";
-import { canCopyPlaylist, canEditPlaylist } from "@/lib/playlist/rights";
-import { copyPlaylist } from "@/lib/playlist/rows";
+import { canCopyPlaylist, canEditPlaylist } from "@/lib/auth/permissions";
 import { getCurrentUser } from "@/lib/session";
 import { getPlaylist } from "@/mocks/catalog";
 import { songExists } from "@/lib/catalog/read";
 import { addPlaylist, savePlaylist } from "@/mocks/playlistStore";
+import type { Playlist } from "@/types/catalog";
+
+// MAQUETTE : retiré à la tâche 9 (copie locale de l'ancienne fonction pure, remplacée par la base).
+function copyPlaylist(source: Playlist, { id, ownerId, now }: { id: string; ownerId: string; now: string }): Playlist {
+  return { id, name: source.name, club: null, ownerId, items: source.items.map((item) => ({ ...item })), updatedAt: now };
+}
 
 /**
  * Actions du mode édition d'une playlist et de « Copier dans mes playlists ».

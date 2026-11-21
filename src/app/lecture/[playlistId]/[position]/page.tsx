@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ReaderEmpty } from "@/components/reader/ReaderEmpty";
 import { ReaderShell } from "@/components/reader/ReaderShell";
-import { canEditPlaylist, canViewPlaylist } from "@/lib/playlist/rights";
+import { canEditPlaylist, canViewPlaylist } from "@/lib/auth/permissions";
 import { toReaderEntry } from "@/lib/reader/entry";
 import { getCurrentUser } from "@/lib/session";
 import { getSong } from "@/lib/catalog/read";

@@ -1,11 +1,26 @@
-import {
-  appendSong,
-  editablePlaylists,
-  type AppendResult,
-  type PlaylistEditor,
-} from "@/lib/playlist/addToPlaylist";
+import { canEditPlaylist } from "@/lib/auth/permissions";
+import type { CurrentUser } from "@/lib/auth/types";
 import type { Playlist } from "@/types/catalog";
 import { CLUBS, PLAYLISTS } from "./catalog";
+
+// MAQUETTE : retiré à la tâche 9 (copies locales des anciennes fonctions pures, remplacées par la base).
+type PlaylistEditor = CurrentUser;
+type AppendResult = { status: "added"; playlist: Playlist } | { status: "duplicate" };
+
+const editablePlaylists = (user: PlaylistEditor, playlists: readonly Playlist[]): Playlist[] =>
+  playlists.filter((p) => canEditPlaylist(user, p)).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+
+function appendSong(playlist: Playlist, songId: string, now: string): AppendResult {
+  if (playlist.items.some((item) => item.songId === songId)) return { status: "duplicate" };
+  return {
+    status: "added",
+    playlist: {
+      ...playlist,
+      items: [...playlist.items, { position: playlist.items.length + 1, songId, note: null }],
+      updatedAt: now,
+    },
+  };
+}
 
 /**
  * MAQUETTE : écritures en mémoire sur les playlists fictives (ajout d'une chanson, création rapide),

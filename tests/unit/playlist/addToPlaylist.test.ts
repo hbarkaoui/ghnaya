@@ -1,15 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   PLAYLIST_NAME_MAX_LENGTH,
-  appendSong,
-  editablePlaylists,
   parsePlaylistName,
   toAddTarget,
 } from "@/lib/playlist/addToPlaylist";
 import type { Playlist } from "@/types/catalog";
 
 const JASMINS = { slug: "les-jasmins", name: "Les Jasmins" };
-const SFAX = { slug: "malouf-sfax", name: "Malouf Sfax" };
 
 const playlist = (
   id: string,
@@ -26,63 +23,8 @@ const playlist = (
   updatedAt,
 });
 
-const leila = { id: "u-leila", isAnimator: false, clubSlugs: ["les-jasmins"] };
-const sami = { id: "u-sami", isAnimator: true, clubSlugs: ["les-jasmins", "malouf-sfax"] };
 
 const seance = playlist("seance", JASMINS, ["s-1", "s-2"], "2026-11-18T19:30:00Z");
-const repetition = playlist("repetition", SFAX, ["s-3"], "2026-11-16T18:00:00Z");
-const bardo = playlist("bardo", { slug: "chorale-du-bardo", name: "Chorale du Bardo" }, [], "2026-11-19T08:00:00Z");
-const preferees = playlist("preferees", null, ["s-2"], "2026-11-17T21:10:00Z", "u-leila");
-const apprendre = playlist("apprendre", null, [], "2026-11-05T09:00:00Z", "u-leila");
-const deSami = playlist("de-sami", null, [], "2026-11-19T10:00:00Z", "u-sami");
-
-// Les droits eux-mêmes (canEditPlaylist) sont testés dans rights.test.ts.
-
-describe("editablePlaylists", () => {
-  const all = [seance, repetition, bardo, preferees, apprendre, deSami];
-
-  it("liste les playlists personnelles d'un membre, sans celles de son club", () => {
-    expect(editablePlaylists(leila, all).map((p) => p.id)).toEqual(["preferees", "apprendre"]);
-  });
-
-  it("liste celles d'un animateur, de la plus récemment modifiée à la plus ancienne", () => {
-    expect(editablePlaylists(sami, all).map((p) => p.id)).toEqual(["de-sami", "seance", "repetition"]);
-  });
-
-  it("ne modifie pas la liste reçue", () => {
-    const copy = [...all];
-    editablePlaylists(sami, all);
-    expect(all).toEqual(copy);
-  });
-});
-
-describe("appendSong", () => {
-  const now = "2026-11-19T12:00:00.000Z";
-
-  it("ajoute la chanson en dernière position, sans note, et date la modification", () => {
-    const result = appendSong(seance, "s-9", now);
-    expect(result.status).toBe("added");
-    if (result.status !== "added") return;
-    expect(result.playlist.items.at(-1)).toEqual({ position: 3, songId: "s-9", note: null });
-    expect(result.playlist.items).toHaveLength(3);
-    expect(result.playlist.updatedAt).toBe(now);
-  });
-
-  it("ne modifie pas la playlist d'origine", () => {
-    appendSong(seance, "s-9", now);
-    expect(seance.items).toHaveLength(2);
-    expect(seance.updatedAt).toBe("2026-11-18T19:30:00Z");
-  });
-
-  it("refuse un doublon : la chanson est déjà dans la playlist", () => {
-    expect(appendSong(seance, "s-2", now)).toEqual({ status: "duplicate" });
-  });
-
-  it("ajoute en position 1 dans une playlist vide", () => {
-    const result = appendSong(apprendre, "s-1", now);
-    expect(result.status === "added" && result.playlist.items).toEqual([{ position: 1, songId: "s-1", note: null }]);
-  });
-});
 
 describe("parsePlaylistName", () => {
   it("retire les espaces au début et à la fin, et réduit les espaces répétés", () => {

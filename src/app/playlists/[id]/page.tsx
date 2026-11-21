@@ -14,7 +14,7 @@ import { PageMain } from "@/components/shell/PageMain";
 import { songDisplayTitle } from "@/components/song/songTitle";
 import { Bidi } from "@/components/ui/Bidi";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { canCopyPlaylist, canEditPlaylist, canViewPlaylist } from "@/lib/playlist/rights";
+import { canCopyPlaylist, canEditPlaylist, canViewPlaylist } from "@/lib/auth/permissions";
 import { getCurrentUser } from "@/lib/session";
 import { getSong, readerPositionsOf } from "@/lib/catalog/read";
 import { getPlaylist, getRemovedSong } from "@/mocks/catalog";

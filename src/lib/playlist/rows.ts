@@ -1,4 +1,4 @@
-import type { Playlist, PlaylistItem } from "@/types/catalog";
+import type { PlaylistItem } from "@/types/catalog";
 
 /**
  * Numéro de chaque chanson lisible dans le lecteur (`/lecture/[id]/[position]`), à partir de 1.
@@ -15,19 +15,4 @@ export function readablePositions(
     if (isReadable(item.songId)) numbers.set(item.songId, numbers.size + 1);
   }
   return numbers;
-}
-
-/** Copie personnelle d'une playlist de club (« Copier dans mes playlists ») : mêmes chansons, mêmes notes. */
-export function copyPlaylist(
-  source: Playlist,
-  { id, ownerId, now }: { id: string; ownerId: string; now: string },
-): Playlist {
-  return {
-    id,
-    name: source.name,
-    club: null,
-    ownerId,
-    items: source.items.map((item) => ({ ...item })),
-    updatedAt: now,
-  };
 }

@@ -1,43 +1,9 @@
 import type { Playlist } from "@/types/catalog";
-import { canEditPlaylist, type PlaylistViewer } from "./rights";
 
 /**
- * Logique pure de la feuille « Ajouter à une playlist » : qui peut modifier quelle playlist, l'ajout
- * sans doublon et le nom d'une nouvelle playlist. Partagée par les actions serveur (vérification) et
+ * Logique pure de la feuille « Ajouter à une playlist » : le nom d'une nouvelle playlist et ce que la feuille affiche. Partagée par les actions serveur (vérification) et
  * la feuille (validation du nom avant l'envoi).
  */
-
-/** Ce qu'il faut savoir de l'utilisateur pour décider de ses droits (CurrentUser). */
-export type PlaylistEditor = PlaylistViewer;
-
-/**
- * Playlists modifiables par l'utilisateur, de la plus récemment modifiée à la plus ancienne.
- * Les droits sont ceux de `rights.ts` (spec §10, règle des clubs) : ses playlists personnelles, et
- * celles des clubs qu'il anime.
- */
-export function editablePlaylists(user: PlaylistEditor, playlists: readonly Playlist[]): Playlist[] {
-  return playlists
-    .filter((p) => canEditPlaylist(user, p))
-    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-}
-
-export type AppendResult = { status: "added"; playlist: Playlist } | { status: "duplicate" };
-
-/**
- * Ajoute une chanson à la fin de la playlist, sans note. Une chanson déjà présente n'est pas ajoutée
- * une deuxième fois (« Déjà dans … »). Renvoie une nouvelle playlist, sans modifier celle reçue.
- */
-export function appendSong(playlist: Playlist, songId: string, now: string): AppendResult {
-  if (playlist.items.some((item) => item.songId === songId)) return { status: "duplicate" };
-  return {
-    status: "added",
-    playlist: {
-      ...playlist,
-      items: [...playlist.items, { position: playlist.items.length + 1, songId, note: null }],
-      updatedAt: now,
-    },
-  };
-}
 
 export const PLAYLIST_NAME_MAX_LENGTH = 60;
 

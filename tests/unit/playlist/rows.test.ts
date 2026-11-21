@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { copyPlaylist, readablePositions } from "@/lib/playlist/rows";
+import { readablePositions } from "@/lib/playlist/rows";
 
 describe("readablePositions : numéros du lecteur", () => {
   const isReadable = (songId: string) => songId !== "retiree";
@@ -26,34 +26,5 @@ describe("readablePositions : numéros du lecteur", () => {
 
   it("une playlist vide n'a aucun numéro", () => {
     expect(readablePositions([], isReadable).size).toBe(0);
-  });
-});
-
-describe("copyPlaylist : copie personnelle d'une playlist de club", () => {
-  const source = {
-    id: "seance-du-jeudi",
-    name: "Séance du jeudi",
-    club: { slug: "les-jasmins", name: "Les Jasmins" },
-    ownerId: null,
-    items: [{ position: 1, songId: "a", note: "tonalité Ré" }],
-    updatedAt: "2026-11-18T19:30:00Z",
-  };
-
-  it("crée une playlist personnelle, avec le même nom, les mêmes chansons et les mêmes notes", () => {
-    const copy = copyPlaylist(source, { id: "copie-1", ownerId: "u-leila", now: "2026-11-19T10:00:00Z" });
-    expect(copy).toEqual({
-      id: "copie-1",
-      name: "Séance du jeudi",
-      club: null,
-      ownerId: "u-leila",
-      items: [{ position: 1, songId: "a", note: "tonalité Ré" }],
-      updatedAt: "2026-11-19T10:00:00Z",
-    });
-  });
-
-  it("ne partage pas ses chansons avec l'original", () => {
-    const copy = copyPlaylist(source, { id: "copie-1", ownerId: "u-leila", now: "2026-11-19T10:00:00Z" });
-    copy.items[0].note = null;
-    expect(source.items[0].note).toBe("tonalité Ré");
   });
 });

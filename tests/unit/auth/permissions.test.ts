@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { canCreateClub, canManageClub, canModerate, clubRoleOf, clubsAnimatedBy } from "@/lib/auth/permissions";
+import {
+  canCopyPlaylist,
+  canCreateClub,
+  canEditPlaylist,
+  canManageClub,
+  canModerate,
+  canViewPlaylist,
+  clubRoleOf,
+  clubsAnimatedBy,
+} from "@/lib/auth/permissions";
 import { userWith } from "./support";
 
 describe("permissions de base", () => {
@@ -47,5 +56,89 @@ describe("permissions de club", () => {
   it("liste les clubs animés, pour y créer une playlist", () => {
     expect(clubsAnimatedBy(sami)).toEqual([{ slug: "les-jasmins", name: "Les Jasmins" }]);
     expect(clubsAnimatedBy(null)).toEqual([]);
+  });
+});
+
+// Droits sur les playlists (repris de l'ancien rights.test.ts)
+const member = (slug: string) => ({ slug, name: slug, role: "member" as const });
+const animator = (slug: string) => ({ slug, name: slug, role: "animator" as const });
+const LEILA = { ...userWith({ clubs: [member("les-jasmins")] }), id: "u-leila" };
+const SAMI = {
+  ...userWith({ isAnimator: true, clubs: [animator("les-jasmins"), animator("malouf-sfax")] }),
+  id: "u-sami",
+};
+const NO_CLUB = { ...userWith(), id: "u-leila" };
+
+const clubPlaylist = (slug: string) => ({ club: { slug, name: slug }, ownerId: null });
+const personal = (ownerId: string) => ({ club: null, ownerId });
+
+describe("voir une playlist", () => {
+  it("un membre voit les playlists de son club, pas celles d'un autre club", () => {
+    expect(canViewPlaylist(LEILA, clubPlaylist("les-jasmins"))).toBe(true);
+    expect(canViewPlaylist(LEILA, clubPlaylist("malouf-sfax"))).toBe(false);
+  });
+
+  it("chacun voit ses playlists personnelles, pas celles des autres", () => {
+    expect(canViewPlaylist(LEILA, personal("u-leila"))).toBe(true);
+    expect(canViewPlaylist(SAMI, personal("u-leila"))).toBe(false);
+  });
+
+  it("un membre sans club ne voit aucune playlist de club", () => {
+    expect(canViewPlaylist(NO_CLUB, clubPlaylist("les-jasmins"))).toBe(false);
+  });
+
+  it("un visiteur ne voit aucune playlist", () => {
+    expect(canViewPlaylist(null, clubPlaylist("les-jasmins"))).toBe(false);
+    expect(canViewPlaylist(null, personal("u-leila"))).toBe(false);
+  });
+});
+
+describe("modifier une playlist", () => {
+  it("un membre ne modifie pas les playlists de son club", () => {
+    expect(canEditPlaylist(LEILA, clubPlaylist("les-jasmins"))).toBe(false);
+  });
+
+  it("un animateur modifie les playlists de ses clubs, et seulement les siens", () => {
+    expect(canEditPlaylist(SAMI, clubPlaylist("les-jasmins"))).toBe(true);
+    expect(canEditPlaylist(SAMI, clubPlaylist("malouf-sfax"))).toBe(true);
+    expect(canEditPlaylist(SAMI, clubPlaylist("chorale-du-bardo"))).toBe(false);
+  });
+
+  it("chacun modifie ses playlists personnelles, pas celles des autres", () => {
+    expect(canEditPlaylist(LEILA, personal("u-leila"))).toBe(true);
+    expect(canEditPlaylist(SAMI, personal("u-leila"))).toBe(false);
+  });
+
+  it("un visiteur ne modifie rien", () => {
+    expect(canEditPlaylist(null, personal("u-leila"))).toBe(false);
+  });
+});
+
+describe("copier une playlist dans ses playlists", () => {
+  it("un membre peut copier une playlist de son club", () => {
+    expect(canCopyPlaylist(LEILA, clubPlaylist("les-jasmins"))).toBe(true);
+  });
+
+  it("pas une playlist d'un autre club, ni une playlist personnelle", () => {
+    expect(canCopyPlaylist(LEILA, clubPlaylist("malouf-sfax"))).toBe(false);
+    expect(canCopyPlaylist(LEILA, personal("u-leila"))).toBe(false);
+  });
+
+  it("l'animateur, qui modifie la playlist, n'a pas besoin de la copier", () => {
+    expect(canCopyPlaylist(SAMI, clubPlaylist("les-jasmins"))).toBe(false);
+  });
+
+  it("un visiteur ne copie rien", () => {
+    expect(canCopyPlaylist(null, clubPlaylist("les-jasmins"))).toBe(false);
+  });
+});
+
+describe("rôle dans le club", () => {
+  it("un animateur global ne modifie pas la playlist d'un club où il est simple membre", () => {
+    const sami = userWith({ isAnimator: true, clubs: [{ slug: "malouf-sfax", name: "Malouf Sfax", role: "member" }] });
+    const playlist = { club: { slug: "malouf-sfax", name: "Malouf Sfax" }, ownerId: null };
+    expect(canViewPlaylist(sami, playlist)).toBe(true);
+    expect(canEditPlaylist(sami, playlist)).toBe(false);
+    expect(canCopyPlaylist(sami, playlist)).toBe(true);
   });
 });

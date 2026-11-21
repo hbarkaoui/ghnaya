@@ -6,7 +6,7 @@ import {
   type AddTarget,
   type PlaylistNameError,
 } from "@/lib/playlist/addToPlaylist";
-import { canEditPlaylist } from "@/lib/playlist/rights";
+import { canEditPlaylist } from "@/lib/auth/permissions";
 import { getCurrentUser } from "@/lib/session";
 import { getSong } from "@/lib/catalog/read";
 import { getPlaylist } from "@/mocks/catalog";

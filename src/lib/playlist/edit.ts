@@ -1,4 +1,5 @@
 import type { PlaylistItem } from "@/types/catalog";
+import { PLAYLIST_NAME_MAX_LENGTH as NAME_MAX_LENGTH } from "./addToPlaylist";
 
 /**
  * Modifications d'une playlist en mode édition (IA, « Playlist ») : ↑ / ↓, retrait (et son annulation),
@@ -14,8 +15,8 @@ export type Direction = "up" | "down";
 
 /** Longueur maximale d'une note de l'animateur (« tonalité Ré », « seulement le 2e couplet »). */
 export const NOTE_MAX_LENGTH = 200;
-/** Longueur maximale du nom d'une playlist. */
-export const NAME_MAX_LENGTH = 80;
+/** Longueur maximale du nom d'une playlist : 60, comme à la création (écart 7). */
+export { PLAYLIST_NAME_MAX_LENGTH as NAME_MAX_LENGTH } from "./addToPlaylist";
 
 type Item = Pick<PlaylistItem, "position" | "songId">;
 

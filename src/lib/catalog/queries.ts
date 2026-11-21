@@ -115,3 +115,28 @@ export async function songIdExists(id: string): Promise<boolean> {
   const res = await db.execute(sql`SELECT 1 FROM songs WHERE id = ${id}`);
   return res.rows.length > 0;
 }
+
+export type SongLabel = Pick<Song, "id" | "titleAr" | "titleLatin" | "artists">;
+
+/** Titre et artistes des chansons `ids`, publiées ou retirées (liste d'une playlist). Une requête. */
+export async function songLabelsOf(ids: readonly string[]): Promise<Map<string, { song: SongLabel; removed: boolean }>> {
+  const uuids = ids.filter(isUuid);
+  if (uuids.length === 0) return new Map();
+  const list = sql.join(
+    uuids.map((id) => sql`${id}`),
+    sql`, `,
+  );
+  const res = await db.execute<{
+    id: string;
+    title_ar: string | null;
+    title_latin: string | null;
+    status: "published" | "removed";
+    artists: ArtistRef[];
+  }>(sql`SELECT s.id, s.title_ar, s.title_latin, s.status, ${ARTISTS_OF("s")} AS artists FROM songs s WHERE s.id IN (${list})`);
+  return new Map(
+    res.rows.map((r) => [
+      r.id,
+      { song: { id: r.id, titleAr: r.title_ar, titleLatin: r.title_latin, artists: r.artists }, removed: r.status === "removed" },
+    ]),
+  );
+}
