@@ -189,9 +189,10 @@ export function ReaderShell(props: Props) {
             <X aria-hidden="true" />
           </button>
           {/* Titre et sous-titre sur deux lignes au plus, plutôt que tronqués sur une seule : ils restent lisibles
-              à 320 px et quand le texte est agrandi. */}
+              à 320 px et quand le texte est agrandi. line-clamp rogne la boîte : leading-normal (1,5) laisse la place
+              aux points sous les lettres arabes, que la hauteur « tight » de text-lg (1,25) coupait (« سيدى »). */}
           <div className="min-w-0 flex-1 text-center">
-            <h1 {...scriptAttrs(title)} className="line-clamp-2 text-lg font-medium break-words">
+            <h1 {...scriptAttrs(title)} className="line-clamp-2 text-lg leading-normal font-medium break-words">
               {title}
             </h1>
             <p className="line-clamp-2 text-sm text-reader-ink-2">

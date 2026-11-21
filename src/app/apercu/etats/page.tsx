@@ -98,8 +98,7 @@ export default async function SystemStatesPreviewPage() {
               <Link href="/une-adresse-inconnue" className={LINK}>Adresse inconnue</Link> (404 générale)
             </li>
             <li>
-              <Link href="/artiste/a-saliha" className={LINK}>Lien d&rsquo;artiste</Link> (404 générale, /artiste
-              n&rsquo;existe pas encore)
+              <Link href="/artiste/a-saliha" className={LINK}>Artiste inconnu</Link> (404 de la page artiste)
             </li>
             <li>
               <Link href="/chanson/inconnue" className={LINK}>Chanson inconnue ou retirée</Link>

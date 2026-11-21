@@ -264,6 +264,26 @@ Titres arabe puis latin, artistes, pastille de dialecte, « وضع الجلسة 
 
 - Translittération : « الكتابة اللاتينية » remplacé par « الحروف اللاتينية » (lexique) dans les cinq messages d'état de la translittération.
 
+## Artiste `/artiste/[id]` (et 404 « introuvable ») — ajoutée le 21/11/2026, après la revue de design
+
+Les noms arabe puis latin, le nombre de chansons, « الأغاني », puis les chansons, avec « إضافة » sur chacune et 50 chansons par page.
+
+| Clé | Français | العربية | Lexique |
+|---|---|---|---|
+| `artist.metaNotFound` | Artiste introuvable | فنان غير موجود |  |
+| `artist.songsTitle` | Chansons | الأغاني |  |
+| `artist.songCount` | {count, plural, one {{n} chanson} other {{n} chansons}} | {count, plural, zero {لا أغاني} one {أغنية واحدة} two {أغنيتان} few {{n} أغانٍ} many {{n} أغنية} other {{n} أغنية}} |  |
+| `artist.notFoundTitle` | Cet artiste est introuvable | هذا الفنان غير موجود |  |
+| `artist.notFoundBody` | Le lien est peut-être incorrect, ou aucune chanson de cet artiste n'est publiée sur Ghnaya. | ربما الرابط غير صحيح، أو لا توجد أي أغنية منشورة لهذا الفنان في غناية. |  |
+| `artist.emptyPageTitle` | Plus de chansons sur cette page | لا أغاني في هذه الصفحة |  |
+| `artist.emptyPageBody` | Les chansons de cet artiste tiennent sur moins de pages. | أغاني هذا الفنان موزّعة على صفحات أقل. |  |
+| `artist.firstPage` | Revenir à la première page | العودة إلى الصفحة الأولى |  |
+
+**À valider par un arabophone**
+
+- « فنان » pour « artiste », comme dans le champ de recherche (« عنوان، فنان أو كلمات ») : convient aussi pour un groupe ou un poète (Chebbi) ?
+- Pluriel de `artist.songCount` : mêmes formes que `playlists.songCount`, déjà à relire plus haut.
+
 ## Lecteur de séance `/lecture/[playlistId]/[position]` et `/chanson/[id]/lecture`
 
 Plein écran, sombre. En haut : ✕ (à droite en arabe), titre, position « 3 / 12 » (toujours en chiffres occidentaux, de gauche à droite), note de l'animateur. En bas : précédent (à droite en arabe), A−, mode d'affichage, thème, A+, suivant (à gauche). Écran de fin après la dernière chanson. Les libellés des boutons à icône seule sont lus par les lecteurs d'écran.

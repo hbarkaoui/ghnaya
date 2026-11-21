@@ -169,4 +169,4 @@ Date : 18/11/2026
 
 ## Revue
 
-- [ ] **Revue de design** : lancer `/design-review` sur le brief, avec des captures à 375, 768 et 1280 px, en clair, en sombre, en arabe et dans le lecteur.
+- [x] **Revue de design** _(faite le 20/11/2026 ; rapport : `DESIGN_REVIEW.md`, captures dans `screenshots/`)_ : lancer `/design-review` sur le brief, avec des captures à 375, 768 et 1280 px, en clair, en sombre, en arabe et dans le lecteur.
