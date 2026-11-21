@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { INVITE_CODE_LENGTH, newInviteCode, parseInviteCode } from "@/lib/clubs/invite";
 import { CLUB_NAME_MAX, confirmsClubName, validateClubName } from "@/lib/clubs/name";
-import { clubSlug } from "@/lib/clubs/slug";
+import { clubSlug, clubSlugBase } from "@/lib/clubs/slug";
 
 describe("clubSlug : identifiant lisible tiré du nom (IA, stratégie d'URL)", () => {
   it("met en minuscules, sans accents, avec des tirets", () => {
@@ -27,6 +27,14 @@ describe("clubSlug : identifiant lisible tiré du nom (IA, stratégie d'URL)", (
   it("se replie sur « club » quand le nom n'a ni lettre ni chiffre", () => {
     expect(clubSlug("!!!", [])).toBe("club");
     expect(clubSlug("!!!", ["club"])).toBe("club-2");
+  });
+});
+
+describe("clubSlugBase : le slug avant la gestion des doublons", () => {
+  it("ne tient compte ni des doublons ni des adresses réservées", () => {
+    expect(clubSlugBase("Les  Jasmins")).toBe("les-jasmins");
+    expect(clubSlugBase("Nouveau")).toBe("nouveau");
+    expect(clubSlugBase("!!!")).toBe("club");
   });
 });
 
