@@ -5,7 +5,9 @@
 export const DIALECTS = ["tn", "eg", "lev", "gulf", "maghreb_other", "msa", "other"] as const;
 export type Dialect = (typeof DIALECTS)[number];
 export const isDialect = (value: string | undefined): value is Dialect => DIALECTS.includes(value as Dialect);
-export type SongSource = "lrclib" | "public_domain" | "contribution";
+/** Listes de valeurs partagées avec les enums du schéma (`src/lib/db/schema.ts`). */
+export const SONG_SOURCES = ["lrclib", "public_domain", "contribution"] as const;
+export type SongSource = (typeof SONG_SOURCES)[number];
 
 export interface ArtistRef {
   id: string;
@@ -14,7 +16,8 @@ export interface ArtistRef {
   role: "main" | "feat";
 }
 
-export type TranslitStatus = "none" | "generating" | "auto" | "reviewed";
+export const TRANSLIT_STATUSES = ["none", "generating", "auto", "reviewed"] as const;
+export type TranslitStatus = (typeof TRANSLIT_STATUSES)[number];
 export type LyricsMode = "ar" | "both" | "latin";
 
 export interface Song {
