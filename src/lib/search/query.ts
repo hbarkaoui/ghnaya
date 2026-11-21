@@ -9,6 +9,13 @@ import { toSearchKey } from "@/lib/text/searchKey";
 export const MIN_SIGNIFICANT = 2;
 /** En dessous de 4 consonnes, la clé ne sert pas à chercher dans les paroles (trop de faux positifs). */
 export const LYRICS_KEY_MIN_LENGTH = 4;
+/**
+ * Écart 4 du plan 1 : en dessous de 3 consonnes, la clé ne sert pas à chercher dans les titres et les
+ * artistes. Sinon « ya lella » (clé « l ») ressort presque tout le catalogue.
+ */
+export const TITLE_KEY_MIN_LENGTH = 3;
+/** Seuil de word_similarity (opérateur <% de pg_trgm). À ajuster avec `pnpm bench:search`. */
+export const WORD_SIMILARITY_THRESHOLD = 0.5;
 const MAX_QUERY_LENGTH = 200;
 
 export interface PreparedQuery {

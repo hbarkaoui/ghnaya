@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { findSnippet, prepareQuery } from "@/lib/search/searchSongs";
+import { findSnippet, prepareQuery } from "@/lib/search/query";
 
 // Repris du plan 1, tâche 7.
 

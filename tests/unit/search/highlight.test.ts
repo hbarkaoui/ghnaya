@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { highlightSnippet } from "@/lib/search/highlight";
-import { prepareQuery } from "@/lib/search/searchSongs";
+import { prepareQuery } from "@/lib/search/query";
 
 describe("highlightSnippet", () => {
   it("surligne le passage arabe trouvé", () => {

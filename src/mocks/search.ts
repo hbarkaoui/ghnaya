@@ -1,4 +1,12 @@
-import { findSnippet, LYRICS_KEY_MIN_LENGTH, MIN_SIGNIFICANT, prepareQuery, type PreparedQuery } from "@/lib/search/query";
+import {
+  findSnippet,
+  LYRICS_KEY_MIN_LENGTH,
+  MIN_SIGNIFICANT,
+  prepareQuery,
+  TITLE_KEY_MIN_LENGTH,
+  WORD_SIMILARITY_THRESHOLD,
+  type PreparedQuery,
+} from "@/lib/search/query";
 import { PAGE_SIZE, type SearchOptions, type SearchResult, type SongHit } from "@/lib/search/types";
 import { detectScript } from "@/lib/text/detectScript";
 import { normalizeArabic } from "@/lib/text/normalizeArabic";
@@ -17,13 +25,6 @@ import type { Song } from "@/types/catalog";
 
 /** Délai simulé d'une requête en base, pour voir l'état de chargement (aucun délai dans les tests). */
 export const SIMULATED_LATENCY_MS = process.env.NODE_ENV === "test" ? 0 : 400;
-const WORD_SIMILARITY_THRESHOLD = 0.5;
-/**
- * Écart assumé avec le plan 1 : la clé de consonnes n'est pas comparée aux titres en dessous de
- * 3 consonnes. Sinon « ya lella » (clé « l ») ressort presque tout le catalogue, car « l » est
- * contenu dans la plupart des clés. À reporter dans la tâche 7 du plan 1.
- */
-const TITLE_KEY_MIN_LENGTH = 3;
 
 interface IndexedSong {
   song: Song;

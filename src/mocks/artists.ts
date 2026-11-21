@@ -1,17 +1,9 @@
 import { ARTIST_PAGE_SIZE } from "@/lib/artist/routes";
-import type { SongHit } from "@/lib/search/types";
-import type { ArtistRef, Song } from "@/types/catalog";
+import type { ArtistPage } from "@/lib/artist/types";
+import type { Song } from "@/types/catalog";
 import { SONGS } from "./catalog";
 
-export interface ArtistPage {
-  artist: Pick<ArtistRef, "id" | "nameAr" | "nameLatin">;
-  /** Chansons publiées de l'artiste, principal ou invité. */
-  total: number;
-  page: number;
-  lastPage: number;
-  /** Chansons de la page, sous la forme d'un résultat de recherche sans extrait (SongResultItem). */
-  items: SongHit[];
-}
+export type { ArtistPage };
 
 /** Clé de tri du plan 1 (`getArtistWithSongs`) : COALESCE(title_latin, title_ar). */
 const sortKey = (song: Song) => song.titleLatin ?? song.titleAr ?? "";
