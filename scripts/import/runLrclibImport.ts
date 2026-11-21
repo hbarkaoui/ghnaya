@@ -47,6 +47,13 @@ export async function runLrclibImport(opts: {
   const best = new Map<string, Candidate>();
   for (const track of opts.tracks) {
     report.read += 1;
+    // Avant le tri : la plupart des pistes sont refusées (non arabes) et sortent par `continue`.
+    if (report.read % 100_000 === 0) {
+      log(`… ${report.read} pistes lues, ${best.size} chansons retenues`);
+      // La lecture est synchrone : sans cette pause, la sortie vers un pipe (asynchrone sur macOS) n'est
+      // écrite qu'à la fin de la lecture, soit des heures plus tard sur l'export réel.
+      await new Promise<void>((resolve) => setImmediate(resolve));
+    }
     const result = transformTrack(track, opts.aliases);
     if ("rejected" in result) {
       report.rejected[result.rejected] += 1;
@@ -54,7 +61,6 @@ export async function runLrclibImport(opts: {
     }
     report.candidates += 1;
     keepBest(best, result);
-    if (report.read % 100_000 === 0) log(`… ${report.read} pistes lues, ${best.size} chansons retenues`);
   }
   report.unique = best.size;
   report.merged = report.candidates - report.unique;

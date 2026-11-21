@@ -90,4 +90,20 @@ describe("runLrclibImport", () => {
     const total = await db.execute<{ n: string }>(sql`SELECT count(*) AS n FROM songs`);
     expect(Number(total.rows[0].n)).toBe(3);
   });
+
+  it("signale la progression tous les 100 000 pistes, même refusées", async () => {
+    function* nonArabic(n: number) {
+      for (let id = 1; id <= n; id++) yield { id, name: `Song ${id}`, artistName: "Band", plainLyrics: "la la la" };
+    }
+    const lines: string[] = [];
+    const report = await runLrclibImport({
+      db,
+      tracks: nonArabic(200_000),
+      aliases: ALIASES,
+      dryRun: true,
+      log: (line) => lines.push(line),
+    });
+    expect(report.rejected.not_arabic).toBe(200_000);
+    expect(lines).toEqual(["… 100000 pistes lues, 0 chansons retenues", "… 200000 pistes lues, 0 chansons retenues"]);
+  });
 });
