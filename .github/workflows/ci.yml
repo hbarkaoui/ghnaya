@@ -1,0 +1,76 @@
+# Plan 1, tâche 16 : lint, types, tests unitaires, d'intégration et de bout en bout à chaque push et pull
+# request, puis construction de l'image Docker et vérification que l'accueil répond.
+name: CI
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+# Un nouveau push sur la même branche annule la CI en cours, devenue inutile.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: ghanni
+          POSTGRES_PASSWORD: ghanni
+          POSTGRES_DB: ghanni_test
+          # Sans locale UTF-8, pg_trgm ignore les lettres arabes (vérifié par tests/integration/schema.test.ts).
+          LANG: en_US.utf8
+        ports: ['5433:5432']
+        options: >-
+          --health-cmd "pg_isready -U ghanni"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://ghanni:ghanni@localhost:5433/ghanni_test
+      DATABASE_URL_TEST: postgres://ghanni:ghanni@localhost:5433/ghanni_test
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v7
+      # Sans `version` : l'action lit `packageManager` dans package.json (pnpm 12).
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm test:integration
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
+      - name: Garder les traces Playwright en cas d'échec
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-test-results
+          path: test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker build -t ghanni .
+      # L'accueil ne lit pas la base : il doit répondre même sans PostgreSQL.
+      - name: Vérifier que l'image sert l'accueil
+        run: |
+          docker run -d --name ghanni -p 3000:3000 -e DATABASE_URL=postgres://ghanni:ghanni@localhost:5433/ghanni ghanni
+          for i in $(seq 1 30); do
+            if curl -fsS -o /dev/null http://localhost:3000/; then echo "Accueil servi."; exit 0; fi
+            sleep 1
+          done
+          docker logs ghanni
+          exit 1

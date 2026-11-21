@@ -18,6 +18,9 @@ function lanAddresses(): string[] {
 }
 
 const nextConfig: NextConfig = {
+  // Image Docker (plan 1, tâche 16) : `.next/standalone` contient un server.js et les seuls modules utiles.
+  // Sans effet sur Vercel. `next start` (tests de bout en bout) le signale par un avertissement, sans gêne.
+  output: "standalone",
   allowedDevOrigins: lanAddresses(),
   // Cache Components désactivé, pour deux raisons :
   //  - la langue choisie (cookie) fixe <html lang dir> dans la mise en page racine, ce que Cache
