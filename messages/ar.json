@@ -668,7 +668,11 @@
     "sending": "جارٍ الإرسال…",
     "errors": {
       "missing": "أدخلوا بريدكم الإلكتروني.",
-      "invalid": "هذا العنوان غير صحيح. يجب أن يكون على شكل <ltr>name@example.com</ltr>"
+      "invalid": "هذا العنوان غير صحيح. يجب أن يكون على شكل <ltr>name@example.com</ltr>",
+      "tooMany": "طلبات كثيرة لهذا العنوان. انتظر بضع دقائق ثم أعد المحاولة.",
+      "failed": "تعذّر إرسال الرابط. أعد المحاولة بعد قليل.",
+      "linkInvalid": "انتهت صلاحية رابط الدخول هذا أو استُعمل من قبل. اطلب رابطًا جديدًا.",
+      "google": "لم يكتمل الدخول عبر Google. أعد المحاولة، أو استلم رابطًا عبر البريد."
     },
     "noAccount": "ليس لديكم حساب بعد؟ يُنشأ حسابكم عند أول تسجيل دخول.",
     "verify": {
@@ -679,7 +683,10 @@
       "openLink": "اضغطوا على الرابط في الرسالة لتسجيل الدخول، ثم تعودون إلى الصفحة التي كنتم تتصفّحونها.",
       "notReceivedTitle": "لم يصلكم شيء؟",
       "notReceivedBody": "ابحثوا في البريد غير المرغوب فيه، أو أعيدوا المحاولة بعنوان آخر.",
-      "changeEmail": "تغيير العنوان"
+      "changeEmail": "تغيير العنوان",
+      "devTitle": "Aperçu de développement",
+      "devBody": "Aucun e-mail ne part en développement : le message est dans la boîte locale.",
+      "devOpen": "Ouvrir le lien reçu"
     }
   },
   "contribute": {

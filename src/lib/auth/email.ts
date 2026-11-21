@@ -5,7 +5,7 @@
 export type EmailCheck = { ok: true; email: string } | { ok: false; reason: "missing" | "invalid" };
 
 /** État du formulaire du lien magique : l'adresse saisie est rendue pour rester dans le champ après une erreur. */
-export type MagicLinkState = { email: string; error: null | "missing" | "invalid" };
+export type MagicLinkState = { email: string; error: null | "missing" | "invalid" | "tooMany" | "failed" };
 
 const MAX_LENGTH = 254;
 /** Partie locale : pas d'espace, ni de séparateur de liste (`,` `;`), ni de caractère réservé. */

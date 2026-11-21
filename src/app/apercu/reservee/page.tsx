@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AuthGate } from "@/components/auth/AuthGate";
 import { PageHeader } from "@/components/shell/PageHeader";
@@ -16,17 +15,11 @@ export default function ReservedPreviewPage() {
 
   return (
     <AuthGate retour="/apercu/reservee">
-      <PageHeader variant="sub" title="Page réservée" backHref="/apercu/session" />
+      <PageHeader variant="sub" title="Page réservée" backHref="/" />
       <PageMain>
         <p lang="fr" dir="ltr" className="text-ink-2">
           Aperçu de développement. Cette page est enveloppée dans <code className="font-mono">AuthGate</code>&nbsp;:
-          vous la voyez parce que la session de démonstration est connectée. En visiteur, elle renvoie vers la
-          connexion, qui ramène ici.
-        </p>
-        <p className="mt-6">
-          <Link href="/apercu/session" className="font-medium text-link underline underline-offset-4">
-            Changer de session
-          </Link>
+          vous la voyez parce que vous êtes connecté. En visiteur, elle renvoie vers la connexion, qui ramène ici.
         </p>
       </PageMain>
     </AuthGate>

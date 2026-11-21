@@ -36,7 +36,7 @@ export default async function SystemStatesPreviewPage() {
 
   return (
     <>
-      <PageHeader variant="sub" title="États système" backHref="/apercu/session" />
+      <PageHeader variant="sub" title="États système" backHref="/" />
       <PageMain>
         <p lang="fr" dir="ltr" className="text-sm text-ink-2">
           Aperçu de développement. Rien de ceci n&rsquo;existe en production.

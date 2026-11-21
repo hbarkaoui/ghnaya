@@ -9,16 +9,6 @@ import {
   ROOT_ERROR_SECONDS,
   parseDemoLatency,
 } from "@/mocks/demoPreviews";
-import { DEMO_SESSION_COOKIE, isDemoSession } from "@/mocks/session";
-
-/** MAQUETTE : change le cas de démonstration (membre, animateur, membre sans club, visiteur). */
-export async function setDemoSession(formData: FormData): Promise<void> {
-  if (process.env.NODE_ENV === "production") return;
-  const value = formData.get("session");
-  if (typeof value !== "string" || !isDemoSession(value)) return;
-  (await cookies()).set(DEMO_SESSION_COOKIE, value, { path: "/", sameSite: "lax" });
-  revalidatePath("/", "layout");
-}
 
 /** MAQUETTE (tâche 17) : ralentit les listes (playlists, clubs) pour voir leurs squelettes ; 0 l'arrête. */
 export async function setDemoLatency(formData: FormData): Promise<void> {

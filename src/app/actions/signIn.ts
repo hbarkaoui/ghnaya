@@ -1,33 +1,19 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { RedirectType, redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
+import { getAuth, isGoogleEnabled } from "@/lib/auth/auth";
 import { checkEmail, type MagicLinkState } from "@/lib/auth/email";
-import { SIGN_IN_PATH, safeReturnPath, signInHref } from "@/lib/auth/returnPath";
-import { DEMO_SESSION_COOKIE } from "@/mocks/session";
-import {
-  DEMO_MAGIC_LINK_COOKIE,
-  DEMO_MAGIC_LINK_MAX_AGE,
-  GOOGLE_DELAY_MS,
-  MAGIC_LINK_DELAY_MS,
-  simulateDelay,
-} from "@/mocks/signIn";
-
-const isProduction = process.env.NODE_ENV === "production";
-
-/** MAQUETTE : « connecte » la session de démonstration en membre (Leïla). */
-async function signInAsDemoMember() {
-  (await cookies()).set(DEMO_SESSION_COOKIE, "member", { path: "/", sameSite: "lax" });
-  revalidatePath("/", "layout");
-}
+import { allowMagicLinkRequest } from "@/lib/auth/magicLinkLimit";
+import { safeReturnPath, signInHref } from "@/lib/auth/returnPath";
+import { MAGIC_LINK_SENT_COOKIE, MAGIC_LINK_SENT_COOKIE_OPTIONS } from "@/lib/auth/signInCookie";
+import { clientIp } from "@/lib/ratelimit/clientIp";
 
 /**
- * Demande d'un lien magique. Adresse refusée : l'erreur revient en ligne, sans délai.
- * Adresse acceptée : envoi simulé, puis « Vérifiez vos e-mails » (la page remplace le formulaire dans
- * l'historique : « retour » ramène à la page d'origine, « Modifier l'adresse » au formulaire).
- *
- * Plan 2 : `await signIn("resend", { email, redirectTo: retour, redirect: false })` remplace le délai.
+ * Demande d'un lien magique (spec §4.1). Adresse refusée ou trop de demandes : l'erreur revient en ligne.
+ * Lien parti : « Vérifiez vos e-mails », qui remplace le formulaire dans l'historique. Le lien ramène à
+ * `retour` ; un lien expiré ou déjà utilisé ramène au formulaire avec `?error=INVALID_TOKEN`.
  */
 export async function requestMagicLink(_previous: MagicLinkState, formData: FormData): Promise<MagicLinkState> {
   const raw = formData.get("email");
@@ -36,38 +22,37 @@ export async function requestMagicLink(_previous: MagicLinkState, formData: Form
   if (!check.ok) return { email: typed, error: check.reason };
 
   const retour = safeReturnPath(formData.get("retour"));
-  await simulateDelay(MAGIC_LINK_DELAY_MS);
-  (await cookies()).set(DEMO_MAGIC_LINK_COOKIE, check.email, {
-    path: SIGN_IN_PATH,
-    httpOnly: true,
-    sameSite: "lax",
-    maxAge: DEMO_MAGIC_LINK_MAX_AGE,
-  });
+  const requestHeaders = await headers();
+  if (!(await allowMagicLinkRequest(check.email, clientIp(requestHeaders)))) return { email: typed, error: "tooMany" };
+
+  try {
+    await getAuth().api.signInMagicLink({
+      body: {
+        email: check.email,
+        callbackURL: retour,
+        errorCallbackURL: signInHref(retour),
+        metadata: { locale: await getLocale() },
+      },
+      headers: requestHeaders,
+    });
+  } catch (error) {
+    console.error("requestMagicLink", error);
+    return { email: typed, error: "failed" };
+  }
+
+  (await cookies()).set(MAGIC_LINK_SENT_COOKIE, check.email, MAGIC_LINK_SENT_COOKIE_OPTIONS);
   redirect(signInHref(retour, "verify"), RedirectType.replace);
 }
 
-/**
- * Bouton Google. MAQUETTE : en développement, simule l'aller-retour chez Google puis revient à `retour`
- * connecté en membre ; en production, sans Auth.js, rien ne se passe.
- *
- * Plan 2 : `await signIn("google", { redirectTo: retour })`.
- */
+/** Bouton Google : Better Auth renvoie l'adresse de Google, où l'on part ; le retour ramène à `retour`. */
 export async function continueWithGoogle(formData: FormData): Promise<void> {
   const retour = safeReturnPath(formData.get("retour"));
-  if (isProduction) redirect(signInHref(retour), RedirectType.replace);
-  await simulateDelay(GOOGLE_DELAY_MS);
-  await signInAsDemoMember();
-  redirect(retour, RedirectType.replace);
-}
+  if (!isGoogleEnabled()) redirect(signInHref(retour), RedirectType.replace);
 
-/**
- * MAQUETTE, développement uniquement : « clique » le lien reçu par e-mail. La session de démonstration
- * passe à `member`, puis on revient au chemin `retour` validé.
- */
-export async function openDemoMagicLink(formData: FormData): Promise<void> {
-  if (isProduction) return;
-  const retour = safeReturnPath(formData.get("retour"));
-  (await cookies()).delete({ name: DEMO_MAGIC_LINK_COOKIE, path: SIGN_IN_PATH });
-  await signInAsDemoMember();
-  redirect(retour, RedirectType.replace);
+  const { url } = await getAuth().api.signInSocial({
+    body: { provider: "google", callbackURL: retour, errorCallbackURL: `${signInHref(retour)}&error=google` },
+    headers: await headers(),
+  });
+  if (!url) redirect(`${signInHref(retour)}&error=google`, RedirectType.replace);
+  redirect(url);
 }

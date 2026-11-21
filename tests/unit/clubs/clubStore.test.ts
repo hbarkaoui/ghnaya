@@ -13,7 +13,6 @@ import {
   resetClubStore,
   roleIn,
 } from "@/mocks/clubStore";
-import { DEMO_SESSIONS, demoUserFor } from "@/mocks/session";
 
 afterEach(() => resetClubStore());
 
@@ -30,11 +29,11 @@ describe("clubs fictifs : état de départ", () => {
     for (const id of users) if (id !== "u-sami") expect(clubSlugsOf(id).length).toBeLessThanOrEqual(1);
   });
 
-  it("les adhésions de départ sont celles des sessions de démonstration", () => {
-    for (const session of DEMO_SESSIONS) {
-      const user = demoUserFor(session);
-      if (user) expect(clubSlugsOf(user.id)).toEqual(user.clubSlugs);
-    }
+  it("les adhésions de départ des personnes de démonstration", () => {
+    expect(clubSlugsOf("u-leila")).toEqual(["les-jasmins"]);
+    expect(clubSlugsOf("u-nour")).toEqual([]);
+    expect(clubSlugsOf("u-rania")).toEqual(["les-jasmins"]);
+    expect(clubSlugsOf("u-sami")).toEqual(["les-jasmins", "malouf-sfax", "chorale-du-bardo"]);
   });
 });
 

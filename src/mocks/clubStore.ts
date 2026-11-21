@@ -6,8 +6,7 @@ import { PLAYLISTS } from "./catalog";
 
 /**
  * Clubs fictifs, modifiables EN MÉMOIRE par les actions serveur (tâche 11), en attendant le back-end
- * (tables `clubs` et `club_members`, spec §5). Tout revient à l'état initial au redémarrage du serveur,
- * ou avec « Réinitialiser les clubs » sur /apercu/session.
+ * (tables `clubs` et `club_members`, spec §5). Tout revient à l'état initial au redémarrage du serveur.
  *
  * Les playlists de club restent dans `PLAYLISTS` (catalog.ts), modifié en place : l'accueil et le lecteur
  * voient donc les playlists créées ou supprimées ici.

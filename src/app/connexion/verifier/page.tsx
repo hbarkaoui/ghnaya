@@ -3,11 +3,11 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { openDemoMagicLink } from "@/app/actions/signIn";
 import { SignInLayout } from "@/components/auth/SignInLayout";
 import { checkEmail } from "@/lib/auth/email";
 import { safeReturnPath, signInHref } from "@/lib/auth/returnPath";
-import { DEMO_MAGIC_LINK_COOKIE } from "@/mocks/signIn";
+import { MAGIC_LINK_SENT_COOKIE } from "@/lib/auth/signInCookie";
+import { readOutbox, mailTransport } from "@/lib/mail/transport";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("signIn.verify");
@@ -20,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
  */
 export default async function VerifyEmailPage({ searchParams }: PageProps<"/connexion/verifier">) {
   const retour = safeReturnPath((await searchParams).retour);
-  const sent = checkEmail((await cookies()).get(DEMO_MAGIC_LINK_COOKIE)?.value);
+  const sent = checkEmail((await cookies()).get(MAGIC_LINK_SENT_COOKIE)?.value);
   const t = await getTranslations("signIn.verify");
   const formHref = signInHref(retour);
 
@@ -60,30 +60,26 @@ export default async function VerifyEmailPage({ searchParams }: PageProps<"/conn
         </Link>
       </section>
 
-      {process.env.NODE_ENV !== "production" ? <DemoMagicLink retour={retour} /> : null}
+      {sent.ok && mailTransport() === "outbox" ? <OutboxLink email={sent.email} /> : null}
     </SignInLayout>
   );
 }
 
-/** MAQUETTE, développement uniquement : aucun e-mail n'est envoyé, on « clique » donc le lien ici. */
-function DemoMagicLink({ retour }: { retour: string }) {
+/** Boîte locale (développement, tests de bout en bout) : aucun e-mail ne part, on ouvre donc le lien ici. */
+async function OutboxLink({ email }: { email: string }) {
+  const [entry, t] = await Promise.all([readOutbox(email), getTranslations("signIn.verify")]);
+  if (!entry?.link) return null;
   return (
     <aside lang="fr" dir="ltr" className="mt-6 rounded-lg border border-dashed border-line p-5 text-start">
-      <p className="text-sm font-medium">Aperçu de développement</p>
-      <p className="mt-1 text-sm text-ink-2">
-        La maquette n’envoie pas d’e-mail. Ouvrez le lien ici&nbsp;: la session de démonstration passe à
-        «&nbsp;membre&nbsp;» (Leïla), puis vous revenez à <code className="font-mono wrap-break-word">{retour}</code>.
-      </p>
-      <form action={openDemoMagicLink} className="mt-3">
-        <input type="hidden" name="retour" value={retour} />
-        <button
-          type="submit"
-          className="inline-flex min-h-11 items-center gap-2 rounded-md border border-line px-4 font-medium text-ink hover:bg-well"
-        >
-          <MailOpen aria-hidden="true" className="size-4" />
-          Ouvrir le lien reçu
-        </button>
-      </form>
+      <p className="text-sm font-medium">{t("devTitle")}</p>
+      <p className="mt-1 text-sm text-ink-2">{t("devBody")}</p>
+      <a
+        href={entry.link}
+        className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-md border border-line px-4 font-medium text-ink hover:bg-well"
+      >
+        <MailOpen aria-hidden="true" className="size-4" />
+        {t("devOpen")}
+      </a>
     </aside>
   );
 }

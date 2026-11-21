@@ -1,22 +1,20 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
+import { headers } from "next/headers";
 import { redirect, RedirectType } from "next/navigation";
+import { getAuth } from "@/lib/auth/auth";
 import { getCurrentUser } from "@/lib/session";
 import { soleAnimatorClubs } from "@/mocks/account";
-import { DEMO_SESSION_COOKIE, type DemoSession } from "@/mocks/session";
 
-/** MAQUETTE : sans comptes (plan 2), se déconnecter ou supprimer son compte fait passer en session visiteur. */
-async function becomeVisitor() {
-  const visitor: DemoSession = "visitor";
-  (await cookies()).set(DEMO_SESSION_COOKIE, visitor, { path: "/", sameSite: "lax" });
+async function endSession(): Promise<void> {
+  await getAuth().api.signOut({ headers: await headers() });
   revalidatePath("/", "layout");
 }
 
-/** Se déconnecter, puis revenir à l'accueil. Plan 2 : `signOut()` d'Auth.js. */
+/** Se déconnecter, puis revenir à l'accueil. `nextCookies()` efface le cookie de session. */
 export async function signOut(): Promise<void> {
-  await becomeVisitor();
+  await endSession();
   redirect("/", RedirectType.replace);
 }
 
@@ -30,6 +28,6 @@ export async function deleteAccount(): Promise<void> {
   if (!user) redirect("/connexion?retour=/moi/compte");
   if (soleAnimatorClubs(user).length > 0) redirect("/moi/compte", RedirectType.replace);
 
-  await becomeVisitor();
+  await endSession();
   redirect("/moi?compte=supprime", RedirectType.replace);
 }

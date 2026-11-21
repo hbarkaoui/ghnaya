@@ -1,5 +1,5 @@
 import { getClub, memberships } from "./clubStore";
-import type { DemoUser } from "./session";
+import type { CurrentUser } from "@/lib/auth/types";
 
 /**
  * MAQUETTE : données du compte pour la page « Moi » (tâche 12), en attendant le plan 2 (comptes),
@@ -29,18 +29,18 @@ const ACCOUNTS: Record<string, DemoAccount> = {
 const clubRef = (slug: string): ClubRef => ({ slug, name: getClub(slug)?.name ?? slug });
 
 /** Les clubs de l'utilisateur (un seul pour un membre), dans l'ordre de ses adhésions. */
-export const clubsOf = (user: DemoUser): ClubRef[] => user.clubSlugs.map(clubRef);
+export const clubsOf = (user: CurrentUser): ClubRef[] => user.clubSlugs.map(clubRef);
 
 /**
  * Les clubs dont l'utilisateur est le seul animateur, d'après les adhésions en mémoire (clubStore).
  * Tant que la liste n'est pas vide, il ne peut pas supprimer son compte (spec §12) : il doit d'abord
  * désigner un autre animateur ou supprimer le club.
  */
-export const soleAnimatorClubs = (user: DemoUser): ClubRef[] =>
+export const soleAnimatorClubs = (user: CurrentUser): ClubRef[] =>
   clubsOf(user).filter(({ slug }) => {
     const animators = memberships().filter((m) => m.clubSlug === slug && m.role === "animator");
     return animators.length === 1 && animators[0].userId === user.id;
   });
 
-export const accountFor = (user: DemoUser): DemoAccount =>
+export const accountFor = (user: CurrentUser): DemoAccount =>
   ACCOUNTS[user.id] ?? { email: `${user.id}@example.com`, pendingContributions: 0 };

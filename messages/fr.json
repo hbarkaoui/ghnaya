@@ -668,7 +668,11 @@
     "sending": "Envoi en cours…",
     "errors": {
       "missing": "Saisissez votre adresse e-mail.",
-      "invalid": "Cette adresse n'est pas valide. Elle doit ressembler à <ltr>nom@exemple.com</ltr>"
+      "invalid": "Cette adresse n'est pas valide. Elle doit ressembler à <ltr>nom@exemple.com</ltr>",
+      "tooMany": "Trop de demandes pour cette adresse. Attendez quelques minutes, puis recommencez.",
+      "failed": "Le lien n'a pas pu être envoyé. Réessayez dans un instant.",
+      "linkInvalid": "Ce lien de connexion a expiré ou a déjà servi. Demandez-en un nouveau.",
+      "google": "La connexion avec Google n'a pas abouti. Réessayez, ou recevez un lien par e-mail."
     },
     "noAccount": "Pas encore de compte ? Il est créé à votre première connexion.",
     "verify": {
@@ -679,7 +683,10 @@
       "openLink": "Touchez le lien dans l'e-mail pour vous connecter : vous reviendrez ensuite à la page que vous consultiez.",
       "notReceivedTitle": "Rien reçu ?",
       "notReceivedBody": "Regardez dans vos courriers indésirables, ou recommencez avec une autre adresse.",
-      "changeEmail": "Modifier l'adresse"
+      "changeEmail": "Modifier l'adresse",
+      "devTitle": "Aperçu de développement",
+      "devBody": "Aucun e-mail ne part en développement : le message est dans la boîte locale.",
+      "devOpen": "Ouvrir le lien reçu"
     }
   },
   "contribute": {
