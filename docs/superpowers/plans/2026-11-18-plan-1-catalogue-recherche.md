@@ -63,8 +63,8 @@ L'interface a été construite avant ce plan, sur des données fictives (`.desig
 | 7. Recherche | Faite le 21/11/2026 | Les types, `prepareQuery` et `findSnippet` existent (`src/lib/search/query.ts`). Reste : la requête SQL dans `searchSongs`. Voir aussi « Jeu de test » et l'écart 4 ci-dessous. |
 | 8. Lecture du catalogue | Faite le 21/11/2026, adaptée | `getSongById` renvoie le type `Song` des écrans. La page artiste est paginée par 50 (IA, « Croissance du contenu ») : `getArtistPage(id, page)` renvoie la forme `ArtistPage` déjà utilisée par l'écran, à la place de `getArtistWithSongs`. |
 | 9. Limite de débit | Faite le 21/11/2026 | Branchée dans `/recherche`. L'aperçu `?apercu=limite` reste pour le développement. |
-| 10. Import LRCLIB | À faire | Le code et ses tests n'ont pas besoin de l'export réel. Le premier passage sur l'export (plusieurs Go à télécharger) se fait à part, avec l'accord de l'utilisateur. |
-| 11. Domaine public | À faire | Sans changement. |
+| 10. Import LRCLIB | Faite le 21/11/2026, sauf le passage sur l'export réel | Le code et ses tests n'ont pas besoin de l'export réel. Le premier passage sur l'export (plusieurs dizaines de Go à télécharger) se fait à part, avec l'accord de l'utilisateur : voir « Import LRCLIB » dans le README. |
+| 11. Domaine public | Faite le 21/11/2026 | Sans changement. `pnpm import:public-domain --dry-run` : 1 chanson, aucun refus. |
 | 12. Interface, accueil, recherche | Remplacée | Déjà construite : langue, messages, mise en page, manifeste, page d'erreur, `SearchBar`, `SongResultItem`, `/recherche`. Reste seulement le branchement, dans la tâche 13 adaptée. |
 | 13. Fiche chanson, page artiste | Faite le 21/11/2026 (branchement) | Les pages existent. On les branche sur la base par la passerelle décrite plus bas. |
 | 14. Bout en bout | À faire (le script `seed-fixtures` de l'étape 1 est écrit) | Demande de télécharger les navigateurs de Playwright, avec accord. |
