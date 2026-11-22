@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ClubCover } from "@/components/club/ClubCover";
+import { NameForm } from "@/components/me/NameForm";
 import { DeleteAccount } from "@/components/me/DeleteAccount";
 import { SignInInvite } from "@/components/me/SignInInvite";
 import { LocaleSwitcher } from "@/components/shell/LocaleSwitcher";
@@ -49,8 +50,8 @@ export default async function AccountPage() {
           <dl className="divide-y divide-line-subtle rounded-lg border border-line-subtle bg-card">
             <div className="flex min-h-14 flex-col justify-center px-4 py-2">
               <dt className="text-sm text-ink-2">{t("name")}</dt>
-              <dd className="font-medium">
-                <Bidi>{user.name}</Bidi>
+              <dd>
+                <NameForm name={user.name} />
               </dd>
             </div>
             <div className="flex min-h-14 flex-col justify-center px-4 py-2">

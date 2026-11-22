@@ -388,7 +388,14 @@
     "blockedBody": "{count, plural, one {Avant de supprimer votre compte, désignez un autre animateur ou supprimez le club.} other {Avant de supprimer votre compte, désignez un autre animateur dans chacun de ces clubs ou supprimez-les.}}",
     "designate": "Désigner un animateur",
     "deleteClub": "Supprimer le club",
-    "visitorBody": "Connectez-vous pour gérer votre compte."
+    "visitorBody": "Connectez-vous pour gérer votre compte.",
+    "editName": "Modifier",
+    "nameSave": "Enregistrer",
+    "nameCancel": "Annuler",
+    "nameRequired": "Saisissez votre nom.",
+    "nameTooLong": "60 caractères au plus.",
+    "nameHint": "Les membres de vos clubs voient ce nom.",
+    "nameSaved": "Nom enregistré."
   },
   "reportForm": {
     "metaTitle": "Signaler une chanson",
