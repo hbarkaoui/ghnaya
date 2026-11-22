@@ -20,6 +20,13 @@ pnpm dev
 
 `pnpm seed:fixtures` vide la base locale et y écrit le catalogue fictif (`src/mocks/catalog.ts`). Il refuse toute base hors de localhost.
 
+## Développement
+
+`pnpm seed:demo` écrit dans la base locale des comptes de démonstration (Leïla, membre des Jasmins ; Sami, animateur de trois clubs ; Nour, sans club ; Rania, modératrice), leurs clubs et leurs playlists. Il est idempotent : il recrée ces comptes et ces clubs sans toucher aux autres données.
+
+- Se connecter : `/connexion`, saisir l'adresse (`sami@example.com`…), puis « Ouvrir le lien reçu ».
+- Tester sur un téléphone du même Wi-Fi : régler `BETTER_AUTH_URL` sur l'adresse du poste (`http://192.168.x.y:3000`), sinon le lien du message pointe vers `localhost`.
+
 ## Tests
 
 ```bash

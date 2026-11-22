@@ -59,9 +59,6 @@ export default async function SystemStatesPreviewPage() {
               <Link href="/playlists" className={LINK}>Mes playlists</Link>
             </li>
             <li>
-              <Link href="/playlists/seance-du-jeudi" className={LINK}>Playlist « Séance du jeudi »</Link>
-            </li>
-            <li>
               <Link href="/clubs" className={LINK}>Clubs</Link> (session animateur) ou Mon club (session membre)
             </li>
             <li>
