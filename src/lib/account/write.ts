@@ -18,14 +18,17 @@ export type DeleteAccountResult = { ok: true } | { ok: false; reason: "last-anim
 /**
  * Supprime le compte (spec §12) : ses sessions, ses playlists personnelles et ses adhésions partent avec lui
  * (clés étrangères en cascade). Refusé tant qu'il est le seul animateur d'un club. Verrous : l'utilisateur,
- * puis ses clubs par identifiant, comme l'adhésion (`lib/clubs/write`). Plan 3 : rattacher ses révisions
+ * puis par identifiant ses clubs et ceux qu'il a créés, comme l'adhésion (`lib/clubs/write`) : supprimer
+ * l'utilisateur vide `clubs.created_by` (SET NULL), ce qui verrouille aussi ces clubs, et un verrou pris
+ * hors de l'ordre pourrait se croiser avec une adhésion en cours. Plan 3 : rattacher ses révisions
  * au compte « compte supprimé » dans la même transaction.
  */
 export function deleteUserAccount(db: Db, userId: string): Promise<DeleteAccountResult> {
   return db.transaction(async (tx) => {
     await tx.execute(sql`SELECT id FROM users WHERE id = ${userId} FOR UPDATE`);
     await tx.execute(sql`
-      SELECT id FROM clubs WHERE id IN (SELECT club_id FROM club_members WHERE user_id = ${userId})
+      SELECT id FROM clubs
+      WHERE id IN (SELECT club_id FROM club_members WHERE user_id = ${userId}) OR created_by = ${userId}
       ORDER BY id FOR UPDATE`);
     const sole = await tx.execute<{ slug: string; name: string }>(sql`
       SELECT c.slug, c.name
