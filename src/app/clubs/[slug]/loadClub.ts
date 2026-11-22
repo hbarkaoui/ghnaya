@@ -1,9 +1,10 @@
 import "server-only";
 import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
+import { clubRoleOf } from "@/lib/auth/permissions";
 import { clubHref, signInHref } from "@/lib/clubs/href";
+import { getClubBySlug } from "@/lib/clubs/queries";
 import { getCurrentUser } from "@/lib/session";
-import { getClub, roleIn } from "@/mocks/clubStore";
 
 /** Le slug tel qu'il est stocké, même si le paramètre de l'URL arrive encore encodé (lettres arabes). */
 const decodeSlug = (param: string) => {
@@ -24,8 +25,8 @@ export const loadClub = cache(async (slugParam: string) => {
   const user = await getCurrentUser();
   if (!user) redirect(signInHref(clubHref(slug)));
 
-  const club = getClub(slug);
-  const role = club ? roleIn(slug, user.id) : null;
+  const club = await getClubBySlug(slug);
+  const role = club ? clubRoleOf(user, club.slug) : null;
   if (!club || !role) notFound();
   return { user, club, role };
 });

@@ -12,8 +12,9 @@ import { PageMain } from "@/components/shell/PageMain";
 import { Badge } from "@/components/ui/Badge";
 import { Bidi } from "@/components/ui/Bidi";
 import type { CurrentUser } from "@/lib/auth/types";
+import type { ClubRef } from "@/lib/clubs/types";
 import { getCurrentUser } from "@/lib/session";
-import { accountFor, clubsOf, type ClubRef } from "@/mocks/account";
+import { pendingContributionsOf } from "@/mocks/account";
 import { moderationQueueSize } from "@/mocks/moderation";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -31,7 +32,7 @@ export default async function MePage({ searchParams }: PageProps<"/moi">) {
 
   if (!user) return <VisitorMe accountDeleted={(await searchParams).compte === "supprime"} />;
 
-  const { pendingContributions } = accountFor(user);
+  const pendingContributions = pendingContributionsOf(user.id);
   const moderationQueue = user.isModerator ? moderationQueueSize() : 0;
 
   return (
@@ -43,7 +44,7 @@ export default async function MePage({ searchParams }: PageProps<"/moi">) {
           <h1 id="me-name" className="text-2xl font-medium">
             <Bidi>{user.name}</Bidi>
           </h1>
-          <ClubPills user={user} clubs={clubsOf(user)} />
+          <ClubPills user={user} clubs={user.clubs} />
         </section>
 
         <div className="mt-8 flex flex-col gap-6">

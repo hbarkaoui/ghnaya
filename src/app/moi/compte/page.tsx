@@ -10,7 +10,8 @@ import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
 import { Bidi } from "@/components/ui/Bidi";
 import { getCurrentUser } from "@/lib/session";
-import { accountFor, soleAnimatorClubs, type ClubRef } from "@/mocks/account";
+import { soleAnimatorClubs } from "@/lib/clubs/queries";
+import type { ClubRef } from "@/lib/clubs/types";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("account");
@@ -34,8 +35,8 @@ export default async function AccountPage() {
     );
   }
 
-  const { email } = accountFor(user);
-  const blockingClubs = soleAnimatorClubs(user);
+  const { email } = user;
+  const blockingClubs = await soleAnimatorClubs(user.id);
 
   return (
     <>

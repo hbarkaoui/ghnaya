@@ -13,8 +13,8 @@ import { EmptyState, ZelligeMotif } from "@/components/ui/EmptyState";
 import { StatusNotice } from "@/components/ui/StatusNotice";
 import { BUTTON_PRIMARY } from "@/components/ui/styles";
 import { clubHref, signInHref } from "@/lib/clubs/href";
+import { clubsOf } from "@/lib/clubs/queries";
 import { getCurrentUser } from "@/lib/session";
-import { clubsOf } from "@/mocks/clubStore";
 import { waitDemoLatency } from "@/mocks/demoPreviewsServer";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -42,7 +42,7 @@ export default async function ClubsPage({ searchParams }: PageProps<"/clubs">) {
 
   const t = await getTranslations("clubs");
   const { statut } = await searchParams;
-  const clubs = clubsOf(user.id);
+  const clubs = await clubsOf(user.id);
 
   return (
     <>

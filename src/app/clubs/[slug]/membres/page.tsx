@@ -6,7 +6,7 @@ import { MemberActions } from "@/components/club/MemberActions";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Bidi } from "@/components/ui/Bidi";
-import { membersOf } from "@/mocks/clubStore";
+import { membersOf } from "@/lib/clubs/queries";
 import { loadClub } from "../loadClub";
 
 export async function generateMetadata({ params }: PageProps<"/clubs/[slug]/membres">): Promise<Metadata> {
@@ -31,7 +31,7 @@ export default async function ClubMembersPage({ params }: PageProps<"/clubs/[slu
   const { slug } = await params;
   const { user, club, role } = await loadClub(slug);
   const [t, locale] = await Promise.all([getTranslations("clubs"), getLocale()]);
-  const members = membersOf(club.slug, locale);
+  const members = await membersOf(club.id, locale);
   const animator = role === "animator";
   const bdi = (chunks: React.ReactNode) => <Bidi>{chunks}</Bidi>;
 

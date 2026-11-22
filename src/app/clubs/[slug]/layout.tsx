@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Bidi } from "@/components/ui/Bidi";
 import { SubTabs } from "@/components/ui/SubTabs";
 import { clubHref } from "@/lib/clubs/href";
-import { memberships } from "@/mocks/clubStore";
+import { memberCountOf } from "@/lib/clubs/queries";
 import { loadClub } from "./loadClub";
 
 /**
@@ -18,7 +18,7 @@ export default async function ClubLayout({ children, params }: LayoutProps<"/clu
   const { slug } = await params;
   const { user, club, role } = await loadClub(slug);
   const t = await getTranslations("clubs");
-  const count = memberships().filter((m) => m.clubSlug === club.slug).length;
+  const count = await memberCountOf(club.id);
 
   const tabs = [
     { href: clubHref(club.slug), label: t("tabs.playlists") },

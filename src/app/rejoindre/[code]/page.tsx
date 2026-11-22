@@ -11,9 +11,9 @@ import { Bidi } from "@/components/ui/Bidi";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { BUTTON_PRIMARY, BUTTON_SECONDARY } from "@/components/ui/styles";
 import { clubHref, signInHref } from "@/lib/clubs/href";
+import { getClubByInvite, joinMembershipsOf, memberCountOf } from "@/lib/clubs/queries";
 import { decideJoin } from "@/lib/clubs/membership";
 import { getCurrentUser } from "@/lib/session";
-import { getClub, getClubByInvite, memberships } from "@/mocks/clubStore";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("clubs.join");
@@ -44,7 +44,7 @@ export default async function JoinPage({ params }: PageProps<"/rejoindre/[code]"
   const { code: raw } = await params;
   const code = raw.toLowerCase();
   const [t, user] = await Promise.all([getTranslations("clubs"), getCurrentUser()]);
-  const club = getClubByInvite(code);
+  const club = await getClubByInvite(code);
 
   if (!club) {
     return (
@@ -62,9 +62,9 @@ export default async function JoinPage({ params }: PageProps<"/rejoindre/[code]"
     );
   }
 
-  const count = memberships().filter((m) => m.clubSlug === club.slug).length;
-  const decision = user ? decideJoin(memberships(), user, club.slug) : null;
-  const nameOf = (slug: string) => getClub(slug)?.name ?? slug;
+  const count = await memberCountOf(club.id);
+  const decision = user ? decideJoin(await joinMembershipsOf(user.id), user, club.slug) : null;
+  const nameOf = (slug: string) => user?.clubs.find((c) => c.slug === slug)?.name ?? slug;
 
   return (
     <>

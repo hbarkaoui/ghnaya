@@ -5,6 +5,7 @@ import { CreateClubForm } from "@/components/club/CreateClubForm";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { canCreateClub } from "@/lib/auth/permissions";
 import { signInHref } from "@/lib/clubs/href";
 import { getCurrentUser } from "@/lib/session";
 
@@ -22,7 +23,7 @@ export default async function NewClubPage() {
   if (!user) redirect(signInHref("/clubs/nouveau"));
   const t = await getTranslations("clubs");
 
-  if (!user.isAnimator) {
+  if (!canCreateClub(user)) {
     return (
       <>
         <PageHeader variant="sub" backHref="/clubs" />
