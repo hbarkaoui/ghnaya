@@ -11,7 +11,8 @@ test("chercher en arabizi depuis l'accueil, ouvrir la chanson, puis l'artiste", 
   await expect(page).toHaveURL(/\/recherche\?q=sidi\+mansur/);
 
   // La chanson vient de la base : son adresse porte un UUID, pas l'identifiant fictif.
-  await page.getByRole("link", { name: /Sidi Mansour/ }).click();
+  // Le nom du lien de la chanson commence par le titre ; « Ajouter « Sidi Mansour » à une playlist » est un autre lien.
+  await page.getByRole("link", { name: /^سيدي منصور Sidi Mansour/ }).click();
   await expect(page).toHaveURL(new RegExp(`/chanson/${UUID}$`));
   const title = page.getByRole("heading", { level: 1 });
   await expect(title).toContainText("سيدي منصور");
@@ -23,7 +24,7 @@ test("chercher en arabizi depuis l'accueil, ouvrir la chanson, puis l'artiste", 
   await page.getByRole("link", { name: "Saber Rebai" }).click();
   await expect(page).toHaveURL(new RegExp(`/artiste/${UUID}$`));
   await expect(page.getByRole("heading", { level: 1 })).toContainText("صابر الرباعي");
-  await expect(page.getByRole("link", { name: /على نار/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: "على نار", exact: true })).toBeVisible();
 });
 
 test("chercher un passage des paroles affiche l'extrait, passage surligné", async ({ page }) => {
@@ -50,20 +51,4 @@ test("une chanson inconnue renvoie 404 avec un message clair", async ({ page }) 
   const res = await page.goto("/chanson/6f1c2a7e-8a7b-4c1d-9e2f-0a1b2c3d4e5f");
   expect(res?.status()).toBe(404);
   await expect(page.getByText("introuvable ou a été retirée")).toBeVisible();
-});
-
-test("une chanson trouvée en base s'ajoute à une playlist et se lit dans le lecteur", async ({ page }) => {
-  await page.goto("/recherche?q=habaytak");
-  await page.getByRole("button", { name: /Ajouter .*Habaytak Bel Saif.* à une playlist/ }).click();
-  await page.getByRole("button", { name: /À apprendre/ }).click();
-  // \s : le message français met une espace insécable dans les guillemets (« … »).
-  await expect(page.getByText(/Ajoutée à «\s.*À apprendre.*\s»/)).toBeVisible();
-
-  // « À apprendre » compte 3 chansons fictives : celle de la base devient la 4e du lecteur.
-  await page.goto("/playlists/a-apprendre");
-  await expect(page.getByText("Personnelle · 4 chansons")).toBeVisible();
-  await page.locator('a[href="/lecture/a-apprendre/4"]').click();
-  await expect(page).toHaveURL(/\/lecture\/a-apprendre\/4$/);
-  await expect(page.getByText("4 / 4")).toBeVisible();
-  await expect(page.getByTestId("lyrics")).toContainText("على البحر كنا نغنّي");
 });

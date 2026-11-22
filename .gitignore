@@ -48,3 +48,4 @@ next-env.d.ts
 
 # local mail outbox
 /.outbox/
+/.outbox-e2e/

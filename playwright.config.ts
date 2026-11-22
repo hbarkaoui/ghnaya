@@ -16,6 +16,14 @@ export default defineConfig({
     url: "http://localhost:3100",
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,
-    env: { DATABASE_URL },
+    env: {
+      DATABASE_URL,
+      BETTER_AUTH_SECRET: "secret-de-bout-en-bout-0123456789abcdef",
+      BETTER_AUTH_URL: "http://localhost:3100",
+      MAIL_TRANSPORT: "outbox",
+      OUTBOX_DIR: ".outbox-e2e",
+      // Les parcours ouvrent plus de 5 liens par minute depuis la même adresse.
+      BETTER_AUTH_RATE_LIMIT: "off",
+    },
   },
 });

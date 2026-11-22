@@ -26,6 +26,8 @@ const createAuth = () =>
     secret: process.env.BETTER_AUTH_SECRET,
     database: drizzleAdapter(db, { provider: "pg", schema, usePlural: true }),
     advanced: { database: { generateId: "uuid" } },
+    // Tests de bout en bout seulement : la limite en mémoire de Better Auth bloquerait les parcours.
+    ...(process.env.BETTER_AUTH_RATE_LIMIT === "off" ? { rateLimit: { enabled: false } } : {}),
     user: {
       // Champs gérés par le serveur seulement (`input: false`) : ni l'inscription ni la mise à jour du profil
       // ne peuvent les fixer. Les rôles changent par `pnpm user:role`.
