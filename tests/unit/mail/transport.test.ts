@@ -11,9 +11,30 @@ describe("mailTransport", () => {
     expect(mailTransport({ NODE_ENV: "development", MAIL_TRANSPORT: "smtp" })).toBe("smtp");
   });
 
-  it("envoie par SMTP en production, sauf si la boîte locale est demandée (tests de bout en bout)", () => {
+  it("envoie par SMTP en production", () => {
     expect(mailTransport({ NODE_ENV: "production" })).toBe("smtp");
-    expect(mailTransport({ NODE_ENV: "production", MAIL_TRANSPORT: "outbox" })).toBe("outbox");
+    expect(mailTransport({ NODE_ENV: "production", BETTER_AUTH_URL: "https://ghnaya.example" })).toBe("smtp");
+  });
+
+  it("accepte la boîte locale en production sur localhost (tests de bout en bout)", () => {
+    const env = { NODE_ENV: "production", MAIL_TRANSPORT: "outbox" } as const;
+    expect(mailTransport({ ...env, BETTER_AUTH_URL: "http://localhost:3100" })).toBe("outbox");
+    expect(mailTransport({ ...env, BETTER_AUTH_URL: "http://127.0.0.1:3100" })).toBe("outbox");
+  });
+
+  it("refuse la boîte locale en production sur une adresse publique, ou sans adresse", () => {
+    const env = { NODE_ENV: "production", MAIL_TRANSPORT: "outbox" } as const;
+    expect(() => mailTransport({ ...env, BETTER_AUTH_URL: "https://ghnaya.example" })).toThrow(/refusé en production/);
+    expect(() => mailTransport({ ...env, BETTER_AUTH_URL: "https://localhost.ghnaya.example" })).toThrow(
+      /refusé en production/,
+    );
+    expect(() => mailTransport({ ...env, BETTER_AUTH_URL: "pas une adresse" })).toThrow(/refusé en production/);
+    expect(() => mailTransport(env)).toThrow(/refusé en production/);
+  });
+
+  it("ne regarde pas l'adresse hors production", () => {
+    expect(mailTransport({ NODE_ENV: "development", BETTER_AUTH_URL: "https://ghnaya.example" })).toBe("outbox");
+    expect(mailTransport({ NODE_ENV: "development", MAIL_TRANSPORT: "outbox" })).toBe("outbox");
   });
 });
 

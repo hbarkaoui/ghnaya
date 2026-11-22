@@ -6,7 +6,8 @@ import nodemailer, { type Transporter } from "nodemailer";
  * Envoi des e-mails (plan 2, tâche 2). En production : SMTP (`SMTP_URL`, `MAIL_FROM`), quel que soit le
  * fournisseur. Ailleurs, ou si `MAIL_TRANSPORT=outbox` : rien ne part, le dernier message de chaque adresse
  * est écrit dans `.outbox/` (ou `OUTBOX_DIR`). L'aperçu « Ouvrir le lien reçu » de la connexion et les tests
- * de bout en bout y lisent le lien. Ne jamais régler `outbox` sur le serveur de production.
+ * de bout en bout y lisent le lien. En production, `outbox` n'est accepté que si `BETTER_AUTH_URL` désigne
+ * localhost (build des tests de bout en bout) : ailleurs, cet aperçu ouvrirait n'importe quel compte.
  */
 export interface MailMessage {
   to: string;
@@ -21,9 +22,28 @@ export interface OutboxEntry extends MailMessage {
   sentAt: string;
 }
 
+const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1"]);
+
+const isLocalUrl = (url: string | undefined) => {
+  if (!url) return false;
+  try {
+    return LOCAL_HOSTS.has(new URL(url).hostname);
+  } catch {
+    return false;
+  }
+};
+
 export function mailTransport(env: NodeJS.ProcessEnv = process.env): "smtp" | "outbox" {
-  if (env.MAIL_TRANSPORT === "smtp" || env.MAIL_TRANSPORT === "outbox") return env.MAIL_TRANSPORT;
-  return env.NODE_ENV === "production" ? "smtp" : "outbox";
+  const transport =
+    env.MAIL_TRANSPORT === "smtp" || env.MAIL_TRANSPORT === "outbox"
+      ? env.MAIL_TRANSPORT
+      : env.NODE_ENV === "production"
+        ? "smtp"
+        : "outbox";
+  if (transport === "outbox" && env.NODE_ENV === "production" && !isLocalUrl(env.BETTER_AUTH_URL)) {
+    throw new Error("MAIL_TRANSPORT=outbox est refusé en production hors de localhost : il ouvrirait n'importe quel compte.");
+  }
+  return transport;
 }
 
 const outboxDir = () => process.env.OUTBOX_DIR ?? join(process.cwd(), ".outbox");
