@@ -107,7 +107,11 @@ export async function openInviteLinkAction(_prev: FormState, formData: FormData)
  * Rejoindre le club d'un lien d'invitation (spec §10). Un membre qui a déjà un club doit avoir confirmé
  * le changement (`confirm=1`) ; le dernier animateur d'un club ne peut pas le quitter.
  */
-export async function joinClubAction(code: string, _prev: JoinState, formData: FormData): Promise<JoinState> {
+export async function joinClubAction(rawCode: string, _prev: JoinState, formData: FormData): Promise<JoinState> {
+  // Une action serveur est joignable directement : le code est relu comme celui d'un lien collé.
+  const code = typeof rawCode === "string" ? parseInviteCode(rawCode) : null;
+  if (!code) return { error: "invalid" };
+
   const user = await getCurrentUser();
   if (!user) redirect(signInHref(`/rejoindre/${code}`));
 
