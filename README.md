@@ -99,6 +99,16 @@ Les migrations et les imports ne sont pas dans l'image : ils se lancent depuis u
 5. Vercel : importer le dépôt, définir `DATABASE_URL=<url poolée>`, puis déployer.
 6. Lancer `DATABASE_URL=<url directe> pnpm bench:search` sur la base de production (script de la tâche 15 du plan 1).
 
+### Comptes (plan 2)
+
+Avant le premier déploiement avec des comptes :
+
+1. **Secret** : `openssl rand -base64 32` donne `BETTER_AUTH_SECRET`, à définir dans Vercel. `BETTER_AUTH_URL` est l'adresse publique (`https://…`).
+2. **E-mails** : un fournisseur SMTP transactionnel (Resend, Brevo, Mailjet ou Postmark, tous en SMTP). Définir `SMTP_URL=smtps://utilisateur:motdepasse@smtp.fournisseur:465` et `MAIL_FROM="Ghnaya <connexion@domaine>"`. Vérifier le domaine d'envoi (SPF, DKIM) chez le fournisseur, sinon les liens arrivent en courrier indésirable. Ne jamais définir `MAIL_TRANSPORT` en production : la boîte locale `.outbox/` ouvrirait une session à quiconque.
+3. **Google** (facultatif) : dans Google Cloud Console, créer un identifiant OAuth « Application Web ». URI de redirection autorisée : `https://<domaine>/api/auth/callback/google`, plus `http://localhost:3000/api/auth/callback/google` pour le développement. Reporter `GOOGLE_CLIENT_ID` et `GOOGLE_CLIENT_SECRET`.
+4. **Premier admin** : se connecter une fois, puis `DATABASE_URL=<url directe> pnpm user:role <adresse> --role admin --animator`.
+5. **Adresses en minuscules** (si la base contient déjà des comptes) : `pnpm user:role` compare l'adresse telle quelle, et Better Auth l'enregistre en minuscules. Vérifier que `select email from users where email <> lower(email);` ne renvoie rien.
+
 ## Sauvegardes
 
 - Neon conserve l'historique et permet une restauration à un instant donné. De plus, `.github/workflows/backup.yml`

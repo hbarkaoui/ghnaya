@@ -60,7 +60,7 @@ Les clubs de chant ont besoin de lire les paroles de chansons arabes et tunisien
 
 - **Next.js** (dernière version stable, App Router, TypeScript strict). Il gère le front, les Server Actions et les routes d'API dans une seule application.
 - **PostgreSQL 16 ou plus récent**, avec les extensions `pg_trgm` et `unaccent`. L'accès passe par **Drizzle ORM**, et les migrations sont versionnées.
-- **Auth.js** : connexion par lien magique envoyé par e-mail, via un fournisseur SMTP transactionnel, et par Google OAuth.
+- **Better Auth** : connexion par lien magique envoyé par e-mail, via un fournisseur SMTP transactionnel, et par Google OAuth. *(Modifié le 22/11/2026, plan 2 : Auth.js, d'abord prévu, est toujours en bêta pour sa version 5 (`5.0.0-beta.32`). Better Auth 1.7 est stable et couvre le lien magique, Google, les sessions en base et Drizzle.)*
 - **next-intl** pour l'internationalisation en français et en arabe.
 - **zod** pour valider toutes les entrées.
 - **PWA** : un manifeste pour l'installer sur l'écran d'accueil, sans service worker de cache.
@@ -72,7 +72,7 @@ Les clubs de chant ont besoin de lire les paroles de chansons arabes et tunisien
 | `lib/text` | Fonctions pures : `normalizeArabic`, `normalizeLatin`, `toSearchKey`, `detectScript`, `cleanImportedTitle`, `splitArtists`, découpage en lignes | rien |
 | `lib/search` | Interface unique `searchSongs(query, { artistId?, dialect?, page })` qui renvoie `{ items, total }`. L'implémentation actuelle est en SQL | `lib/text`, `lib/db` |
 | `lib/db` | Schéma Drizzle, migrations, client | PostgreSQL |
-| `lib/auth` | Configuration d'Auth.js, plus `permissions.ts`, **le seul endroit** où l'on décide qui peut faire quoi | `lib/db` |
+| `lib/auth` | Configuration de Better Auth, plus `permissions.ts`, **le seul endroit** où l'on décide qui peut faire quoi | `lib/db` |
 | `lib/moderation` | Création, approbation et rejet des révisions, application d'une révision à `songs`, traitement des signalements | `lib/db`, `lib/text` |
 | `lib/translit` | Génération de la translittération par un modèle de langage, verrouillage, validation de l'alignement des lignes, plafond quotidien | `lib/db` |
 | `app/` | Pages et Server Actions | tous |
@@ -88,7 +88,7 @@ Les clubs de chant ont besoin de lire les paroles de chansons arabes et tunisien
 | Membre (compte avec e-mail vérifié) | Tout ce que fait le visiteur, plus : gérer ses playlists personnelles, proposer des ajouts et des corrections, rejoindre **un** club, activer la translittération. Un membre appartient à **un seul club** : rejoindre un autre club lui fait quitter le premier, après confirmation |
 | Animateur (rôle global attribué par un admin, puis rôle dans chaque club qu'il anime) | Créer des clubs et en animer **plusieurs** ; voir, modifier et choisir ses clubs ; gérer les playlists et les membres de ses clubs, régénérer le lien d'invitation, promouvoir un membre en animateur du club |
 | Modérateur (rôle global, attribué par un admin) | Approuver et rejeter les révisions, traiter les signalements, retirer et rétablir une chanson. **Il ne peut pas approuver sa propre révision.** |
-| Admin (rôle global) | Tout ce que fait le modérateur, plus : attribuer les rôles (modérateur, animateur), approuver ses propres révisions (pour amorcer la plateforme), retirer en masse par source, lancer les imports |
+| Admin (rôle global) | Tout ce que fait le modérateur, plus : attribuer les rôles (modérateur, animateur) *(depuis le 22/11/2026, plan 2 : en ligne de commande, `pnpm user:role <adresse> [--animator\|--no-animator] [--role member\|moderator\|admin]`, sans page d'administration)*, approuver ses propres révisions (pour amorcer la plateforme), retirer en masse par source, lancer les imports |
 
 ### 4.4 Pages
 
@@ -112,7 +112,10 @@ Tous les identifiants sont des UUID. Toutes les tables ont `created_at` et `upda
 ```text
 users(id, email unique, name, global_role: member|moderator|admin,
   is_animator boolean default false,          -- attribué par un admin : peut créer et animer des clubs
-  locale: fr|ar, email_verified_at)
+  locale: fr|ar, email_verified boolean default false,   -- remplace email_verified_at (modifié le 22/11/2026, plan 2)
+  image text)                                            -- champ imposé par Better Auth (22/11/2026, plan 2)
+
+sessions, accounts, verifications                 -- gérées par Better Auth (ajoutées le 22/11/2026, plan 2)
 
 artists(id, name_ar, name_latin, aliases text[], search_ar, search_latin, search_key)
 

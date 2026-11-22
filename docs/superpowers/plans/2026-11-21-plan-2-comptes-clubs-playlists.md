@@ -21,6 +21,37 @@
 - Plan 3 : contributions, modération et signalements (y compris l'anonymisation des révisions d'un compte supprimé) ;
 - Plan 4 : translittération.
 
+## État des tâches
+
+Toutes les tâches ont été exécutées le 22/11/2026, sur la branche `feat/plan-2-comptes`, une revue après chacune.
+
+| Tâche | État | Ce qui a été vérifié, et les écarts constatés |
+|---|---|---|
+| 1. Schéma | Faite le 22/11/2026 (`7b8ffc2`) | Migration `0002_accounts_clubs_playlists.sql` générée sans édition manuelle ; tests d'intégration du schéma, dont la contrainte propriétaire de la playlist. `updated_at` n'est qu'une valeur par défaut : chaque écriture doit le renseigner. |
+| 2. E-mails | Faite le 22/11/2026 (`2dbd7d0`) | Transport SMTP ou boîte locale, texte et HTML échappés. Le sujet arabe utilise le nom de l'application « غناية ». |
+| 3. Better Auth, session, permissions | Faite le 22/11/2026, un tour de correction (`76af319`, `e34fa3b`) | La route `/api/auth/[...all]` ne transmet qu'une liste blanche (vérification du lien magique, rappel des fournisseurs, session, déconnexion, erreur) et répond 404 au reste : sans elle, un appel direct contournait la limite de liens magiques en PostgreSQL. Les crochets de création et de mise à jour d'un utilisateur valident le nom (`normalizeUserName`). Les jetons de lien magique sont stockés hachés. |
+| 4. Connexion et déconnexion | Faite le 22/11/2026, un tour de correction (`eb3f4c4`, `6329966`) | Better Auth ajoute lui-même `error=` à l'adresse d'erreur : `signInErrorKey` lit donc une chaîne ou un tableau, et la bannière Google s'affiche. Une erreur de connexion Google est rattrapée et renvoie à `/connexion`. Le cookie « envoyé à » est `secure` en production. |
+| 5. Rôles en ligne de commande | Faite le 22/11/2026 (`352cd5e`) | `pnpm user:role`. L'adresse est comparée telle quelle (Better Auth l'enregistre en minuscules) : voir la vérification avant déploiement dans le README. |
+| 6. Clubs et adhésions | Faite le 22/11/2026 (`37a533f`) | Règle « un seul club » sous verrou ; test de concurrence (8 × 15 jointures simultanées). Pour lancer un seul fichier d'intégration : `pnpm exec vitest run --project integration <fichier>` (`pnpm test:integration -- <fichier>` lance toute la suite). |
+| 7. Playlists en base | Faite le 22/11/2026 (`8508655`) | Droits déduits du rôle dans le club. Copies temporaires « MAQUETTE » retirées à la tâche 9. |
+| 8. Écrans des clubs | Faite le 22/11/2026 (`5f08374`) | Parcours à deux utilisateurs (promotion, renommage, régénération du lien, playlist de club vue par un membre) vérifié ensuite par les tests de bout en bout de la tâche 12. `deleteAccount` passe par `soleAnimatorClubs`, devenu asynchrone. |
+| 9. Playlists, feuille d'ajout, accueil, lecteur | Faite le 22/11/2026 (`49e7e1e`) | Vérifiée dans le navigateur sur 12 chansons de développement. Le lien de `/apercu/etats` vers une playlist fictive (devenu un 404) est retiré à la tâche 11. |
+| 10. Compte | Faite le 22/11/2026 (`4863a3f`) | Nom, langue et suppression dans une transaction par `lib/account`. La suppression ferme la session avant d'effacer : en cas d'échec, la personne est déconnectée. |
+| 11. Données de démonstration | Faite le 22/11/2026 (`b0bb95b`) | `pnpm seed:demo` crée les comptes, les clubs et les playlists (clés « leila » et « sami »). Les `dedupe_key` périmées des chansons de test de la base de développement ont été corrigées sur place, par un script jetable, pour passer `songs_source_ref_uq`. |
+| 12. Bout en bout et CI | Faite le 22/11/2026 (`7471e0c`) | 11 parcours verts trois fois de suite. Les assertions reprennent les libellés réels de l'interface, et non ceux prévus par le plan. Les fichiers de test partagent des données de démonstration modifiées et s'exécutent dans l'ordre, avec un seul processus. Aucun défaut de l'application révélé. |
+| 13. Déploiement, documentation | Faite le 22/11/2026 | README (comptes en production), spec §4.1, §4.3 et §5 datées et renvoyant à ce plan. |
+
+### Reste pour plus tard
+
+Petites remarques de revue, non traitées :
+
+- L'aperçu de la boîte locale ouvre une session à quiconque si `MAIL_TRANSPORT=outbox` reste défini sur un déploiement public. Aucun avertissement n'existe hors développement.
+- Le message « trop de demandes » dit « pour cette adresse », y compris pour la limite par IP.
+- `joinClub` fait confiance à `isAnimator` donné par l'appelant ; `FOR UPDATE` pourrait être `FOR NO KEY UPDATE`.
+- Les décalages d'horloge de `updated_at` (heure de l'application ou de la base selon l'écriture).
+- Pas de tests unitaires des droits au niveau des Server Actions, ni de `renameUserAction`.
+- Les formulaires de suppression et de nom perdent le focus ou le texte saisi après un échec.
+
 ## Contraintes globales
 
 - TypeScript `strict: true`. Aucun `any` explicite.
