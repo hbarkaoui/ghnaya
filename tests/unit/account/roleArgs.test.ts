@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseRoleArgs } from "@/lib/account/roles";
+import { noAnimatorWarning, parseRoleArgs } from "@/lib/account/roles";
 
 describe("parseRoleArgs", () => {
   it("lit l'adresse, le rôle global et le rôle d'animateur", () => {
@@ -20,5 +20,21 @@ describe("parseRoleArgs", () => {
     expect(parseRoleArgs(["sami@example.com", "--role", "root"]).ok).toBe(false);
     expect(parseRoleArgs(["pas-une-adresse", "--animator"]).ok).toBe(false);
     expect(parseRoleArgs([]).ok).toBe(false);
+  });
+});
+
+describe("noAnimatorWarning", () => {
+  it("ne dit rien pour zéro ou un club", () => {
+    expect(noAnimatorWarning("sami@example.com", [])).toBeNull();
+    expect(noAnimatorWarning("sami@example.com", [{ slug: "jasmins", name: "Les Jasmins" }])).toBeNull();
+  });
+
+  it("liste les clubs quand il en reste plusieurs", () => {
+    const warning = noAnimatorWarning("sami@example.com", [
+      { slug: "jasmins", name: "Les Jasmins" },
+      { slug: "oliviers", name: "Les Oliviers" },
+    ]);
+    expect(warning).toContain("sami@example.com");
+    expect(warning).toContain("2 clubs : Les Jasmins (jasmins), Les Oliviers (oliviers)");
   });
 });

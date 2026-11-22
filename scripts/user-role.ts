@@ -1,6 +1,6 @@
 // Plan 2, tâche 5 : attribue un rôle à un compte existant (la personne s'est connectée une première fois).
 import "dotenv/config";
-import { parseRoleArgs, setUserRoles } from "@/lib/account/roles";
+import { clubsOfEmail, noAnimatorWarning, parseRoleArgs, setUserRoles } from "@/lib/account/roles";
 import { db, pool } from "@/lib/db/client";
 
 async function main(): Promise<void> {
@@ -9,6 +9,10 @@ async function main(): Promise<void> {
   const user = await setUserRoles(db, args.email, args.change);
   if (!user) throw new Error(`Aucun compte pour ${args.email} : la personne doit d'abord se connecter une fois.`);
   console.log(`${user.email} : rôle ${user.globalRole}, animateur ${user.isAnimator ? "oui" : "non"}.`);
+  if (args.change.isAnimator === false) {
+    const warning = noAnimatorWarning(user.email, await clubsOfEmail(db, user.email));
+    if (warning) console.warn(warning);
+  }
 }
 
 main()
