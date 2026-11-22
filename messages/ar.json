@@ -580,7 +580,12 @@
       "moved": "«{title}» الآن في المرتبة {position} من {total}.",
       "removedRow": "أُزيلت «{title}» من القائمة.",
       "undo": "تراجع",
-      "restored": "أُعيدت «{title}» إلى القائمة."
+      "restored": "أُعيدت «{title}» إلى القائمة.",
+      "deleteTitle": "حذف القائمة",
+      "deleteBody": "ستُحذف أغانيها وملاحظاتها. تبقى النسخ التي صنعها الأعضاء.",
+      "deleteStart": "حذف القائمة",
+      "deleteConfirm": "حذف نهائي",
+      "deleteCancel": "إلغاء"
     }
   },
   "song": {

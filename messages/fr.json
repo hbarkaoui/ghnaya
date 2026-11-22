@@ -580,7 +580,12 @@
       "moved": "« {title} » est maintenant en position {position} sur {total}.",
       "removedRow": "« {title} » retirée de la playlist.",
       "undo": "Annuler",
-      "restored": "« {title} » remise dans la playlist."
+      "restored": "« {title} » remise dans la playlist.",
+      "deleteTitle": "Supprimer la playlist",
+      "deleteBody": "Ses chansons et ses notes seront perdues. Les copies faites par les membres restent.",
+      "deleteStart": "Supprimer la playlist",
+      "deleteConfirm": "Supprimer définitivement",
+      "deleteCancel": "Annuler"
     }
   },
   "song": {

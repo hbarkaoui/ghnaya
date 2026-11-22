@@ -1,44 +1,44 @@
 "use server";
 
+import { canEditPlaylist, clubsAnimatedBy } from "@/lib/auth/permissions";
+import { isUuid } from "@/lib/catalog/queries";
+import { getSong } from "@/lib/catalog/read";
+import { getClubBySlug } from "@/lib/clubs/queries";
+import { db } from "@/lib/db/client";
 import {
   parsePlaylistName,
   toAddTarget,
   type AddTarget,
   type PlaylistNameError,
 } from "@/lib/playlist/addToPlaylist";
-import { canEditPlaylist } from "@/lib/auth/permissions";
+import { getPlaylist } from "@/lib/playlist/queries";
+import { appendSong, createPlaylist } from "@/lib/playlist/write";
 import { getCurrentUser } from "@/lib/session";
-import { getSong } from "@/lib/catalog/read";
-import { getPlaylist } from "@/mocks/catalog";
-import { clubsAnimatedBy, storeNewPlaylist, storeSongInPlaylist } from "@/mocks/playlistMemory";
-
-/** Délai simulé d'un aller-retour avec la base, pour voir l'état « en cours » de la feuille. */
-const SIMULATED_DELAY_MS = 250;
-const simulateLatency = () => new Promise((resolve) => setTimeout(resolve, SIMULATED_DELAY_MS));
 
 /** Échecs communs : session expirée, chanson ou playlist introuvable, droits insuffisants. */
 type Failure = { status: "signedOut" | "notFound" | "forbidden" };
 
 export type AddToPlaylistResult = { status: "added" | "duplicate"; target: AddTarget } | Failure;
 
+/** Seules les chansons de la base vont dans une playlist (clé étrangère) : une chanson fictive est introuvable. */
+const findSong = async (songId: unknown) =>
+  typeof songId === "string" && isUuid(songId) ? getSong(songId) : undefined;
+
 /**
  * Ajoute une chanson à une playlist modifiable par l'utilisateur, sans doublon.
- * MAQUETTE : écrit dans les données fictives en mémoire ; le plan 3 écrira dans `playlist_items`.
  * Les droits sont revérifiés ici : une action serveur peut être appelée directement.
  */
 export async function addSongToPlaylist(playlistId: string, songId: string): Promise<AddToPlaylistResult> {
-  await simulateLatency();
   const user = await getCurrentUser();
   if (!user) return { status: "signedOut" };
 
-  const playlist = typeof playlistId === "string" ? getPlaylist(playlistId) : undefined;
-  if (!playlist || typeof songId !== "string" || !(await getSong(songId))) return { status: "notFound" };
+  const playlist = typeof playlistId === "string" ? await getPlaylist(playlistId) : null;
+  if (!playlist || !(await findSong(songId))) return { status: "notFound" };
   if (!canEditPlaylist(user, playlist)) return { status: "forbidden" };
 
-  const result = storeSongInPlaylist(playlist, songId);
-  return result.status === "added"
-    ? { status: "added", target: toAddTarget(result.playlist) }
-    : { status: "duplicate", target: toAddTarget(playlist) };
+  const status = await appendSong(db, playlist.id, songId);
+  const updated = (await getPlaylist(playlist.id)) ?? playlist;
+  return { status, target: toAddTarget(updated) };
 }
 
 export type CreatePlaylistResult =
@@ -55,21 +55,22 @@ export async function createPlaylistWithSong(input: {
   clubSlug: string | null;
   songId: string;
 }): Promise<CreatePlaylistResult> {
-  await simulateLatency();
   const user = await getCurrentUser();
   if (!user) return { status: "signedOut" };
 
   const parsed = parsePlaylistName(input?.name);
   if (!parsed.ok) return { status: "invalid", error: parsed.error };
-  if (typeof input.songId !== "string" || !(await getSong(input.songId))) return { status: "notFound" };
+  if (!(await findSong(input.songId))) return { status: "notFound" };
 
-  let club = null;
+  let owner: { userId: string } | { clubId: string } = { userId: user.id };
   if (input.clubSlug != null) {
-    club = clubsAnimatedBy(user).find((c) => c.slug === input.clubSlug);
+    const allowed = clubsAnimatedBy(user).some((club) => club.slug === input.clubSlug);
+    const club = allowed ? await getClubBySlug(input.clubSlug) : null;
     if (!club) return { status: "forbidden" };
+    owner = { clubId: club.id };
   }
 
-  const playlist = storeNewPlaylist({ name: parsed.name, club, ownerId: user.id });
-  const result = storeSongInPlaylist(playlist, input.songId);
-  return { status: "created", target: toAddTarget(result.status === "added" ? result.playlist : playlist) };
+  const id = await createPlaylist(db, { name: parsed.name, owner, createdBy: user.id, songId: input.songId });
+  const playlist = await getPlaylist(id);
+  return playlist ? { status: "created", target: toAddTarget(playlist) } : { status: "notFound" };
 }

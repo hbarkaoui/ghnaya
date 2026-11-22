@@ -1,20 +1,21 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ReaderEmpty } from "@/components/reader/ReaderEmpty";
 import { ReaderShell } from "@/components/reader/ReaderShell";
 import { canEditPlaylist, canViewPlaylist } from "@/lib/auth/permissions";
+import { signInHref } from "@/lib/auth/returnPath";
+import { getSong } from "@/lib/catalog/read";
+import { getPlaylist } from "@/lib/playlist/queries";
 import { toReaderEntry } from "@/lib/reader/entry";
 import { getCurrentUser } from "@/lib/session";
-import { getSong } from "@/lib/catalog/read";
-import { getPlaylist } from "@/mocks/catalog";
 import type { ReaderEntry } from "@/types/catalog";
 
 type Props = { params: Promise<{ playlistId: string; position: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { playlistId } = await params;
-  const playlist = getPlaylist(playlistId);
-  const visible = playlist && canViewPlaylist(await getCurrentUser(), playlist);
+  const [playlist, user] = await Promise.all([getPlaylist(playlistId), getCurrentUser()]);
+  const visible = playlist && canViewPlaylist(user, playlist);
   return { title: visible ? playlist.name : undefined, robots: { index: false } };
 }
 
@@ -26,9 +27,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ReaderPage({ params }: Props) {
   const { playlistId, position } = await params;
   const user = await getCurrentUser();
-  const playlist = getPlaylist(playlistId);
+  // Un visiteur passe d'abord par la connexion, qui le ramène à cette position du lecteur.
+  if (!user) redirect(signInHref(`/lecture/${encodeURIComponent(playlistId)}/${encodeURIComponent(position)}`));
+  const playlist = await getPlaylist(playlistId);
   // Club privé, playlist personnelle privée : comme la page de la playlist (spec §10).
-  // Tâche 16 : un visiteur passera par /connexion?retour=… (AuthGate) au lieu de la 404.
   if (!playlist || !canViewPlaylist(user, playlist)) notFound();
 
   const items = [...playlist.items].sort((a, b) => a.position - b.position);

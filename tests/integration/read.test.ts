@@ -30,19 +30,20 @@ describe("passerelle de lecture du catalogue", () => {
     expect((await getArtistPage("a-saber", 1))?.artist.id).toBe("a-saber");
   });
 
-  it("numérote une playlist mêlant chansons fictives et chansons en base, sans les retirées", async () => {
+  it("numérote une playlist d'après la base seule, sans les chansons retirées, inconnues ou fictives", async () => {
     const removed = ids.get("s-ala-nar")!;
     await db.update(songs).set({ status: "removed" }).where(eq(songs.id, removed));
     const playlist = {
       items: [
-        { position: 1, songId: "s-sidi-mansour", note: null },
+        { position: 1, songId: ids.get("s-sidi-mansour")!, note: null },
         { position: 2, songId: removed, note: null },
         { position: 3, songId: ids.get("s-habaytak")!, note: null },
         { position: 4, songId: UNKNOWN_UUID, note: null },
+        { position: 5, songId: "s-sidi-mansour", note: null },
       ],
     };
     expect([...(await readerPositionsOf(playlist))]).toEqual([
-      ["s-sidi-mansour", 1],
+      [ids.get("s-sidi-mansour"), 1],
       [ids.get("s-habaytak"), 2],
     ]);
   });

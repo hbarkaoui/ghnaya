@@ -7,8 +7,8 @@ import { SearchBar } from "@/components/search/SearchBar";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
 import { EmptyState, ZelligeMotif } from "@/components/ui/EmptyState";
+import { clubPlaylistsOf, personalPlaylistsOf } from "@/lib/playlist/queries";
 import { getCurrentUser } from "@/lib/session";
-import { clubPlaylistsFor, personalPlaylistsFor } from "@/mocks/session";
 
 const MAX_SESSIONS = 5;
 const MAX_PERSONAL = 3;
@@ -39,8 +39,7 @@ export default async function HomePage() {
 
   if (!user) return <VisitorHome />;
 
-  const sessions = clubPlaylistsFor(user);
-  const personal = personalPlaylistsFor(user);
+  const [sessions, personal] = await Promise.all([clubPlaylistsOf(user.clubSlugs), personalPlaylistsOf(user.id)]);
 
   return (
     <>

@@ -8,7 +8,7 @@ import { startTransition, useId, useLayoutEffect, useOptimistic, useRef, useStat
 import {
   movePlaylistSong,
   removePlaylistSong,
-  renamePlaylist,
+  renamePlaylistAction,
   restorePlaylistSong,
   savePlaylistNote,
 } from "@/app/actions/playlist";
@@ -24,6 +24,7 @@ import {
   removeItem,
   type Direction,
 } from "@/lib/playlist/edit";
+import { DeletePlaylistForm } from "./DeletePlaylistForm";
 import { PlaylistRow } from "./PlaylistRow";
 
 /** Une ligne de l'éditeur : la chanson, sa position, sa note, et son titre en texte simple (libellés des boutons). */
@@ -61,7 +62,7 @@ const FIELD =
 
 /**
  * Mode édition d'une playlist (IA, parcours 3) : renommage, ↑ / ↓, note écrite dans la ligne, retrait
- * avec « Annuler », « Ajouter des chansons », puis « Terminer ».
+ * avec « Annuler », « Ajouter des chansons », suppression de la playlist, puis « Terminer ».
  *
  * Chaque modification part aussitôt au serveur (actions de app/actions/playlist) ; l'ordre affiché suit
  * le geste sans attendre la réponse (useOptimistic). Après un déplacement, le focus reste sur le bouton
@@ -203,7 +204,7 @@ export function PlaylistEditor({
     const next = normalizePlaylistName(value);
     if (next === null) setNameError(true);
     if (next === null || next === name) return;
-    const result = await track(guard(renamePlaylist(playlistId, value)));
+    const result = await track(guard(renamePlaylistAction(playlistId, value)));
     if (result === ACTION_FAILED) return;
     if (result.ok) setAnnouncement(tEditor("renamed", { name: result.name }));
     else setNameError(result.error === "empty");
@@ -381,6 +382,13 @@ export function PlaylistEditor({
             {undoIndex === optimisticRows.length ? undoRow : null}
           </ol>
         )}
+      </section>
+
+      <section aria-labelledby="playlist-delete" className="mt-8 flex flex-col gap-3 rounded-lg border border-error p-4">
+        <h2 id="playlist-delete" className="font-medium text-error">
+          {tEditor("deleteTitle")}
+        </h2>
+        <DeletePlaylistForm playlistId={playlistId} />
       </section>
 
       {optimisticRows.length > 3 ? <div className="mt-6 flex">{doneButton("flex-1")}</div> : null}

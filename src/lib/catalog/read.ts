@@ -16,9 +16,9 @@ import {
  * Passerelle de lecture du catalogue pour les écrans (plan 1, « Adaptation au code existant »).
  *
  * Un UUID est lu en base ; un autre identifiant (`s-sidi-mansour`, `a-saber`), dans le catalogue fictif.
- * Les playlists, les propositions et les signalements restent fictifs jusqu'aux plans 2 et 3, et citent
- * des chansons fictives ; une chanson trouvée par la recherche, elle, vient de la base. Les plans 2 et 3
- * retireront la branche fictive.
+ * Les playlists sont en base et ne contiennent que des chansons de la base. Seules les propositions,
+ * la modération et les signalements citent encore des chansons fictives, jusqu'au plan 3, qui retirera
+ * la branche fictive.
  */
 
 /** Chanson publiée, ou `undefined` si elle est inconnue ou retirée. */
@@ -39,6 +39,5 @@ export async function songExists(id: string): Promise<boolean> {
 /** Numéros du lecteur pour les chansons lisibles de la playlist (les chansons retirées n'en ont pas). */
 export async function readerPositionsOf(playlist: Pick<Playlist, "items">): Promise<Map<string, number>> {
   const published = await publishedSongIds(playlist.items.map((item) => item.songId));
-  const isReadable = (id: string) => (isUuid(id) ? published.has(id) : getMockSong(id) !== undefined);
-  return readablePositions(playlist.items, isReadable);
+  return readablePositions(playlist.items, (id) => published.has(id));
 }

@@ -6,8 +6,8 @@ import { PlaylistCard } from "@/components/playlist/PlaylistCard";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { personalPlaylistsOf } from "@/lib/playlist/queries";
 import { getCurrentUser } from "@/lib/session";
-import { personalPlaylistsFor } from "@/mocks/session";
 import { waitDemoLatency } from "@/mocks/demoPreviewsServer";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -21,7 +21,7 @@ export default async function MyPlaylistsPage() {
   const t = await getTranslations("myPlaylists");
   const tMe = await getTranslations("me");
   const user = await getCurrentUser();
-  const playlists = user ? personalPlaylistsFor(user) : [];
+  const playlists = user ? await personalPlaylistsOf(user.id) : [];
 
   return (
     <>

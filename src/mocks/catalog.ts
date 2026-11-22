@@ -1,4 +1,4 @@
-import type { ArtistRef, Playlist, Song } from "@/types/catalog";
+import type { ArtistRef, Song } from "@/types/catalog";
 import { STORED_TRANSLIT, TRANSLIT_TEXTS } from "./translit";
 
 /**
@@ -202,9 +202,8 @@ const RAW_SONGS: Omit<Song, "lyricsTranslit" | "translitStatus">[] = [
 ];
 
 /**
- * Chansons publiées et retirées, rangées sur globalThis comme les playlists (voir plus bas) : la
- * modération (tâche 14) en publie, en corrige et en retire, et toutes les copies du module doivent
- * voir ces changements. Un redémarrage du serveur revient au jeu de départ.
+ * Chansons publiées et retirées, rangées sur globalThis : la modération (tâche 14) en publie, en
+ * corrige et en retire, et toutes les copies du module doivent voir ces changements. Un redémarrage du serveur revient au jeu de départ.
  */
 const songMemory = globalThis as typeof globalThis & {
   __ghnayaSongs?: Song[];
@@ -228,117 +227,5 @@ export const REMOVED_SONGS: Pick<Song, "id" | "titleAr" | "titleLatin" | "artist
   { id: "s-lamouni", titleAr: "لاموني اللي غاروا مني", titleLatin: "Lamouni Elli Gharou Menni", artists: [JOUINI] },
 ]);
 
-/** Propriétaire des playlists personnelles de la maquette : Leïla, le membre de démonstration (mocks/session). */
-const LEILA_ID = "u-leila";
-
-const LES_JASMINS = { slug: "les-jasmins", name: "Les Jasmins" };
-const MALOUF_SFAX = { slug: "malouf-sfax", name: "Malouf Sfax" };
-const CHORALE_DU_BARDO = { slug: "chorale-du-bardo", name: "Chorale du Bardo" };
-
-/** Clubs fictifs qui ont des playlists dans la maquette. */
-export const CLUBS = [LES_JASMINS, MALOUF_SFAX, CHORALE_DU_BARDO];
-
-const items = (songIds: string[]) => songIds.map((songId, i) => ({ position: i + 1, songId, note: null }));
-
-const SEED_PLAYLISTS: Playlist[] = [
-  {
-    id: "seance-du-jeudi",
-    name: "Séance du jeudi",
-    club: LES_JASMINS,
-    ownerId: null,
-    items: [
-      { position: 1, songId: "s-sidi-mansour", note: "On commence tous ensemble, tonalité Ré." },
-      { position: 2, songId: "s-ala-nar", note: null },
-      { position: 3, songId: "s-ana-wel-azab", note: null },
-      { position: 4, songId: "s-enta-omri", note: "Seulement le 1er couplet." },
-      { position: 5, songId: "s-habaytak", note: null },
-      { position: 6, songId: "s-ya-lella", note: "Les voix de femmes commencent, les hommes reprennent au refrain." },
-      { position: 7, songId: "s-iradat-al-hayat", note: null },
-      { position: 8, songId: "s-taht-el-yasmina", note: null },
-      { position: 9, songId: "s-nassam-alayna", note: null },
-      { position: 10, songId: "s-el-atlal", note: "Lentement." },
-      { position: 11, songId: "s-alf-leila", note: null },
-      { position: 12, songId: "s-ya-lili", note: "Pour finir en rythme." },
-    ],
-    updatedAt: "2026-11-18T19:30:00Z",
-  },
-  {
-    id: "repetition-malouf",
-    name: "Répétition malouf",
-    club: MALOUF_SFAX,
-    ownerId: null,
-    items: items(["s-ya-lella", "s-taht-el-yasmina", "s-ana-wel-azab", "s-sidi-mansour", "s-ala-nar"]),
-    updatedAt: "2026-11-16T18:00:00Z",
-  },
-  {
-    id: "soiree-de-printemps",
-    name: "Soirée de printemps",
-    club: LES_JASMINS,
-    ownerId: null,
-    // La 3e chanson a été retirée : la playlist l'affiche « chanson retirée », le lecteur la saute.
-    items: items(["s-habaytak", "s-nassam-alayna", "s-lamouni", "s-ya-lella", "s-sidi-mansour", "s-alf-leila", "s-ya-lili"]),
-    updatedAt: "2026-11-12T20:00:00Z",
-  },
-  {
-    // Playlist vide : « L'animateur n'a pas encore ajouté de chansons ».
-    id: "seance-de-decembre",
-    name: "Séance de décembre",
-    club: LES_JASMINS,
-    ownerId: null,
-    items: [],
-    updatedAt: "2026-11-08T10:00:00Z",
-  },
-  {
-    id: "fete-de-fin-d-annee",
-    name: "Fête de fin d'année",
-    club: CHORALE_DU_BARDO,
-    ownerId: null,
-    items: items(["s-sidi-mansour", "s-ya-lili", "s-ala-nar", "s-ya-lella", "s-habaytak", "s-enta-omri", "s-alf-leila", "s-iradat-al-hayat"]),
-    updatedAt: "2026-11-10T17:45:00Z",
-  },
-  {
-    id: "classiques-egyptiens",
-    name: "Classiques égyptiens",
-    club: MALOUF_SFAX,
-    ownerId: null,
-    items: items(["s-enta-omri", "s-el-atlal", "s-alf-leila", "s-nassam-alayna"]),
-    updatedAt: "2026-11-02T16:00:00Z",
-  },
-  {
-    id: "chants-du-bardo",
-    name: "Chants du Bardo",
-    club: CHORALE_DU_BARDO,
-    ownerId: null,
-    items: items(["s-iradat-al-hayat", "s-taht-el-yasmina", "s-ya-lella", "s-sidi-mansour", "s-ana-wel-azab", "s-habaytak", "s-ya-lili"]),
-    updatedAt: "2026-10-28T19:00:00Z",
-  },
-  {
-    id: "mes-preferees",
-    name: "Mes préférées",
-    club: null,
-    ownerId: LEILA_ID,
-    items: items(["s-habaytak", "s-enta-omri", "s-taht-el-yasmina", "s-sidi-mansour"]),
-    updatedAt: "2026-11-17T21:10:00Z",
-  },
-  {
-    id: "a-apprendre",
-    name: "À apprendre",
-    club: null,
-    ownerId: LEILA_ID,
-    items: items(["s-el-atlal", "s-nassam-alayna", "s-alf-leila"]),
-    updatedAt: "2026-11-05T09:00:00Z",
-  },
-];
-
-/**
- * MAQUETTE : les playlists vivent en mémoire, et la feuille « Ajouter à une playlist » y ajoute des
- * chansons et en crée (src/mocks/playlistMemory.ts). Le tableau est rangé sur globalThis : Next peut
- * charger ce module plusieurs fois (pages, actions serveur, rechargement à chaud), et toutes ces
- * copies doivent lire les mêmes playlists. Un redémarrage du serveur revient au jeu de départ.
- */
-const memory = globalThis as typeof globalThis & { __ghnayaPlaylists?: Playlist[] };
-export const PLAYLISTS: Playlist[] = (memory.__ghnayaPlaylists ??= SEED_PLAYLISTS);
-
 export const getSong = (id: string): Song | undefined => SONGS.find((s) => s.id === id);
-export const getPlaylist = (id: string): Playlist | undefined => PLAYLISTS.find((p) => p.id === id);
 export const getRemovedSong = (id: string) => REMOVED_SONGS.find((s) => s.id === id);

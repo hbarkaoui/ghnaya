@@ -1,7 +1,7 @@
 import { ListMusic, MessageSquareText, PencilLine, Play, Plus } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 import { ClubCover } from "@/components/club/ClubCover";
@@ -15,15 +15,21 @@ import { songDisplayTitle } from "@/components/song/songTitle";
 import { Bidi } from "@/components/ui/Bidi";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { canCopyPlaylist, canEditPlaylist, canViewPlaylist } from "@/lib/auth/permissions";
+import { signInHref } from "@/lib/auth/returnPath";
+import { songLabelsOf } from "@/lib/catalog/queries";
+import { readerPositionsOf } from "@/lib/catalog/read";
+import { getPlaylist } from "@/lib/playlist/queries";
 import { getCurrentUser } from "@/lib/session";
-import { getSong, readerPositionsOf } from "@/lib/catalog/read";
-import { getPlaylist, getRemovedSong } from "@/mocks/catalog";
 import { waitDemoLatency } from "@/mocks/demoPreviewsServer";
 
-/** Une playlist n'est visible que par les membres de son club, ou par son propriétaire (spec §10). */
+/**
+ * Une playlist n'est visible que par les membres de son club, ou par son propriétaire (spec §10).
+ * Un visiteur passe d'abord par la connexion, qui le ramène ici.
+ */
 async function findVisiblePlaylist(id: string) {
-  const [playlist, user] = [getPlaylist(id), await getCurrentUser()];
-  // Tâche 16 : un visiteur passera par /connexion?retour=… (AuthGate) au lieu de la page introuvable.
+  const user = await getCurrentUser();
+  if (!user) redirect(signInHref(`/playlists/${encodeURIComponent(id)}`));
+  const playlist = await getPlaylist(id);
   return playlist && canViewPlaylist(user, playlist) ? { playlist, user } : null;
 }
 
@@ -60,10 +66,10 @@ export default async function PlaylistPage({ params, searchParams }: PageProps<"
 
   const positions = await readerPositionsOf(playlist);
   const items = [...playlist.items].sort((a, b) => a.position - b.position);
-  const songs = await Promise.all(items.map((item) => getSong(item.songId)));
-  const rows = items.map((item, i) => ({
+  const songLabels = await songLabelsOf(items.map((i) => i.songId));
+  const rows = items.map((item) => ({
     ...item,
-    song: songs[i] ?? getRemovedSong(item.songId) ?? null,
+    song: songLabels.get(item.songId)?.song ?? null,
     number: positions.get(item.songId) ?? null,
   }));
 
