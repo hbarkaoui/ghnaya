@@ -5,6 +5,7 @@ import { toCurrentUser, type CurrentUser } from "@/lib/auth/types";
 import { db } from "@/lib/db/client";
 import { songs, users } from "@/lib/db/schema";
 import * as fixedWindow from "@/lib/ratelimit/fixedWindow";
+import * as store from "@/lib/translit/store";
 import { fakeTranslit } from "@/lib/translit/fake";
 import type { TranslitGenerator } from "@/lib/translit/generator";
 import { TRANSLIT_LIMIT_KEY, requestSongTranslit, type TranslitServiceOptions } from "@/lib/translit/service";
@@ -97,10 +98,20 @@ describe("requestSongTranslit", () => {
     const user = await member();
     const first = requestSongTranslit(id, user, options(generator));
     await vi.waitFor(async () => expect((await song(id)).translitStatus).toBe("generating"));
-    const second = requestSongTranslit(id, user, options(generator));
-    gate.resolve();
-    const expected = { ok: true, text: EXPECTED, status: "auto" };
-    await expect(Promise.all([first, second])).resolves.toEqual([expected, expected]);
+    // Espion sur la relecture : la seconde demande lit la ligne une fois en entrée, une fois après l'échec de
+    // la prise, puis à chaque sondage. On ne libère la génération qu'après au moins un sondage (3e relu).
+    const read = vi.spyOn(store, "readTranslit");
+    try {
+      const before = read.mock.calls.length;
+      const second = requestSongTranslit(id, user, options(generator));
+      await vi.waitFor(() => expect(read.mock.calls.length).toBeGreaterThanOrEqual(before + 3));
+      expect((await song(id)).translitStatus).toBe("generating"); // l'attente a eu lieu pendant « generating »
+      gate.resolve();
+      const expected = { ok: true, text: EXPECTED, status: "auto" };
+      await expect(Promise.all([first, second])).resolves.toEqual([expected, expected]);
+    } finally {
+      read.mockRestore();
+    }
     expect(generator).toHaveBeenCalledTimes(1);
     expect(await limitCount()).toBe(1);
   });
