@@ -1,6 +1,6 @@
 // Plan 1, tâche 6 : écriture des artistes, fusionnés sur leur clé d'identité.
 import { eq, sql } from "drizzle-orm";
-import type { Db } from "@/lib/db/client";
+import type { Executor } from "@/lib/db/client";
 import { artists } from "@/lib/db/schema";
 import { normalizeLatin } from "@/lib/text/normalizeLatin";
 import { artistSearchColumns, type ArtistNames } from "./searchColumns";
@@ -23,7 +23,7 @@ export function artistIdentityKey(a: { nameAr?: string | null; nameLatin?: strin
   return normalizeLatin(name);
 }
 
-export async function upsertArtist(db: Db, input: ArtistInput): Promise<UpsertedArtist> {
+export async function upsertArtist(db: Executor, input: ArtistInput): Promise<UpsertedArtist> {
   const identityKey = artistIdentityKey(input);
   const [row] = await db
     .insert(artists)

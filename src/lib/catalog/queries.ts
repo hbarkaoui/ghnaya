@@ -10,7 +10,7 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 export const isUuid = (value: string): boolean => UUID_RE.test(value);
 
 /** Artistes d'une chanson `s`, dans l'ordre du générique, en JSON (`ArtistRef[]`). */
-const ARTISTS_OF = (songAlias: string) =>
+export const ARTISTS_OF = (songAlias: string) =>
   sql.raw(`COALESCE((
     SELECT json_agg(json_build_object(
       'id', a.id, 'nameAr', a.name_ar, 'nameLatin', a.name_latin, 'role', sa.role
