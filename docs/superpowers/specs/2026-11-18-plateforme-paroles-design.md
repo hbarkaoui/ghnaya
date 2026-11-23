@@ -74,7 +74,7 @@ Les clubs de chant ont besoin de lire les paroles de chansons arabes et tunisien
 | `lib/db` | Schéma Drizzle, migrations, client | PostgreSQL |
 | `lib/auth` | Configuration de Better Auth, plus `permissions.ts`, **le seul endroit** où l'on décide qui peut faire quoi | `lib/db` |
 | `lib/moderation` | Création, approbation et rejet des révisions, application d'une révision à `songs`, traitement des signalements | `lib/db`, `lib/text` |
-| `lib/translit` | Génération de la translittération par un modèle de langage, verrouillage, validation de l'alignement des lignes, plafond quotidien | `lib/db` |
+| `lib/translit` | Génération de la translittération par un modèle de langage, verrouillage, validation de l'alignement des lignes, plafond quotidien | `lib/db` *(23/11/2026, plan 4 : et le SDK `@anthropic-ai/sdk`)* |
 | `app/` | Pages et Server Actions | tous |
 | `scripts/import` | Imports LRCLIB et domaine public, lancés en ligne de commande | `lib/text`, `lib/db` |
 
@@ -126,6 +126,7 @@ songs(
   lyrics text not null,                         -- arabe, texte brut, lignes vides entre les couplets
   lyrics_translit text null,                    -- aligné ligne à ligne sur lyrics
   translit_status: none|generating|auto|reviewed,
+  translit_started_at timestamptz null,         -- horodatage du verrou de génération (23/11/2026, plan 4)
   dialect: tn|eg|lev|gulf|maghreb_other|msa|other,
   source: lrclib|public_domain|contribution,
   source_ref text null,                         -- identifiant LRCLIB, ou clé du fichier domaine public
@@ -223,15 +224,16 @@ playlist_items(id, playlist_id, song_id, position, note text null, unique(playli
 
 ## 7. Translittération
 
-- **Déclenchement** : la translittération est générée à la demande, quand un membre connecté active l'affichage latin sur une chanson dont `translit_status` vaut `none`. Un visiteur sans compte voit une translittération déjà existante, mais ne peut pas en déclencher la génération.
+- **Déclenchement** : la translittération est générée à la demande, quand un membre connecté active l'affichage latin sur une chanson dont `translit_status` vaut `none`. Un visiteur sans compte voit une translittération déjà existante, mais ne peut pas en déclencher la génération. *(23/11/2026, plan 4 : il reçoit une invitation à se connecter, avec un lien de retour vers la chanson.)*
 - **Déroulement** :
   1. Le statut passe à `generating`, sous un verrou en base, pour qu'il n'y ait qu'une seule génération par chanson.
-  2. Un modèle de langage génère la translittération. Le modèle sera choisi à l'implémentation, d'après la documentation à jour du fournisseur.
+  2. Un modèle de langage génère la translittération. Le modèle sera choisi à l'implémentation, d'après la documentation à jour du fournisseur *(23/11/2026, plan 4 : Claude Opus 5.5, `claude-opus-5-5`, modifiable par `TRANSLIT_MODEL` ; effort bas ; modèles de secours en cas de refus)*.
   3. Le texte est enregistré avec le statut `auto`.
   4. En cas d'échec ou de dépassement du délai, fixé à 30 s, le statut revient à `none`.
+  *(23/11/2026, plan 4 : le délai de 30 s couvre le second essai ; le verrou est repris au bout de 2 minutes ; une demande concurrente attend le résultat 35 s au plus ; un résultat est jeté si la chanson a changé pendant la génération.)*
 - **Prompt** : il précise le dialecte de la chanson et suit des conventions d'arabizi tunisien lisibles (3, 7, 9, ch, kh, gh). **Il impose une ligne latine par ligne arabe.**
-- **Validation de l'alignement** : le nombre de lignes produites doit être égal à celui des paroles. Sinon, on réessaie une fois, puis on abandonne et le statut revient à `none`.
-- **Coût maîtrisé** : un plafond global de générations par jour, configurable, est fixé à 300 par défaut. Au-delà, l'interface affiche « translittération indisponible aujourd'hui ».
+- **Validation de l'alignement** : le nombre de lignes produites doit être égal à celui des paroles. Sinon, on réessaie une fois, puis on abandonne et le statut revient à `none`. *(23/11/2026, plan 4 : l'alignement contrôle aussi la place des lignes vides.)*
+- **Coût maîtrisé** : un plafond global de générations par jour, configurable, est fixé à 300 par défaut. Au-delà, l'interface affiche « translittération indisponible aujourd'hui ». *(23/11/2026, plan 4 : le plafond ne compte que les générations lancées ; il n'y a pas de limite par membre.)*
 - **Affichage** :
   - une translittération en `auto` porte la mention « automatique, peut contenir des erreurs » ;
   - les corrections passent par une révision, avec la même validation que le reste ;
@@ -334,7 +336,7 @@ Les chansons importées sont publiées directement, sans passer par la file de m
   - recherche : 60 requêtes par minute et par IP ;
   - révisions : 10 par jour et par utilisateur ;
   - signalements : 10 par jour et par IP ;
-  - translittération : plafond global quotidien.
+  - translittération : plafond global quotidien *(23/11/2026, plan 4 : `TRANSLIT_DAILY_LIMIT`, 300 par défaut)*.
 - **Erreurs** : une page d'erreur générique est prévue, et les exceptions serveur sont journalisées avec un identifiant de corrélation.
 - **Suppression de compte** : un utilisateur peut supprimer son compte. Ses playlists personnelles et ses adhésions aux clubs sont alors supprimées. Ses révisions sont conservées, mais elles sont anonymisées : `author_id` pointe vers un utilisateur système « compte supprimé » *(modifié le 23/11/2026, plan 3, écart 1 : `author_id` est mis à nul, sans utilisateur système ; l'interface affiche « un compte supprimé »)*. S'il était le dernier animateur d'un club, il doit d'abord désigner un autre animateur ou supprimer le club.
 - **Hébergement retenu** : l'application est hébergée sur **Vercel**, et PostgreSQL est managé chez **Neon**, qui prend en charge `pg_trgm`, les sauvegardes et la restauration à un instant donné. C'est l'option qui demande le moins de maintenance. L'application reste portable, avec un Dockerfile fourni pour un futur passage sur un serveur dédié.

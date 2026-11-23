@@ -60,6 +60,15 @@ pnpm user:role rania@example.com --role moderator --no-animator
   `--dry-run` compte sans rien changer ; `--restore` rétablit les chansons retirées en masse avec le même motif, pas celles retirées depuis un signalement. Un retrait protège la chanson des imports (`import_locked`), et un rétablissement laisse cette protection.
 - **Comptes supprimés** : leurs propositions et leurs signalements restent, sans auteur (« un compte supprimé »).
 
+## Translittération
+
+- **Fonctionnement :** un membre connecté qui active l'affichage latin sur une chanson sans translittération en déclenche la génération. Un verrou en base (`translit_started_at`) garantit une seule génération par chanson ; une demande concurrente attend le résultat. Un plafond global par jour (UTC) limite le coût. Le texte est enregistré avec le statut `auto`, puis passe en `reviewed` après une révision approuvée. Un visiteur voit une translittération existante, mais reçoit une invitation à se connecter pour en obtenir une.
+- **Variables :** `ANTHROPIC_API_KEY`, `TRANSLIT_PROVIDER` (`anthropic`, `fake` ou `none`), `TRANSLIT_MODEL` (par défaut `claude-opus-5-5`) et `TRANSLIT_DAILY_LIMIT` (par défaut 300), décrites dans `.env.example`. En production, `ANTHROPIC_API_KEY` est un secret à déclarer chez l'hébergeur.
+- **Développement et tests :** sans clé et hors production, un générateur factice (table de lettres arabe vers latin, déterministe) remplace le modèle. `playwright.config.ts` fixe `TRANSLIT_PROVIDER=fake`. En production sans clé, la génération échoue proprement et le lecteur affiche l'arabe seul.
+- **Essai manuel :** `pnpm translit:try <id>` génère la translittération d'une chanson de la base, en lecture seule (rien n'est écrit). Chaque lancement est facturé.
+- **Coût :** environ 3 $ par jour au plafond de 300 générations, avec Opus 5.5.
+- **Durée des fonctions :** une génération peut durer jusqu'à 30 s, et l'attente d'une génération en cours jusqu'à 35 s. Sur Vercel, la durée maximale des fonctions doit être d'au moins 60 s, ce qui est le cas par défaut avec Fluid Compute.
+
 ## Import LRCLIB
 
 1. Télécharger le dernier export depuis https://lrclib.net/db-dumps, puis le décompresser s'il est compressé (`gunzip lrclib-db-dump-*.sqlite3.gz`). Le fichier fait plusieurs dizaines de Go : le traitement se fait en local, jamais sur le serveur.
@@ -110,7 +119,7 @@ Les migrations et les imports ne sont pas dans l'image : ils se lancent depuis u
 3. Migrer : `DATABASE_URL=<url directe> pnpm db:migrate`.
 4. Importer en local vers Neon : `DATABASE_URL=<url directe> pnpm import:public-domain`, puis l'import
    LRCLIB (section « Import LRCLIB »).
-5. Vercel : importer le dépôt, définir `DATABASE_URL=<url poolée>`, puis déployer. Ne pas définir `TRUSTED_PROXY_HOPS` : le proxy de Vercel réécrit `x-forwarded-for`, sa première adresse est celle du client.
+5. Vercel : importer le dépôt, définir `DATABASE_URL=<url poolée>` et `ANTHROPIC_API_KEY` (translittération, voir « Translittération »), puis déployer. Ne pas définir `TRUSTED_PROXY_HOPS` : le proxy de Vercel réécrit `x-forwarded-for`, sa première adresse est celle du client.
 6. Lancer `DATABASE_URL=<url directe> pnpm bench:search` sur la base de production (script de la tâche 15 du plan 1).
 
 ### Comptes (plan 2)

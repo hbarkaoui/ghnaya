@@ -41,17 +41,50 @@ export DATABASE_URL_TEST=postgres://ghanni:ghanni@localhost:5433/ghanni_test_pla
 
 ## État des tâches
 
-À remplir pendant l'exécution : date, commit, ce qui a été vérifié et les écarts constatés.
+Toutes les tâches ont été exécutées le 23/11/2026, sur la branche `claude/dazzling-rhodes-456645`, une revue après chacune ; toutes les revues ont approuvé, sans point critique ni important. À la fin de la tâche 7 : 662 tests unitaires et 225 tests d'intégration passent, avec `pnpm typecheck` et `pnpm lint`. Les tests de bout en bout (16 parcours : 14 plus 2) n'ont pas été relancés à la tâche 7, qui ne change que de la documentation : ils ont tourné à la tâche 6, sur le code définitif.
 
 | Tâche | État | Ce qui a été vérifié, et les écarts constatés |
 |---|---|---|
-| 1. Colonne `translit_started_at` | À faire | |
-| 2. Alignement et prompt | À faire | |
-| 3. Générateurs, configuration, génération sous délai | À faire | |
-| 4. Verrou, attente, plafond : le service | À faire | |
-| 5. Action serveur, droits et cas du visiteur | À faire | |
-| 6. Essai manuel et tests de bout en bout | À faire | |
-| 7. Documentation, spec, état du plan | À faire | |
+| 1. Colonne `translit_started_at` | Faite le 23/11/2026 (`c6fcbb6`) | Migration 0005 et test d'intégration du schéma. `pnpm db:migrate` appliqué sur la base de développement. |
+| 2. Alignement et prompt | Faite le 23/11/2026 (`0fd5961`) | 8 tests unitaires. |
+| 3. Générateurs, configuration, génération sous délai | Faite le 23/11/2026 (`f699984`) | SDK `@anthropic-ai/sdk` 1.12.0. La requête (modèles de secours `"default"`, effort bas) passe la vérification des types sans contournement. Écart : le faux client du test Anthropic est typé explicitement, le `vi.fn` non typé du plan faisant échouer `tsc`. |
+| 4. Verrou, attente, plafond : le service | Faite le 23/11/2026 (`af73649`) | 11 tests d'intégration. La revue a confirmé le verrou sous READ COMMITTED et l'aller-retour exact de l'horodatage-jeton. |
+| 5. Action serveur, droits et cas du visiteur | Faite le 23/11/2026 (`d27ef35`) | Vérifiée dans le navigateur (développement, générateur factice) : visiteur sur « Ana Wel 3azab », invitation et lien `/connexion?retour=/chanson/<id>`, arabe conservé ; en arabe, l'invitation s'affiche (« سجّلوا الدخول للحصول على الحروف اللاتينية… »). Le parcours du membre n'a pas été vu dans le navigateur de développement : il est couvert par le parcours de bout en bout de la tâche 6. |
+| 6. Essai manuel et tests de bout en bout | Faite le 23/11/2026 (`44882ed`) | 16 parcours verts (14 plus 2). Sans générateur (`TRANSLIT_PROVIDER=none`), le parcours du membre échoue, comme attendu. Écarts : clic sur le libellé « Arabe + latin » (le bouton radio est masqué) au lieu de `getByLabel().check()` ; lien `retour` non encodé (`/connexion?retour=/chanson/…`), ce que produit `signInHref`. **Essai manuel `pnpm translit:try` non lancé : pas de clé.** L'usage avec un identifiant invalide a été vérifié (message, code de sortie 1). |
+| 7. Documentation, spec, état du plan | Faite le 23/11/2026 | `.env.example`, README (« Translittération », déploiement), spec §4.2, §5, §7 et §12 datées et renvoyant à ce plan, et cette section. Lancés : `pnpm test`, `pnpm test:integration`, `pnpm typecheck`, `pnpm lint`. `pnpm test:e2e` non relancé (documentation seule, voir plus haut). |
+
+### Non couvert par les vérifications
+
+- L'appel réel au modèle : aucune clé, donc `pnpm translit:try` n'a pas été lancé. La durée, la qualité des conventions (3, 7, 9, ch, kh, gh) et l'alignement sur de vraies paroles restent à voir.
+- Le parcours du membre dans le navigateur de développement : couvert par le bout en bout seulement.
+- Le parcours du lecteur de séance dans un navigateur.
+- Le comportement sur Vercel (durée maximale des fonctions, 60 s au moins nécessaires).
+
+### Remarques mineures des revues, laissées à la revue finale
+
+- **Tâche 1 :** le titre du test « vide par défaut » veut dire « sans valeur par défaut de colonne » ; la requête sur `information_schema` ne filtre pas `table_schema`.
+- **Tâche 2 :**
+  - l'exemple « el-gamar » du prompt écrit ق en g, contre « ق = 9 » ; à trancher (les Tunisiens disent souvent g) ;
+  - « ء = 2 » et « ق glottal → 2 » partagent un symbole ;
+  - le prompt insère les paroles brutes (CRLF accepté, un `</paroles>` littéral pourrait fermer la balise) ; envisager `translitLines(lyrics).join("\n")` ;
+  - le test `toContain("3 lignes")` reconnaîtrait aussi « 13 lignes ».
+- **Tâche 3 :**
+  - une vraie erreur simultanée à un dépassement de délai est rapportée comme dépassement ;
+  - les `stop_reason` `pause_turn` et `stop_sequence` sont rejetés ;
+  - le passage de `TRANSLIT_MODEL` n'est pas testé ;
+  - le fichier de verrouillage tire aussi `@babel/runtime` et `@opentelemetry/api` (dépendances de pair).
+- **Tâche 4** (dont les deux premières sont candidates à un dernier correctif) :
+  - une erreur de base après la prise du verrou (`hitRateLimit`, fin, relecture) laisse le verrou jusqu'à 2 minutes ; ajouter un `try/finally` qui le libère ;
+  - le test de concurrence n'exerce peut-être pas le chemin d'attente (la barrière est levée avant que la seconde demande ne relise) ;
+  - pas de test de l'écart 8 quand la révision n'apporte aucune translittération (réponse `failed`) ;
+  - l'écriture d'une révision ou un import laisse `translit_started_at` périmé (sans effet) ;
+  - un résultat jeté (écart 8) n'est pas journalisé.
+- **Tâche 5 :**
+  - le titre du test « sans interroger la base » exagère ;
+  - pas de test au niveau de l'action pour un visiteur qui voit une translittération existante (couvert par le test du service) ;
+  - `signInHref(pathname)` perd la chaîne de requête ;
+  - l'encadré d'invitation duplique celui de la limite.
+- **Tâche 6 :** type `import("@playwright/test").Page` écrit en ligne dans un utilitaire.
 
 ## Contraintes globales
 
