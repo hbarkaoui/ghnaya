@@ -6,8 +6,9 @@ import { SONG_SOURCES, type SongSource } from "@/types/catalog";
 /**
  * Retrait en masse (spec §9), lancé par un admin en ligne de commande : toutes les chansons d'une source,
  * au besoin celles d'un artiste. C'est un retrait doux, comme celui d'un signalement : la chanson est
- * gardée, avec son motif, et protégée des imports (`import_locked`). `--restore` annule un retrait fait
- * avec le même motif, et laisse les chansons retirées pour un autre motif. Le verrou d'import reste posé
+ * gardée, avec son motif, et protégée des imports (`import_locked`). `--restore` annule un retrait en masse
+ * fait avec le même motif (`removed_by_bulk`), et laisse les chansons retirées pour un autre motif ou depuis un
+ * signalement, même si sa note reprend ce motif. Le verrou d'import reste posé
  * après un rétablissement : un modérateur a décidé de cette chanson.
  */
 
@@ -64,17 +65,18 @@ export async function runBulk(db: Db, args: BulkArgs): Promise<number> {
   const { source, reason, artistId, dryRun, restore } = args;
   const filter = byArtist(artistId);
   if (restore) {
-    const where = sql`source = ${source} AND status = 'removed' AND removed_reason = ${reason} ${filter}`;
+    const where = sql`source = ${source} AND status = 'removed' AND removed_by_bulk AND removed_reason = ${reason} ${filter}`;
     if (dryRun) return count(db, where);
     const res = await db.execute(sql`
-      UPDATE songs SET status = 'published', removed_reason = NULL, updated_at = now()
+      UPDATE songs SET status = 'published', removed_reason = NULL, removed_by_bulk = false, updated_at = now()
       WHERE ${where} RETURNING id`);
     return res.rows.length;
   }
   const where = sql`source = ${source} AND status = 'published' ${filter}`;
   if (dryRun) return count(db, where);
   const res = await db.execute(sql`
-    UPDATE songs SET status = 'removed', removed_reason = ${reason}, import_locked = true, updated_at = now()
+    UPDATE songs SET status = 'removed', removed_reason = ${reason}, removed_by_bulk = true, import_locked = true,
+      updated_at = now()
     WHERE ${where} RETURNING id`);
   return res.rows.length;
 }

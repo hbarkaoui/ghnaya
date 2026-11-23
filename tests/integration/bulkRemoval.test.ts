@@ -5,8 +5,10 @@ import { getSongById } from "@/lib/catalog/queries";
 import { db } from "@/lib/db/client";
 import { songs } from "@/lib/db/schema";
 import { runBulk, type BulkArgs } from "@/lib/moderation/bulk";
+import { resolveReport, restoreSong } from "@/lib/moderation/reportWrite";
 import { searchSongs } from "@/lib/search/searchSongs";
 import { seedFixtures } from "../fixtures/seed";
+import { insertReport, insertUser } from "./factories";
 import { resetDb } from "./helpers";
 
 const REASON = "Retrait demandé par les ayants droit.";
@@ -70,5 +72,32 @@ describe("retrait en masse", () => {
     expect((await getSongById(ids.get("s-sidi-mansour")!))?.titleLatin).toBe("Sidi Mansour");
     expect(await getSongById(other)).toBeNull();
     expect(await runBulk(db, args({ restore: true, reason: "Autre motif." }))).toBe(0);
+  });
+
+  it("--restore laisse une chanson retirée depuis un signalement, même avec le même motif", async () => {
+    const reported = ids.get("s-habaytak")!;
+    const moderator = await insertUser({ name: "Rania", globalRole: "moderator" });
+    const reportId = await insertReport({ songId: reported, reason: "copyright" });
+    expect(await resolveReport(db, { reportId, resolverId: moderator.id, action: "remove", note: REASON })).toEqual({
+      ok: true,
+    });
+    expect(await runBulk(db, args())).toBe(lrclib - 1);
+
+    expect(await runBulk(db, args({ restore: true, dryRun: true }))).toBe(lrclib - 1);
+    expect(await runBulk(db, args({ restore: true }))).toBe(lrclib - 1);
+    expect(await getSongById(reported)).toBeNull();
+    expect(await count("status = 'removed'")).toBe(1);
+  });
+
+  it("--restore ignore une chanson déjà rétablie à la main puis retirée sur signalement", async () => {
+    const song = ids.get("s-habaytak")!;
+    await runBulk(db, args());
+    expect(await restoreSong(db, song)).toBe("restored");
+    const moderator = await insertUser({ name: "Rania", globalRole: "moderator" });
+    const reportId = await insertReport({ songId: song, reason: "copyright" });
+    await resolveReport(db, { reportId, resolverId: moderator.id, action: "remove", note: REASON });
+
+    expect(await runBulk(db, args({ restore: true }))).toBe(lrclib - 1);
+    expect(await getSongById(song)).toBeNull();
   });
 });

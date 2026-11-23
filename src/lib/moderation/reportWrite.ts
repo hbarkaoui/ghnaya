@@ -55,7 +55,8 @@ export function resolveReport(
       if (song.rows[0]?.status !== "published") return { ok: false, error: "songGone" };
       if (input.action === "remove") {
         await tx.execute(sql`
-          UPDATE songs SET status = 'removed', removed_reason = ${input.note}, import_locked = true, updated_at = now()
+          UPDATE songs SET status = 'removed', removed_reason = ${input.note}, removed_by_bulk = false, import_locked = true,
+            updated_at = now()
           WHERE id = ${report.song_id}`);
       }
     }
@@ -71,7 +72,7 @@ export function resolveReport(
 /** Annule un retrait doux (spec §9, « Réversibilité ») : la chanson est de nouveau publiée, son motif effacé. */
 export async function restoreSong(db: Db, songId: string): Promise<"restored" | "notRemoved"> {
   const res = await db.execute(sql`
-    UPDATE songs SET status = 'published', removed_reason = NULL, updated_at = now()
+    UPDATE songs SET status = 'published', removed_reason = NULL, removed_by_bulk = false, updated_at = now()
     WHERE id = ${songId} AND status = 'removed'
     RETURNING id`);
   return res.rows.length > 0 ? "restored" : "notRemoved";

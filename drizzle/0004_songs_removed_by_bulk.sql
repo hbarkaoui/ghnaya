@@ -1,0 +1,1 @@
+ALTER TABLE "songs" ADD COLUMN "removed_by_bulk" boolean DEFAULT false NOT NULL;

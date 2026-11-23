@@ -65,6 +65,8 @@ export const songs = pgTable(
     importLocked: boolean("import_locked").notNull().default(false),
     status: songStatusEnum("status").notNull().default("published"),
     removedReason: text("removed_reason"),
+    /** Le retrait vient de `pnpm songs:remove` : seul `--restore` le reconnaît, pas un retrait sur signalement. */
+    removedByBulk: boolean("removed_by_bulk").notNull().default(false),
     searchAr: text("search_ar").notNull().default(""),
     searchLatin: text("search_latin").notNull().default(""),
     searchKey: text("search_key").notNull().default(""),
