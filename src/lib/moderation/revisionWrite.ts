@@ -1,6 +1,6 @@
 import "server-only";
 import { eq, sql } from "drizzle-orm";
-import { upsertArtist } from "@/lib/catalog/artists";
+import { artistIdentityKey, upsertArtist } from "@/lib/catalog/artists";
 import { ARTISTS_OF } from "@/lib/catalog/queries";
 import { songSearchColumns } from "@/lib/catalog/searchColumns";
 import { songDedupeKey } from "@/lib/catalog/songs";
@@ -120,14 +120,19 @@ export function approveRevision(
       };
     }
 
-    // Artistes nouveaux (`id` nul), par leur position dans la proposition.
+    // Artistes nouveaux (`id` nul), par leur position dans la proposition. Ils sont créés dans l'ordre de leur
+    // clé d'identité : deux approbations qui créent les mêmes artistes prennent leurs verrous dans le même
+    // ordre, et ne peuvent pas s'interbloquer.
+    const newArtists = revision.payload.artists
+      .flatMap((artist, index) => {
+        if (artist.id !== null) return [];
+        const input = { nameAr: artist.nameAr ?? undefined, nameLatin: artist.nameLatin ?? undefined };
+        return [{ index, input, key: artistIdentityKey(input) }];
+      })
+      .sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
     const createdArtists = new Map<number, string>();
-    for (const [index, artist] of revision.payload.artists.entries()) {
-      if (artist.id !== null) continue;
-      const created = await upsertArtist(tx, {
-        nameAr: artist.nameAr ?? undefined,
-        nameLatin: artist.nameLatin ?? undefined,
-      });
+    for (const { index, input } of newArtists) {
+      const created = await upsertArtist(tx, input);
       createdArtists.set(index, created.id);
     }
 
