@@ -46,7 +46,7 @@ Toutes les tâches ont été exécutées le 23/11/2026, sur la branche `feat/con
 
 ### Durcissements après la revue finale (23/11/2026)
 
-La revue finale de la branche a validé le plan, sans point bloquant, et recommandé trois durcissements. Chacun a d'abord un test qui échoue, puis un commit :
+La revue finale de la branche a validé le plan, sans point bloquant, et recommandé trois durcissements. Chacun a d'abord un test qui échoue, puis un commit. Après ces durcissements et la reprise de revue : 632 tests unitaires et 210 tests d'intégration passent (contre 629 et 207 à la fin de la tâche 10), avec `pnpm typecheck` et `pnpm lint` ; les parcours de bout en bout n'ont pas été relancés.
 
 - **Rétablissement en masse** (`ca8cfe8`) : `--restore` reconnaissait un retrait en masse par son seul motif, et aurait rétabli une chanson retirée depuis un signalement avec une note identique. Nouvelle colonne `songs.removed_by_bulk` (migration `0004_songs_removed_by_bulk`) : posée par `pnpm songs:remove`, remise à faux par un retrait sur signalement et par tout rétablissement ; `--restore` ne rétablit que les chansons qui la portent. Les retraits en masse faits avant la migration ne la portent pas : à rétablir chanson par chanson, ou par une requête, s'il y en a. Tests : `bulkRemoval.test.ts`.
 - **Interblocage des approbations** (`078f664`) : `approveRevision` crée les nouveaux artistes dans l'ordre de leur clé d'identité, et non plus dans l'ordre de la proposition ; deux approbations prennent donc leurs verrous sur `artists_identity_key_uq` dans le même ordre. Le test de `approve.test.ts` tient une autre transaction qui crée les mêmes artistes dans l'ordre des clés : sans le tri, PostgreSQL détecte l'interblocage (`40P01`).
