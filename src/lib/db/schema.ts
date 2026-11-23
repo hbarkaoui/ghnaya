@@ -58,6 +58,11 @@ export const songs = pgTable(
     lyrics: text("lyrics").notNull(),
     lyricsTranslit: text("lyrics_translit"),
     translitStatus: translitStatusEnum("translit_status").notNull().default("none"),
+    /**
+     * Prise du verrou de génération (plan 4) : posée quand `translit_status` passe à `generating`, remise à
+     * nul à la fin. Un verrou de plus de 2 minutes est abandonné et peut être repris.
+     */
+    translitStartedAt: timestamp("translit_started_at", { withTimezone: true }),
     dialect: dialectEnum("dialect").notNull().default("other"),
     source: songSourceEnum("source").notNull(),
     sourceRef: text("source_ref"),

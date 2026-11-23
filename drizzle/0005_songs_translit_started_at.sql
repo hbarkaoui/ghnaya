@@ -1,0 +1,1 @@
+ALTER TABLE "songs" ADD COLUMN "translit_started_at" timestamp with time zone;
