@@ -60,6 +60,24 @@ Toutes les tâches ont été exécutées le 23/11/2026, sur la branche `claude/d
 - Le parcours du lecteur de séance dans un navigateur.
 - Le comportement sur Vercel (durée maximale des fonctions, 60 s au moins nécessaires).
 
+### Durcissements après la revue finale (23/11/2026)
+
+La revue finale de la branche l'a validée « avec corrections », sans point critique. Chaque correction de comportement a d'abord un test qui échoue. Après ces corrections : 665 tests unitaires et 227 tests d'intégration passent (contre 662 et 225 à la fin de la tâche 7), avec `pnpm typecheck` et `pnpm lint`. Les parcours de bout en bout n'ont pas été relancés : aucun écran n'a changé.
+
+1. **Verrou relâché sur erreur de la base** (`0d93df5`) : après la prise, tout est sous `try … finally` qui appelle `releaseTranslit` (sans effet si le verrou est déjà levé, erreur du relâchement avalée) ; une erreur de `hitRateLimit`, `finishTranslit` ou `readTranslit` ne laisse plus la chanson en `generating` pendant 2 minutes. Test : `hitRateLimit` lève, la demande rejette et la chanson revient à `none`.
+2. **Attente côté serveur vraiment testée** (`af4090b`) : le test des deux demandes simultanées n'ouvre la génération qu'après au moins trois lectures de la seconde (un espion sur `readTranslit`), donc après un sondage pendant `generating`.
+3. **Écart 8, révision sans translittération** (`0d93df5`, avec le point 1) : test d'une chanson remise à `none` sans translittération pendant la génération, réponse « failed ».
+4. **Prompt** (`fe2a171`) : les paroles insérées sont celles de `translitLines` (le nombre de lignes annoncé est donc le bon), `<` et `>` y sont remplacés par `‹` et `›` pour qu'une balise `</paroles>` ne sorte pas du bloc ; règle du ق écrite sans contradiction avec l'exemple (« ق = 9, ou g quand le dialecte le prononce g (el-gamar, galb) ») ; commentaire d'en-tête corrigé ; assertion du nombre de lignes durcie.
+5. **`pnpm translit:try`** (`6f70753`) : apparie `translitLines(song.lyrics)` avec le texte renvoyé. Vérifié : `pnpm translit:try not-a-uuid` affiche l'usage, code 1.
+6. **README** (`0bd9055`) : coût estimé avec ses hypothèses (0,01 à 0,02 $ par génération, 4 à 7 $ par jour au plafond), avertissement sur `TRANSLIT_PROVIDER=fake` en production, essai avec une clé avant l'activation.
+
+Le point important restant est l'essai réel avec une clé (durée sur une chanson de 80 à 100 lignes, alignement), non faisable ici.
+
+Deux remarques laissées en l'état :
+
+- `TRANSLIT_PROVIDER=fake` n'est pas refusé en production : les parcours de bout en bout tournent sur un build de production avec le générateur factice. Un avertissement figure dans le README.
+- La configuration est lue avant le contrôle des droits dans l'action : sous une configuration invalide, un visiteur voit « Réessayer » au lieu de l'invitation à se connecter.
+
 ### Remarques mineures des revues, laissées à la revue finale
 
 - **Tâche 1 :** le titre du test « vide par défaut » veut dire « sans valeur par défaut de colonne » ; la requête sur `information_schema` ne filtre pas `table_schema`.
