@@ -47,3 +47,16 @@ export function canEditPlaylist(user: CurrentUser | null, playlist: PlaylistAcce
 export function canCopyPlaylist(user: CurrentUser | null, playlist: PlaylistAccess): boolean {
   return playlist.club !== null && canViewPlaylist(user, playlist) && !canEditPlaylist(user, playlist);
 }
+
+/** Proposer un ajout ou une correction : un membre à l'adresse vérifiée (spec §8.7). */
+export const canContribute = (user: CurrentUser | null): boolean => user?.emailVerified ?? false;
+
+/**
+ * Approuver une proposition : un modérateur, sauf la sienne ; un admin approuve aussi les siennes, pour
+ * amorcer la plateforme (spec §4.3). Une proposition d'un compte supprimé (`authorId` nul) n'est à personne.
+ * Rejeter reste permis à tout modérateur (`canModerate`).
+ */
+export function canApproveRevision(user: CurrentUser | null, revision: { authorId: string | null }): boolean {
+  if (!user?.isModerator) return false;
+  return revision.authorId !== user.id || user.globalRole === "admin";
+}

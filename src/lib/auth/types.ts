@@ -19,6 +19,8 @@ export interface CurrentUser {
   name: string;
   email: string;
   locale: "fr" | "ar";
+  /** Adresse vérifiée (lien magique, ou Google qui l'atteste) : exigée pour proposer (spec §8.7). */
+  emailVerified: boolean;
   globalRole: GlobalRole;
   /** Attribué par un admin : créer des clubs et en animer plusieurs (spec §4.3). */
   isAnimator: boolean;
@@ -36,6 +38,7 @@ interface SessionUserFields {
   globalRole?: unknown;
   isAnimator?: unknown;
   locale?: unknown;
+  emailVerified?: unknown;
 }
 
 const isGlobalRole = (value: unknown): value is GlobalRole => GLOBAL_ROLES.includes(value as GlobalRole);
@@ -47,6 +50,7 @@ export function toCurrentUser(user: SessionUserFields, clubs: ClubMembershipRef[
     name: user.name,
     email: user.email,
     locale: user.locale === "ar" ? "ar" : "fr",
+    emailVerified: user.emailVerified === true,
     globalRole,
     isAnimator: user.isAnimator === true,
     isModerator: globalRole !== "member",

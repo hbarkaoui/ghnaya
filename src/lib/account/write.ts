@@ -20,8 +20,8 @@ export type DeleteAccountResult = { ok: true } | { ok: false; reason: "last-anim
  * (clés étrangères en cascade). Refusé tant qu'il est le seul animateur d'un club. Verrous : l'utilisateur,
  * puis par identifiant ses clubs et ceux qu'il a créés, comme l'adhésion (`lib/clubs/write`) : supprimer
  * l'utilisateur vide `clubs.created_by` (SET NULL), ce qui verrouille aussi ces clubs, et un verrou pris
- * hors de l'ordre pourrait se croiser avec une adhésion en cours. Plan 3 : rattacher ses révisions
- * au compte « compte supprimé » dans la même transaction.
+ * hors de l'ordre pourrait se croiser avec une adhésion en cours. Ses propositions et ses signalements restent,
+ * sans auteur : `ON DELETE SET NULL` les anonymise dans la même transaction (plan 3, écart 1).
  */
 export function deleteUserAccount(db: Db, userId: string): Promise<DeleteAccountResult> {
   return db.transaction(async (tx) => {

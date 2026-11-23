@@ -1,5 +1,5 @@
 import { normalizeMultiline } from "@/lib/contribution/validate";
-import type { ReportStatus } from "@/mocks/reports";
+import type { ReportStatus } from "@/types/report";
 import type { ProposalStatus } from "@/types/proposal";
 
 /**
@@ -40,17 +40,18 @@ function checkNote(note: unknown, required: boolean): Checked<NoteError> {
 
 /**
  * Approuver ou rejeter une proposition en attente. Le rejet exige une note, que l'auteur verra dans
- * Mes contributions ; un modérateur ne peut pas approuver sa propre proposition.
+ * Mes contributions. `mayApprove` vient de `canApproveRevision` : un modérateur n'approuve pas sa propre
+ * proposition, sauf un admin.
  */
 export function checkReview(input: {
-  proposal: { authorId: string; status: ProposalStatus };
-  reviewerId: string;
+  proposal: { status: ProposalStatus };
+  mayApprove: boolean;
   decision: Decision;
   note: unknown;
 }): Checked<ReviewError> {
-  const { proposal, reviewerId, decision, note } = input;
+  const { proposal, mayApprove, decision, note } = input;
   if (proposal.status !== "pending") return { ok: false, error: "notPending" };
-  if (decision === "approve" && proposal.authorId === reviewerId) return { ok: false, error: "ownProposal" };
+  if (decision === "approve" && !mayApprove) return { ok: false, error: "ownProposal" };
   return checkNote(note, decision === "reject");
 }
 

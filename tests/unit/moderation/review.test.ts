@@ -21,30 +21,38 @@ describe("parseDecision", () => {
 
 describe("checkReview : approuver ou rejeter une proposition", () => {
   it("accepte l'approbation par un autre modérateur, sans note", () => {
-    expect(checkReview({ proposal: pending, reviewerId: "u-rania", decision: "approve", note: "" })).toEqual({
+    expect(checkReview({ proposal: pending, mayApprove: true, decision: "approve", note: "" })).toEqual({
       ok: true,
       note: null,
     });
   });
 
   it("garde une note facultative à l'approbation, nettoyée", () => {
-    expect(checkReview({ proposal: pending, reviewerId: "u-rania", decision: "approve", note: "  Merci !\r\n" })).toEqual(
+    expect(checkReview({ proposal: pending, mayApprove: true, decision: "approve", note: "  Merci !\r\n" })).toEqual(
       { ok: true, note: "Merci !" },
     );
   });
 
   it("refuse qu'un modérateur approuve sa propre proposition (spec §4.3)", () => {
-    expect(
-      checkReview({ proposal: { ...pending, authorId: "u-rania" }, reviewerId: "u-rania", decision: "approve", note: "" }),
-    ).toEqual({ ok: false, error: "ownProposal" });
+    expect(checkReview({ proposal: pending, mayApprove: false, decision: "approve", note: "" })).toEqual({
+      ok: false,
+      error: "ownProposal",
+    });
+  });
+
+  it("refuser reste permis à qui ne peut pas approuver", () => {
+    expect(checkReview({ proposal: pending, mayApprove: false, decision: "reject", note: "Doublon." })).toEqual({
+      ok: true,
+      note: "Doublon.",
+    });
   });
 
   it("exige une note pour rejeter", () => {
-    expect(checkReview({ proposal: pending, reviewerId: "u-rania", decision: "reject", note: "   \n " })).toEqual({
+    expect(checkReview({ proposal: pending, mayApprove: true, decision: "reject", note: "   \n " })).toEqual({
       ok: false,
       error: "noteRequired",
     });
-    expect(checkReview({ proposal: pending, reviewerId: "u-rania", decision: "reject", note: null })).toEqual({
+    expect(checkReview({ proposal: pending, mayApprove: true, decision: "reject", note: null })).toEqual({
       ok: false,
       error: "noteRequired",
     });
@@ -52,19 +60,19 @@ describe("checkReview : approuver ou rejeter une proposition", () => {
 
   it("accepte un rejet avec une note", () => {
     expect(
-      checkReview({ proposal: pending, reviewerId: "u-rania", decision: "reject", note: "Déjà dans Ghnaya." }),
+      checkReview({ proposal: pending, mayApprove: true, decision: "reject", note: "Déjà dans Ghnaya." }),
     ).toEqual({ ok: true, note: "Déjà dans Ghnaya." });
   });
 
   it(`refuse une note de plus de ${NOTE_MAX} caractères`, () => {
     expect(
-      checkReview({ proposal: pending, reviewerId: "u-rania", decision: "reject", note: "x".repeat(NOTE_MAX + 1) }),
+      checkReview({ proposal: pending, mayApprove: true, decision: "reject", note: "x".repeat(NOTE_MAX + 1) }),
     ).toEqual({ ok: false, error: "noteTooLong" });
   });
 
   it("refuse de relire une proposition déjà relue", () => {
     expect(
-      checkReview({ proposal: { ...pending, status: "approved" }, reviewerId: "u-rania", decision: "reject", note: "Non" }),
+      checkReview({ proposal: { ...pending, status: "approved" }, mayApprove: true, decision: "reject", note: "Non" }),
     ).toEqual({ ok: false, error: "notPending" });
   });
 });

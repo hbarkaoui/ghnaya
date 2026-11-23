@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  canApproveRevision,
+  canContribute,
   canCopyPlaylist,
   canCreateClub,
   canEditPlaylist,
@@ -140,5 +142,25 @@ describe("rôle dans le club", () => {
     expect(canViewPlaylist(sami, playlist)).toBe(true);
     expect(canEditPlaylist(sami, playlist)).toBe(false);
     expect(canCopyPlaylist(sami, playlist)).toBe(true);
+  });
+});
+
+describe("propositions et modération", () => {
+  it("proposer exige une adresse vérifiée (spec §8.7)", () => {
+    expect(canContribute(null)).toBe(false);
+    expect(canContribute(userWith())).toBe(true);
+    expect(canContribute(userWith({ emailVerified: false }))).toBe(false);
+  });
+
+  it("un modérateur n'approuve pas sa propre proposition ; un admin si (spec §4.3)", () => {
+    const own = { authorId: "u1" };
+    const other = { authorId: "u2" };
+    const deleted = { authorId: null };
+    expect(canApproveRevision(null, other)).toBe(false);
+    expect(canApproveRevision(userWith(), other)).toBe(false);
+    expect(canApproveRevision(userWith({ globalRole: "moderator" }), other)).toBe(true);
+    expect(canApproveRevision(userWith({ globalRole: "moderator" }), own)).toBe(false);
+    expect(canApproveRevision(userWith({ globalRole: "moderator" }), deleted)).toBe(true);
+    expect(canApproveRevision(userWith({ globalRole: "admin" }), own)).toBe(true);
   });
 });

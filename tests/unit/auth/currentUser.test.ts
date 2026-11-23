@@ -8,12 +8,18 @@ describe("toCurrentUser", () => {
     expect(toCurrentUser(base, [])).toEqual({
       ...base,
       locale: "fr",
+      emailVerified: false,
       globalRole: "member",
       isAnimator: false,
       isModerator: false,
       clubs: [],
       clubSlugs: [],
     });
+  });
+
+  it("reprend l'adresse vérifiée, et seulement la valeur vraie", () => {
+    expect(toCurrentUser({ ...base, emailVerified: true }, []).emailVerified).toBe(true);
+    expect(toCurrentUser({ ...base, emailVerified: "oui" }, []).emailVerified).toBe(false);
   });
 
   it("un modérateur et un admin modèrent", () => {

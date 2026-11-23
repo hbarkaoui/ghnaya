@@ -1,31 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { compareProposals, compareReports, nextInQueue, proposalQueue, reportQueue } from "@/lib/moderation/queue";
-import type { Report } from "@/mocks/reports";
-import type { Proposal } from "@/types/proposal";
+import { compareProposals, compareReports, countByStatus, nextInQueue, proposalQueue, reportQueue } from "@/lib/moderation/queue";
+import type { ProposalStatus } from "@/types/proposal";
+import type { ReportReason, ReportStatus } from "@/types/report";
 
-const proposal = (id: string, createdAt: string, status: Proposal["status"] = "pending"): Proposal => ({
-  id,
-  songId: null,
-  authorId: "u-leila",
-  payload: { titleAr: "عنوان", titleLatin: null, artists: [], lyrics: "سطر", lyricsTranslit: null, dialect: "tn" },
-  rightsDeclared: true,
-  status,
-  reviewNote: null,
-  createdAt,
-  reviewedAt: null,
-});
+const proposal = (id: string, createdAt: string, status: ProposalStatus = "pending") => ({ id, createdAt, status });
 
-const report = (id: string, reason: Report["reason"], createdAt: string, status: Report["status"] = "open"): Report => ({
+const report = (id: string, reason: ReportReason, createdAt: string, status: ReportStatus = "open") => ({
   id,
-  songId: "s-ya-lili",
-  reporterId: "u-leila",
-  contactEmail: null,
   reason,
-  details: "",
-  status,
-  resolutionNote: null,
-  resolvedBy: null,
   createdAt,
+  status,
 });
 
 describe("proposalQueue : la file des propositions", () => {
@@ -95,5 +79,12 @@ describe("nextInQueue : l'élément suivant (« Suivante »)", () => {
     const droits = report("r-droits", "copyright", "2026-11-18T10:00:00Z");
     const spam = report("r-spam", "spam", "2026-11-01T10:00:00Z");
     expect(nextInQueue([droits, spam], droits, compareReports)).toBe(spam);
+  });
+});
+
+describe("countByStatus", () => {
+  it("compte les propositions de chaque statut, et toutes", () => {
+    const list = [proposal("a", "2026-11-01"), proposal("b", "2026-11-02", "approved"), proposal("c", "2026-11-03", "rejected")];
+    expect(countByStatus(list)).toEqual({ all: 3, pending: 1, approved: 1, rejected: 1 });
   });
 });

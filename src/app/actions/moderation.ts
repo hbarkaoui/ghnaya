@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { canApproveRevision } from "@/lib/auth/permissions";
 import { songFromProposal } from "@/lib/moderation/apply";
 import { requireModerator } from "@/lib/moderation/gate";
 import { compareProposals, compareReports, nextInQueue } from "@/lib/moderation/queue";
@@ -51,7 +52,7 @@ export async function reviewProposal(
 
   const decision = parseDecision(formData.get("decision"));
   if (!decision) return fail(t("notPending"));
-  const checked = checkReview({ proposal, reviewerId: user.id, decision, note: formData.get("note") });
+  const checked = checkReview({ proposal, mayApprove: canApproveRevision(user, proposal), decision, note: formData.get("note") });
   if (!checked.ok) return fail(t(checked.error, { max: String(NOTE_MAX) }));
 
   if (decision === "approve") {
