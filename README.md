@@ -66,7 +66,9 @@ pnpm user:role rania@example.com --role moderator --no-animator
 - **Variables :** `ANTHROPIC_API_KEY`, `TRANSLIT_PROVIDER` (`anthropic`, `fake` ou `none`), `TRANSLIT_MODEL` (par défaut `claude-opus-5-5`) et `TRANSLIT_DAILY_LIMIT` (par défaut 300), décrites dans `.env.example`. En production, `ANTHROPIC_API_KEY` est un secret à déclarer chez l'hébergeur.
 - **Développement et tests :** sans clé et hors production, un générateur factice (table de lettres arabe vers latin, déterministe) remplace le modèle. `playwright.config.ts` fixe `TRANSLIT_PROVIDER=fake`. En production sans clé, la génération échoue proprement et le lecteur affiche l'arabe seul.
 - **Essai manuel :** `pnpm translit:try <id>` génère la translittération d'une chanson de la base, en lecture seule (rien n'est écrit). Chaque lancement est facturé.
-- **Coût :** environ 3 $ par jour au plafond de 300 générations, avec Opus 5.5.
+- **Coût (estimation prudente) :** Opus 5.5 à 4 $ / 20 $ par million de jetons d'entrée / sortie ; une chanson d'une trentaine de lignes représente environ 1 000 jetons d'entrée et 400 à 900 de sortie, soit 0,01 à 0,02 $ par génération, donc 4 à 7 $ par jour au plafond de 300, et jusqu'au double si les seconds essais d'alignement sont fréquents. À mesurer avec `pnpm translit:try`.
+- **Ne jamais mettre `TRANSLIT_PROVIDER=fake` en production :** le texte factice (lettre à lettre, sans voyelles) serait enregistré en `auto` et servi aux lecteurs.
+- **Avant d'activer la fonction en production :** lancer `pnpm translit:try` avec une clé sur une chanson courte et sur une chanson longue (80 à 100 lignes), pour vérifier la durée (moins de 30 s) et l'alignement.
 - **Durée des fonctions :** une génération peut durer jusqu'à 30 s, et l'attente d'une génération en cours jusqu'à 35 s. Sur Vercel, la durée maximale des fonctions doit être d'au moins 60 s, ce qui est le cas par défaut avec Fluid Compute.
 
 ## Import LRCLIB
