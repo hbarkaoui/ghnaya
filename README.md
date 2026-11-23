@@ -100,6 +100,8 @@ docker run --rm -p 3000:3000 -e DATABASE_URL=postgres://ghanni:ghanni@host.docke
 
 Les migrations et les imports ne sont pas dans l'image : ils se lancent depuis un poste, avec `DATABASE_URL` pointant vers la base cible.
 
+**Adresse du client.** Les limites par IP (recherche, liens de connexion, 10 signalements par jour) lisent `x-forwarded-for`, que le client peut envoyer lui-même. Derrière un proxy qui *ajoute* son adresse à l'en-tête (nginx avec `$proxy_add_x_forwarded_for`, Caddy, un répartiteur de charge), définir `TRUSTED_PROXY_HOPS` au nombre de proxies de confiance devant l'application (`1` pour un seul nginx) : l'adresse retenue est alors la N-ième depuis la droite. Sans cette variable, l'application prend la première adresse, ce qui n'est sûr que derrière un proxy de bord qui réécrit l'en-tête, comme celui de Vercel. Ne jamais exposer l'image directement sans proxy : le client choisirait son adresse et contournerait les limites.
+
 ## Déploiement (Vercel + Neon)
 
 1. Neon : créer un projet PostgreSQL 17, dans une région européenne. Récupérer l'URL **directe**
@@ -108,7 +110,7 @@ Les migrations et les imports ne sont pas dans l'image : ils se lancent depuis u
 3. Migrer : `DATABASE_URL=<url directe> pnpm db:migrate`.
 4. Importer en local vers Neon : `DATABASE_URL=<url directe> pnpm import:public-domain`, puis l'import
    LRCLIB (section « Import LRCLIB »).
-5. Vercel : importer le dépôt, définir `DATABASE_URL=<url poolée>`, puis déployer.
+5. Vercel : importer le dépôt, définir `DATABASE_URL=<url poolée>`, puis déployer. Ne pas définir `TRUSTED_PROXY_HOPS` : le proxy de Vercel réécrit `x-forwarded-for`, sa première adresse est celle du client.
 6. Lancer `DATABASE_URL=<url directe> pnpm bench:search` sur la base de production (script de la tâche 15 du plan 1).
 
 ### Comptes (plan 2)
