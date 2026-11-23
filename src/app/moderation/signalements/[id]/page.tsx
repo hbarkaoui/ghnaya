@@ -4,8 +4,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { DoneToast } from "@/components/moderation/DoneToast";
-import { Age, NextLink, ReasonBadge, SongTitles, doneMessage, person, personLabel } from "@/components/moderation/parts";
+import { Age, NextLink, ReasonBadge, SongTitles, doneMessage, person, personLabel, reporterLabel } from "@/components/moderation/parts";
 import { ReportForm } from "@/components/moderation/ReportForm";
+import { RestoreSongForm } from "@/components/moderation/RestoreSongForm";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
 import { ArtistNames } from "@/components/song/ArtistNames";
@@ -13,11 +14,7 @@ import { Badge } from "@/components/ui/Badge";
 import { requireModerator } from "@/lib/moderation/gate";
 import { compareReports, nextInQueue } from "@/lib/moderation/queue";
 import { scriptAttrs } from "@/lib/text/scriptAttrs";
-import { getSong } from "@/lib/catalog/read";
-import { getRemovedSong } from "@/mocks/catalog";
-// MAQUETTE : retiré à la tâche 7
-import { openReports, personName } from "@/mocks/moderation";
-import { getReport } from "@/mocks/reports";
+import { getReport, openReports } from "@/lib/moderation/queries";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("moderation.report");
@@ -32,13 +29,12 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ReportPage({ params, searchParams }: PageProps<"/moderation/signalements/[id]">) {
   const { id } = await params;
   await requireModerator(`/moderation/signalements/${id}`);
-  const report = getReport(id);
+  const report = await getReport(id);
   if (!report) notFound();
 
   const [t, done] = await Promise.all([getTranslations("moderation"), doneMessage((await searchParams).statut)]);
-  const published = await getSong(report.songId);
-  const song = published ?? getRemovedSong(report.songId);
-  const next = nextInQueue(openReports(), report, compareReports);
+  const { song } = report;
+  const next = nextInQueue(await openReports(), report, compareReports);
 
   return (
     <>
@@ -55,16 +51,12 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/m
               </Badge>
             </div>
             <div className="mt-3">
-              {song ? (
-                <SongTitles titleAr={song.titleAr} titleLatin={song.titleLatin} as="h2" size="lg" />
-              ) : (
-                <h2 className="text-lg font-medium">{t("report.unknownSong")}</h2>
-              )}
+              <SongTitles titleAr={song.titleAr} titleLatin={song.titleLatin} as="h2" size="lg" />
             </div>
-            {song ? <ArtistNames artists={song.artists} className="mt-1 block text-ink-2" /> : null}
-            {published ? (
+            <ArtistNames artists={song.artists} className="mt-1 block text-ink-2" />
+            {song.published ? (
               <Link
-                href={`/chanson/${published.id}`}
+                href={`/chanson/${song.id}`}
                 className="-mx-2 mt-1 inline-flex min-h-11 items-center gap-1 rounded-md px-2 font-medium text-link hover:bg-well"
               >
                 {t("report.seeSong")}
@@ -80,9 +72,7 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/m
               {t("report.details")}
             </h2>
             <p className="mt-1 text-sm text-ink-2">
-              {report.reporterId
-                ? t.rich("report.by", { name: await personLabel(personName(report.reporterId)), person })
-                : t("report.byVisitor")}
+              {await reporterLabel(report)}
               <span aria-hidden="true"> · </span>
               <Age iso={report.createdAt} />
             </p>
@@ -101,20 +91,20 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/m
           </section>
 
           {report.status === "open" ? (
-            <ReportForm reportId={report.id} songPublished={published !== undefined} />
+            <ReportForm reportId={report.id} songPublished={song.published} />
           ) : (
             <section className="rounded-lg bg-well p-4">
               <p className="text-sm font-medium text-ink-2">{t("report.resolutionNote")}</p>
               <p {...scriptAttrs(report.resolutionNote ?? "")} className="mt-1 text-ink">
                 {report.resolutionNote}
               </p>
-              {report.resolvedBy ? (
-                <p className="mt-2 text-sm text-ink-2">
-                  {t.rich("report.resolvedBy", { name: await personLabel(personName(report.resolvedBy)), person })}
-                </p>
-              ) : null}
+              <p className="mt-2 text-sm text-ink-2">
+                {t.rich("report.resolvedBy", { name: await personLabel(report.resolvedByName), person })}
+              </p>
             </section>
           )}
+
+          {!song.published ? <RestoreSongForm reportId={report.id} /> : null}
 
           {next ? (
             <div className="flex justify-end">

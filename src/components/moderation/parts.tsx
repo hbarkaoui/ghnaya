@@ -7,8 +7,8 @@ import { SubTabs } from "@/components/ui/SubTabs";
 import { Badge } from "@/components/ui/Badge";
 import { formatAge, formatProposalDate } from "@/lib/moderation/age";
 import { moderationCounts } from "@/lib/moderation/queries";
-import type { ReportReason } from "@/mocks/reports";
 import type { Song } from "@/types/catalog";
+import type { Report, ReportReason } from "@/types/report";
 
 /** Sous-onglets Propositions · Signalements, avec le nombre d'éléments en file de chacun. */
 export async function ModerationTabs() {
@@ -47,9 +47,18 @@ export const person = (chunks: ReactNode) => <Bidi>{chunks}</Bidi>;
 export async function doneMessage(raw: string | string[] | undefined): Promise<string | null> {
   const t = await getTranslations("moderation.done");
   const status = Array.isArray(raw) ? raw[0] : raw;
-  return status === "approved" || status === "rejected" || status === "removed" || status === "dismissed"
+  return status === "approved" || status === "rejected" || status === "removed" || status === "dismissed" ||
+    status === "restored"
     ? t(status)
     : null;
+}
+
+/** « Signalé par … » : la personne, un visiteur (qui a laissé une adresse), ou un compte supprimé depuis. */
+export async function reporterLabel(report: Pick<Report, "reporterName" | "contactEmail">): Promise<ReactNode> {
+  const t = await getTranslations("moderation");
+  if (report.reporterName !== null) return t.rich("report.by", { name: report.reporterName, person });
+  if (report.contactEmail !== null) return t("report.byVisitor");
+  return t.rich("report.by", { name: await personLabel(null), person });
 }
 
 /** Type d'une proposition : ajout ou correction, avec une icône et un libellé. */

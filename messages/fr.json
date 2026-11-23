@@ -323,7 +323,8 @@
       "approved": "Proposition approuvée",
       "rejected": "Proposition rejetée",
       "removed": "Chanson retirée",
-      "dismissed": "Signalement classé sans suite"
+      "dismissed": "Signalement classé sans suite",
+      "restored": "Chanson rétablie"
     },
     "report": {
       "title": "Signalement",
@@ -367,6 +368,11 @@
         "noteTooLong": "La note dépasse {max} caractères.",
         "notOpen": "Ce signalement a déjà été traité.",
         "songGone": "Cette chanson est déjà retirée : vous pouvez seulement classer le signalement."
+      },
+      "restore": {
+        "title": "Rétablir la chanson",
+        "body": "Cette chanson est retirée. La rétablir la rend de nouveau cherchable et lisible, et elle revient dans les playlists où elle était.",
+        "button": "Rétablir la chanson"
       }
     }
   },
@@ -450,7 +456,8 @@
       "detailsTooLong": "Écrivez au plus {max} caractères.",
       "emailMissing": "Saisissez votre adresse e-mail : elle nous permet de vous répondre.",
       "emailInvalid": "Cette adresse n'est pas valide. Elle doit ressembler à <ltr>nom@exemple.com</ltr>",
-      "songMissing": "Cette chanson est introuvable ou a été retirée."
+      "songMissing": "Cette chanson est introuvable ou a été retirée.",
+      "tooMany": "Vous avez envoyé trop de signalements aujourd'hui. Réessayez demain."
     },
     "sent": {
       "title": "Signalement envoyé",

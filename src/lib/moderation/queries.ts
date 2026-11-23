@@ -1,8 +1,9 @@
 import "server-only";
 import { sql, type SQL } from "drizzle-orm";
-import { isUuid } from "@/lib/catalog/queries";
+import { ARTISTS_OF, isUuid } from "@/lib/catalog/queries";
 import { db } from "@/lib/db/client";
 import type { ProposalPayload, ProposalStatus, Revision, RevisionSummary } from "@/types/proposal";
+import type { Report, ReportReason, ReportStatus } from "@/types/report";
 
 /**
  * Lectures de la modération (spec §8, §9) : Mes contributions, la file des propositions, une proposition,
@@ -109,6 +110,71 @@ export async function pendingRevisionCountOf(authorId: string): Promise<number> 
   const res = await db.execute<{ n: string }>(sql`
     SELECT count(*) AS n FROM song_revisions WHERE author_id = ${authorId} AND status = 'pending'`);
   return Number(res.rows[0].n);
+}
+
+type ReportRow = {
+  id: string;
+  reporter_id: string | null;
+  reporter_name: string | null;
+  contact_email: string | null;
+  reason: ReportReason;
+  details: string;
+  status: ReportStatus;
+  resolution_note: string | null;
+  resolved_by_name: string | null;
+  created_at: Date | string;
+  song_id: string;
+  title_ar: string | null;
+  title_latin: string | null;
+  song_status: "published" | "removed";
+  artists: Report["song"]["artists"];
+};
+
+async function reportsWhere(where: SQL, order: SQL, limit?: number): Promise<Report[]> {
+  const res = await db.execute<ReportRow>(sql`
+    SELECT r.id, r.reporter_id, ur.name AS reporter_name, r.contact_email, r.reason, r.details, r.status,
+      r.resolution_note, uv.name AS resolved_by_name, r.created_at,
+      s.id AS song_id, s.title_ar, s.title_latin, s.status AS song_status, ${ARTISTS_OF("s")} AS artists
+    FROM reports r
+    JOIN songs s ON s.id = r.song_id
+    LEFT JOIN users ur ON ur.id = r.reporter_id
+    LEFT JOIN users uv ON uv.id = r.resolved_by
+    WHERE ${where}
+    ORDER BY ${order}
+    ${limit === undefined ? sql`` : sql`LIMIT ${limit}`}`);
+  return res.rows.map((r) => ({
+    id: r.id,
+    reporterId: r.reporter_id,
+    reporterName: r.reporter_name,
+    contactEmail: r.contact_email,
+    reason: r.reason,
+    details: r.details,
+    status: r.status,
+    resolutionNote: r.resolution_note,
+    resolvedByName: r.resolved_by_name,
+    createdAt: iso(r.created_at),
+    song: {
+      id: r.song_id,
+      titleAr: r.title_ar,
+      titleLatin: r.title_latin,
+      artists: r.artists,
+      published: r.song_status === "published",
+    },
+  }));
+}
+
+/** File des signalements : droits d'auteur en tête, puis du plus ancien au plus récent (spec §9). */
+export const openReports = (): Promise<Report[]> =>
+  reportsWhere(sql`r.status = 'open'`, sql`(r.reason = 'copyright') DESC, r.created_at ASC, r.id`);
+
+/** Les derniers signalements traités ou classés (les 100 derniers), du plus récent au plus ancien. */
+export const treatedReports = (limit = 100): Promise<Report[]> =>
+  reportsWhere(sql`r.status <> 'open'`, sql`r.created_at DESC, r.id`, limit);
+
+/** Un signalement, avec sa chanson (publiée ou retirée). `null` si l'identifiant est invalide ou inconnu. */
+export async function getReport(id: string): Promise<Report | null> {
+  if (!isUuid(id)) return null;
+  return (await reportsWhere(sql`r.id = ${id}`, sql`r.id`))[0] ?? null;
 }
 
 /** Taille des deux files : sous-onglets de la modération et pastille « N à relire » de la page Moi. */

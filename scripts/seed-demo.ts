@@ -2,11 +2,12 @@
 // On se connecte ensuite avec leila@example.com, sami@example.com… : le lien est dans la boîte locale.
 // Refusé hors de localhost. Idempotent : les comptes et les clubs de démonstration sont recréés.
 import "dotenv/config";
-import { inArray } from "drizzle-orm";
+import { inArray, or } from "drizzle-orm";
 import { db, pool } from "@/lib/db/client";
-import { clubMembers, clubs, playlistItems, playlists, songRevisions, users } from "@/lib/db/schema";
+import { clubMembers, clubs, playlistItems, playlists, reports, songRevisions, users } from "@/lib/db/schema";
 import { seedFixtures } from "../tests/fixtures/seed";
 import { DEMO_CLUBS, DEMO_MEMBERSHIPS, DEMO_PEOPLE, DEMO_PLAYLISTS } from "./demo/demoData";
+import { DEMO_REPORTS } from "./demo/demoReports";
 import { demoRevisions } from "./demo/demoRevisions";
 
 async function main(): Promise<void> {
@@ -25,6 +26,16 @@ async function main(): Promise<void> {
     if (previous.length > 0) {
       await tx.delete(songRevisions).where(inArray(songRevisions.authorId, previous.map((u) => u.id)));
     }
+    const visitorEmails = DEMO_REPORTS.flatMap((r) => (r.contactEmail ? [r.contactEmail] : []));
+    const previousIds = previous.map((u) => u.id);
+    await tx
+      .delete(reports)
+      .where(
+        or(
+          inArray(reports.contactEmail, visitorEmails),
+          ...(previousIds.length > 0 ? [inArray(reports.reporterId, previousIds), inArray(reports.resolvedBy, previousIds)] : []),
+        ),
+      );
     await tx.delete(users).where(inArray(users.email, DEMO_PEOPLE.map((p) => p.email)));
 
     const people = new Map<string, string>();
@@ -46,6 +57,20 @@ async function main(): Promise<void> {
         reviewerId: r.reviewer ? people.get(r.reviewer)! : null,
         reviewNote: r.reviewNote ?? null,
         reviewedAt: r.reviewedAt ? new Date(r.reviewedAt) : null,
+        createdAt: new Date(r.createdAt),
+      })),
+    );
+
+    await tx.insert(reports).values(
+      DEMO_REPORTS.map((r) => ({
+        songId: songIds.get(r.song)!,
+        reporterId: r.reporter ? people.get(r.reporter)! : null,
+        contactEmail: r.contactEmail ?? null,
+        reason: r.reason,
+        details: r.details,
+        status: r.status,
+        resolvedBy: r.resolvedBy ? people.get(r.resolvedBy)! : null,
+        resolutionNote: r.resolutionNote ?? null,
         createdAt: new Date(r.createdAt),
       })),
     );
@@ -91,7 +116,7 @@ async function main(): Promise<void> {
     }
   });
 
-  console.log(`${DEMO_PEOPLE.length} comptes, ${DEMO_CLUBS.length} clubs, ${DEMO_PLAYLISTS.length} playlists et ${revisions.length} propositions de démonstration.`);
+  console.log(`${DEMO_PEOPLE.length} comptes, ${DEMO_CLUBS.length} clubs, ${DEMO_PLAYLISTS.length} playlists, ${revisions.length} propositions et ${DEMO_REPORTS.length} signalements de démonstration.`);
 }
 
 main()

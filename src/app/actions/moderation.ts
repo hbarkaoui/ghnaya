@@ -6,7 +6,8 @@ import { getTranslations } from "next-intl/server";
 import { canApproveRevision } from "@/lib/auth/permissions";
 import { db } from "@/lib/db/client";
 import { requireModerator } from "@/lib/moderation/gate";
-import { getRevision, pendingRevisions } from "@/lib/moderation/queries";
+import { getReport, getRevision, openReports, pendingRevisions } from "@/lib/moderation/queries";
+import { resolveReport, restoreSong } from "@/lib/moderation/reportWrite";
 import { approveRevision, rejectRevision } from "@/lib/moderation/revisionWrite";
 import { compareProposals, compareReports, nextInQueue } from "@/lib/moderation/queue";
 import {
@@ -15,12 +16,7 @@ import {
   checkReview,
   parseDecision,
   parseReportAction,
-  statusAfter,
 } from "@/lib/moderation/review";
-import { getSong } from "@/lib/catalog/read";
-import { openReports } from "@/mocks/moderation";
-import { getReport, resolveReport } from "@/mocks/reports";
-import { songStore } from "@/mocks/songStore";
 
 /** Réponse à une décision refusée : le message, déjà traduit, et le numéro de l'essai (focus). */
 export interface ModerationFormState {
@@ -29,7 +25,7 @@ export interface ModerationFormState {
 }
 
 /** Confirmation affichée en toast sur l'élément suivant (`?statut=`). */
-export type DoneStatus = "approved" | "rejected" | "removed" | "dismissed";
+export type DoneStatus = "approved" | "rejected" | "removed" | "dismissed" | "restored";
 
 const withStatus = (path: string, status: DoneStatus) => `${path}?statut=${status}`;
 
@@ -81,7 +77,7 @@ export async function handleReport(
   formData: FormData,
 ): Promise<ModerationFormState> {
   const user = await requireModerator(`/moderation/signalements/${reportId}`);
-  const report = getReport(reportId);
+  const report = await getReport(reportId);
   if (!report) notFound();
 
   const t = await getTranslations("moderation.report.errors");
@@ -89,24 +85,29 @@ export async function handleReport(
 
   const action = parseReportAction(formData.get("action"));
   if (!action) return fail(t("notOpen"));
-  const checked = checkReportAction({
-    report,
-    action,
-    note: formData.get("note"),
-    songPublished: (await getSong(report.songId)) !== undefined,
-  });
+  const checked = checkReportAction({ report, action, note: formData.get("note"), songPublished: report.song.published });
   if (!checked.ok) return fail(t(checked.error, { max: String(NOTE_MAX) }));
 
-  if (action === "remove") songStore.remove(report.songId);
-  resolveReport(report.id, { status: statusAfter(action), note: checked.note, by: user.id });
+  const result = await resolveReport(db, { reportId: report.id, resolverId: user.id, action, note: checked.note });
+  if (!result.ok) return fail(t(result.error === "notFound" ? "notOpen" : result.error, { max: String(NOTE_MAX) }));
   revalidatePath("/", "layout");
 
-  if (action === "correct") redirect(`/contribuer/${report.songId}`);
-  const next = nextInQueue(openReports(), report, compareReports);
+  if (action === "correct") redirect(`/contribuer/${report.song.id}`);
+  const next = nextInQueue(await openReports(), report, compareReports);
   redirect(
     withStatus(
       next ? `/moderation/signalements/${next.id}` : "/moderation/signalements",
       action === "remove" ? "removed" : "dismissed",
     ),
   );
+}
+
+/** Rétablir une chanson retirée (spec §9). Passe par un signalement : c'est le seul écran qui mène à une chanson retirée. */
+export async function restoreSongAction(reportId: string): Promise<void> {
+  await requireModerator(`/moderation/signalements/${reportId}`);
+  const report = await getReport(reportId);
+  if (!report) notFound();
+  await restoreSong(db, report.song.id);
+  revalidatePath("/", "layout");
+  redirect(withStatus(`/moderation/signalements/${report.id}`, "restored"));
 }

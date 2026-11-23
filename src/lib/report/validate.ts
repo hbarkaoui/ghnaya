@@ -1,6 +1,6 @@
 import { checkEmail } from "@/lib/auth/email";
 import { normalizeMultiline } from "@/lib/contribution/validate";
-import { REPORT_REASONS, type ReportReason } from "@/mocks/reports";
+import { REPORT_REASONS, type ReportReason } from "@/types/report";
 
 /**
  * Validation du formulaire « Signaler » (spec §9), en fonctions pures : l'action serveur la rejoue à
@@ -32,7 +32,8 @@ export type ReportErrorCode =
   | "detailsTooLong"
   | "emailMissing"
   | "emailInvalid"
-  | "songMissing";
+  | "songMissing"
+  | "tooMany";
 
 export interface ReportError {
   code: ReportErrorCode;

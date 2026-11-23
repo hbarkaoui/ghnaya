@@ -11,7 +11,7 @@ import { TextField } from "@/components/form/TextField";
 import { Bidi } from "@/components/ui/Bidi";
 import { signInHref } from "@/lib/auth/returnPath";
 import type { ReportField } from "@/lib/report/validate";
-import { REPORT_REASONS, type ReportReason } from "@/mocks/reports";
+import { REPORT_REASONS, type ReportReason } from "@/types/report";
 
 /** Identifiants des champs, cibles des liens du récapitulatif des erreurs. */
 const FIELD_IDS: Record<ReportField, string | undefined> = {

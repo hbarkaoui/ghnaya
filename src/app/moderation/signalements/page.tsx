@@ -3,19 +3,15 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { DoneToast } from "@/components/moderation/DoneToast";
 import { ModerationItem } from "@/components/moderation/ModerationItem";
-import { Age, ModerationTabs, ReasonBadge, SongTitles, doneMessage, person, personLabel } from "@/components/moderation/parts";
+import { Age, ModerationTabs, ReasonBadge, SongTitles, doneMessage, reporterLabel } from "@/components/moderation/parts";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
 import { Badge } from "@/components/ui/Badge";
 import { Bidi } from "@/components/ui/Bidi";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { requireModerator } from "@/lib/moderation/gate";
-import { getSong } from "@/lib/catalog/read";
-import { getRemovedSong } from "@/mocks/catalog";
-import { moderationCounts } from "@/lib/moderation/queries";
-// MAQUETTE : retiré à la tâche 7
-import { openReports, personName } from "@/mocks/moderation";
-import { listReports, type Report } from "@/mocks/reports";
+import { moderationCounts, openReports, treatedReports } from "@/lib/moderation/queries";
+import type { Report } from "@/types/report";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("moderation");
@@ -29,10 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ReportsPage({ searchParams }: PageProps<"/moderation/signalements">) {
   await requireModerator("/moderation/signalements");
   const [t, done] = await Promise.all([getTranslations("moderation"), doneMessage((await searchParams).statut)]);
-  const queue = openReports();
-  const treated = listReports()
-    .filter((r) => r.status !== "open")
-    .toSorted((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const [queue, treated, counts] = await Promise.all([openReports(), treatedReports(), moderationCounts()]);
 
   return (
     <>
@@ -45,7 +38,7 @@ export default async function ReportsPage({ searchParams }: PageProps<"/moderati
             <EmptyState
               title={t("empty.title")}
               body={t("empty.reportsBody")}
-              action={(await moderationCounts()).proposals > 0 ? { label: t("empty.toProposals"), href: "/moderation" } : undefined}
+              action={counts.proposals > 0 ? { label: t("empty.toProposals"), href: "/moderation" } : undefined}
             />
           ) : (
             <>
@@ -75,10 +68,8 @@ export default async function ReportsPage({ searchParams }: PageProps<"/moderati
 
 async function ReportItem({ report }: { report: Report }) {
   const t = await getTranslations("moderation");
-  const song = (await getSong(report.songId)) ?? getRemovedSong(report.songId);
-  const reporter = report.reporterId
-    ? t.rich("report.by", { name: await personLabel(personName(report.reporterId)), person })
-    : t("report.byVisitor");
+  const song = report.song;
+  const reporter = await reporterLabel(report);
 
   return (
     <ModerationItem
@@ -94,13 +85,7 @@ async function ReportItem({ report }: { report: Report }) {
           ) : null}
         </>
       }
-      title={
-        song ? (
-          <SongTitles titleAr={song.titleAr} titleLatin={song.titleLatin} />
-        ) : (
-          <p className="font-medium">{t("report.unknownSong")}</p>
-        )
-      }
+      title={<SongTitles titleAr={song.titleAr} titleLatin={song.titleLatin} />}
       meta={
         <>
           {reporter}

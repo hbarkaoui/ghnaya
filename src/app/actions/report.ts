@@ -1,6 +1,12 @@
 "use server";
 
+import { headers } from "next/headers";
 import { getLocale, getTranslations } from "next-intl/server";
+import { getSongById } from "@/lib/catalog/queries";
+import { db } from "@/lib/db/client";
+import { allowReport } from "@/lib/moderation/limits";
+import { createReport } from "@/lib/moderation/reportWrite";
+import { clientIp } from "@/lib/ratelimit/clientIp";
 import {
   reportInputFromFormData,
   validateReport,
@@ -9,8 +15,6 @@ import {
 } from "@/lib/report/validate";
 import { getCurrentUser } from "@/lib/session";
 import { isolate } from "@/lib/text/isolate";
-import { getSong } from "@/lib/catalog/read";
-import { addReport } from "@/mocks/reports";
 
 /**
  * Réponse au formulaire « Signaler » : les erreurs déjà traduites, champ par champ, ou la confirmation.
@@ -37,11 +41,9 @@ async function translate(errors: ReportErrors): Promise<Partial<Record<ReportFie
 }
 
 /**
- * Envoie un signalement (spec §9) : ouvert à tous. Un visiteur laisse une adresse e-mail ; pour un
- * membre, le compte suffit (l'auteur vient de la session, jamais du formulaire). La validation est
- * rejouée ici, quoi que le formulaire ait vérifié.
- * MAQUETTE : enregistre en mémoire (`addReport`), lu par la file de modération (tâche 14) ; le plan 4
- * écrira une ligne `reports` en `open`, avec la limite de 10 signalements par jour et par IP.
+ * Envoie un signalement (spec §9) : ouvert à tous. Un visiteur laisse une adresse e-mail ; pour un membre, le
+ * compte suffit (l'auteur vient de la session, jamais du formulaire). Le serveur rejoue la validation, puis
+ * applique la limite de 10 signalements par jour et par adresse IP, comptés pour un envoi valide seulement.
  */
 export async function submitReport(songId: string, previous: ReportState, formData: FormData): Promise<ReportState> {
   const attempt = previous.status === "editing" ? previous.attempt + 1 : 1;
@@ -51,13 +53,14 @@ export async function submitReport(songId: string, previous: ReportState, formDa
     attempt,
   });
 
-  const song = await getSong(songId);
+  const song = await getSongById(songId);
   if (!song) return fail({ form: { code: "songMissing" } });
 
   const user = await getCurrentUser();
   const result = validateReport(reportInputFromFormData(formData), { emailRequired: !user });
   if (!result.ok) return fail(result.errors);
+  if (!(await allowReport(clientIp(await headers())))) return fail({ form: { code: "tooMany" } });
 
-  addReport({ songId: song.id, reporterId: user?.id ?? null, ...result.report });
+  await createReport(db, { songId: song.id, reporterId: user?.id ?? null, ...result.report });
   return { status: "sent", sentTo: result.report.contactEmail };
 }
