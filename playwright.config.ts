@@ -24,6 +24,8 @@ export default defineConfig({
       OUTBOX_DIR: ".outbox-e2e",
       // Les parcours ouvrent plus de 5 liens par minute depuis la même adresse.
       BETTER_AUTH_RATE_LIMIT: "off",
+      // Translittération : générateur factice, déterministe, sans réseau (plan 4).
+      TRANSLIT_PROVIDER: "fake",
     },
   },
 });
