@@ -2,6 +2,8 @@
  * Translittérations fictives, alignées ligne à ligne (lignes vides comprises) sur les paroles de
  * src/mocks/catalog.ts. Conventions d'arabizi tunisien : 3 = ع, 7 = ح, 9 = ق, ch = ش, kh = خ, gh = غ.
  * Ce sont des translittérations des paroles inventées de la maquette (et des vers de Chebbi).
+ * Lus par `src/mocks/catalog.ts`, donc par `pnpm seed:fixtures` : la génération à la demande est faite
+ * par `lib/translit` depuis le plan 4.
  */
 export const TRANSLIT_TEXTS: Record<string, string> = {
   "s-sidi-mansour": `ya lil tawwel chwaya
@@ -86,12 +88,3 @@ export const STORED_TRANSLIT: Record<string, "auto" | "reviewed"> = {
   "s-sidi-mansour": "auto",
   "s-ya-lella": "auto",
 };
-
-/**
- * Scénarios de démonstration de la génération à la demande :
- *  - « الأطلال » échoue au premier essai, puis réussit quand on réessaie ;
- *  - « ألف ليلة وليلة » tombe sur la limite quotidienne.
- */
-export const FAIL_FIRST_ATTEMPT = new Set(["s-el-atlal"]);
-export const DAILY_LIMIT_REACHED = new Set(["s-alf-leila"]);
-export const SIMULATED_DELAY_MS = 1500;

@@ -546,7 +546,9 @@
       "reviewed": "Translittération relue",
       "failed": "La translittération n'a pas pu être générée. Les paroles arabes restent affichées.",
       "retry": "Réessayer",
-      "limit": "Translittération indisponible aujourd'hui : la limite quotidienne est atteinte. Les paroles arabes restent affichées."
+      "limit": "Translittération indisponible aujourd'hui : la limite quotidienne est atteinte. Les paroles arabes restent affichées.",
+      "signin": "Connectez-vous pour obtenir la translittération. Les paroles arabes restent affichées.",
+      "signinLink": "Se connecter"
     },
     "title": "Paroles"
   },

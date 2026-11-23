@@ -1,8 +1,11 @@
 "use client";
 
 import { Check, Info, LoaderCircle, RotateCw } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/Badge";
+import { signInHref } from "@/lib/auth/returnPath";
 import type { TranslitView } from "@/lib/translit/state";
 
 /** « reader » : couleurs du lecteur (sombre par défaut) ; « page » : couleurs de l'app (fiche chanson). */
@@ -28,7 +31,8 @@ const TONES = {
 
 /**
  * État de la translittération au-dessus des paroles : génération en cours (l'arabe reste affiché),
- * automatique (« peut contenir des erreurs ») ou relue, échec avec « Réessayer », limite quotidienne.
+ * automatique (« peut contenir des erreurs ») ou relue, échec avec « Réessayer », limite quotidienne,
+ * invitation à se connecter (visiteur).
  * Rien en mode arabe seul. Chaque état porte un libellé, jamais une couleur seule.
  */
 export function TranslitStatus({
@@ -43,6 +47,7 @@ export function TranslitStatus({
   tone: LyricsTone;
 }) {
   const t = useTranslations("lyrics.translit");
+  const pathname = usePathname();
   const styles = TONES[tone];
 
   if (view === "generating") {
@@ -90,6 +95,20 @@ export function TranslitStatus({
     return (
       <p role="status" className={`mb-5 rounded-md p-3 text-sm ${styles.box}`}>
         {t("limit")}
+      </p>
+    );
+  }
+
+  if (view === "signin") {
+    return (
+      <p role="status" className={`mb-5 rounded-md p-3 text-sm ${styles.box}`}>
+        {t("signin")}{" "}
+        <Link
+          href={signInHref(pathname)}
+          className={`inline-flex items-center rounded-md px-1 font-medium underline underline-offset-4 ${styles.retry}`}
+        >
+          {t("signinLink")}
+        </Link>
       </p>
     );
   }
