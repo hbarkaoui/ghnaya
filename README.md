@@ -22,7 +22,7 @@ pnpm dev
 
 ## Développement
 
-`pnpm seed:demo` écrit dans la base locale des comptes de démonstration (Leïla, membre des Jasmins ; Sami, animateur de trois clubs ; Nour, sans club ; Rania, modératrice), leurs clubs et leurs playlists. Il est idempotent : il recrée ces comptes et ces clubs sans toucher aux autres données.
+`pnpm seed:demo` écrit dans la base locale des comptes de démonstration (Leïla, membre des Jasmins ; Sami, animateur de trois clubs ; Nour, sans club ; Rania, modératrice), leurs clubs et leurs playlists, ainsi que sept propositions (dont trois de Leïla) et quatre signalements. Il est idempotent : il recrée ces comptes et ces clubs sans toucher aux autres données.
 
 - Se connecter : `/connexion`, saisir l'adresse (`sami@example.com`…), puis « Ouvrir le lien reçu ».
 - Tester sur un téléphone du même Wi-Fi : régler `BETTER_AUTH_URL` sur l'adresse du poste (`http://192.168.x.y:3000`), sinon le lien du message pointe vers `localhost`.
@@ -47,6 +47,18 @@ pnpm user:role rania@example.com --role moderator --no-animator
 ```
 
 `--animator` ou `--no-animator` change le rôle d'animateur ; `--role member|moderator|admin` change le rôle global. Seuls les champs donnés changent. En production : `DATABASE_URL=<url directe> pnpm user:role …`.
+
+## Modération
+
+- **Premier modérateur** : se connecter une fois, puis `pnpm user:role <adresse> --role moderator` (voir « Rôles »). Un admin (`--role admin`) approuve aussi ses propres propositions, pour amorcer la plateforme ; un modérateur ne le peut pas.
+- **Propositions et signalements** : `/moderation` (propositions, de la plus ancienne à la plus récente) et `/moderation/signalements` (droits d'auteur en tête). Un retrait est doux : il se rétablit depuis la page du signalement qui l'a provoqué.
+- **Limites** : 10 propositions par jour et par personne, 10 signalements par jour et par adresse IP (fenêtre du jour UTC, table `rate_limits`).
+- **Retrait en masse** (admin, avec l'accès à la base) :
+
+  `pnpm songs:remove --source lrclib|public_domain|contribution --reason "<motif>" [--artist <uuid>] [--dry-run] [--restore]`
+
+  `--dry-run` compte sans rien changer ; `--restore` rétablit les chansons retirées avec le même motif. Un retrait protège la chanson des imports (`import_locked`), et un rétablissement laisse cette protection.
+- **Comptes supprimés** : leurs propositions et leurs signalements restent, sans auteur (« un compte supprimé »).
 
 ## Import LRCLIB
 

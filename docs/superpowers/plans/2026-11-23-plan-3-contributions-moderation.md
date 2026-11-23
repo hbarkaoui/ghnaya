@@ -19,6 +19,40 @@
 
 **Plan suivant**, hors de ce plan : plan 4, translittération (§7).
 
+## État des tâches
+
+Toutes les tâches ont été exécutées le 23/11/2026, sur la branche `feat/contributions-moderation`, une revue après chacune. À la fin de la tâche 10 : 629 tests unitaires, 207 tests d'intégration et 14 parcours de bout en bout passaient.
+
+| Tâche | État | Ce qui a été vérifié, et les écarts constatés |
+|---|---|---|
+| 1. Schéma | Faite le 23/11/2026 (`4cf0999`) | Tables `song_revisions` et `reports`, avec les auteurs nuls (`ON DELETE SET NULL`, écart 1). Tests d'intégration du schéma. Lacunes de test relevées en revue, non traitées : `rights_declared = false`, `reviewer_id` et `resolved_by` à `SET NULL`, signalement ouvert avec une note. |
+| 2. Propositions en base | Faite le 23/11/2026 (`fc977b3`) | Lectures, envoi, rejet, droits et limites quotidiennes. La fenêtre de limite est le jour UTC (`hitRateLimit` aligne l'époque sur 86 400 s). L'index unique `(author_id, song_id)` ne restreint pas les ajouts, dont le `song_id` est nul : voulu, comme le dit le commentaire du schéma. |
+| 3. Approuver une proposition | Faite le 23/11/2026 (`d0ff9e2`) | Approbation en une transaction, `import_locked` posé sur une correction (écart 6). Relevé en revue, non traité : deux approbations qui créent les mêmes nouveaux artistes dans l'ordre inverse pourraient se bloquer mutuellement. |
+| 4. Artistes connus et « existe peut-être déjà » | Faite le 23/11/2026 (`48e714a`) | Vérifiée dans le navigateur (compte de Leïla) : « hedi » propose Hedi Jouini, ↓ puis Entrée le choisit ; « sidi mansour » avec Saber Rebai montre Sidi Mansour, sans extrait de paroles ; « fayrouz » trouve Fairuz. Une ligne de `actions/contribute.ts` change hors du texte de la tâche (`artistCandidates` à la place de `knownArtists(SONGS)`), jugée nécessaire en revue. |
+| 5. Envoi, Mes contributions, pastille de « Moi » | Faite le 23/11/2026 (`b4f1da2`) | Vérifiée dans le navigateur (compte de Leïla) : un ajout mène à `/mes-contributions` avec « En attente » ; `/moi` indique « 1 en attente » ; une seconde correction de la même chanson répond « Votre correction attend déjà sa relecture ». Les deux propositions d'essai ont ensuite été supprimées de la base de développement. Un compte Google à l'adresse non vérifiée ne peut pas proposer (`canContribute` lit `emailVerified`). |
+| 6. File de modération et décisions | Faite le 23/11/2026 (`9e94ecd`) | Vérifiée dans le navigateur (compte de Rania) : cinq propositions de la plus ancienne à la plus récente, celle de Leïla en dernier ; approuver « Lamma Bada » affiche « Proposition approuvée », et la chanson sort dans la recherche avec la source « Proposition » ; rejeter sans note affiche « Écrivez une note… ». **Non vérifié dans le navigateur** : la page de la proposition refusée de Leïla avec la note de Rania, contrôlée en base seulement. Écart : `await moderationQueueSize()` dans `moi/page.tsx`, que l'extrait du plan omettait. Pas de test pour `noteTooLong` ni pour un identifiant non UUID dans `moderationActions.test.ts`. |
+| 7. Signalements, retraits, rétablissement | Faite le 23/11/2026 (`3c52342`) | Vérifiée dans le navigateur (après un redémarrage du serveur de développement, un cache périmé ayant gardé une erreur pendant l'édition d'un fichier de messages) : signalement d'un visiteur sur « El Atlal » ; retrait avec note (la page de la chanson répond « introuvable ou retirée », la playlist « Séance du jeudi » affiche « Chanson retirée ») ; rétablissement (la chanson, la playlist et la recherche reviennent). **L'absence de la chanson retirée dans la recherche n'a pas été vue dans le navigateur** : elle est couverte par `reports.test.ts`. Écart : la file place les signalements de droits d'auteur en tête, puis par ancienneté. L'attente de l'étape 9 (« au-dessus de celui de la veille ») supposait des dates différentes ; avec les dates de la démonstration, le signalement de droits d'auteur du 17/11 reste au-dessus du nouveau, ce que la règle de la spec donne. |
+| 8. Retrait en masse | Faite le 23/11/2026 (`ac9d195`) | `pnpm songs:remove`. À blanc : 11 chansons comptées, aucune retirée. L'exécution a lancé `seed:fixtures`, qui a remis à zéro les données de démonstration de la base de développement : `pnpm seed:demo` est à relancer avant les tests de bout en bout ou le navigateur. |
+| 9. La passerelle ne lit plus que la base | Faite le 23/11/2026 (`2053574`) | Plus aucune lecture de données fictives par les écrans. Recherche des restes (propositions, signalements, modération, `songStore`, chansons proches, compte) : rien. |
+| 10. Tests de bout en bout | Faite le 23/11/2026 (`95bee4a`) | 14 parcours verts. Le rejet avec note n'y figure pas : il est couvert par `moderationActions.test.ts` et par la vérification de la tâche 6. |
+| 11. Documentation, spec, état du plan | Faite le 23/11/2026 | README (« Modération », données de démonstration), spec §4.3, §4.4, §5, §8.2, §8.5, §9 et §12 datées et renvoyant à ce plan, et cette section. Aucun test lancé : changements de documentation seulement. |
+
+### Non couvert par les vérifications
+
+- Le rendu en arabe des nouveaux écrans (rétablissement, messages de limite, file de modération) : les vérifications dans le navigateur ont été faites en français.
+- Le comportement d'un antivirus de messagerie qui ouvre le lien magique avant la personne : resté ouvert depuis le plan 2.
+- La proposition d'un contenu de plus de 20 000 caractères.
+- La page de la proposition refusée de Leïla (base seule) et l'absence d'une chanson retirée dans la recherche (test d'intégration seul), voir les tâches 6 et 7.
+
+### Limites connues, laissées en l'état
+
+- `--restore` retrouve un retrait en masse par son seul motif : un retrait fait depuis un signalement avec une note identique serait rétabli avec lui. Une marque « bulk: » ou une colonne d'origine le distinguerait.
+- L'adresse IP de la limite des signalements est le premier élément de `X-Forwarded-For` (comme depuis le plan 1) : fiable seulement derrière un serveur frontal qui réécrit cet en-tête, comme celui de Vercel.
+- Un rétablissement garde `import_locked` à vrai.
+- `restoreSongAction` ignore le résultat « notRemoved » et affiche toujours « rétablie » ; la section « Rétablir » s'affiche sur tout signalement dont la chanson est retirée.
+- Le quota de propositions est consommé avant l'écriture : le perdant d'une course en perd une.
+- Petites remarques de revue, non traitées : `.last()` sur « Lamma Bada » dans les parcours de bout en bout (dépend de l'ordre de la file et de la démonstration), libellés « Chanson retirée » et « rétablie » cherchés sans précision, un commentaire de `mocks/catalog.ts` qui parle de `STORED_TRANSLIT` hors de propos, et aucun message de confirmation avant un retrait en masse hors `--dry-run`.
+
 ## Contraintes globales
 
 - TypeScript `strict: true`. Aucun `any` explicite.

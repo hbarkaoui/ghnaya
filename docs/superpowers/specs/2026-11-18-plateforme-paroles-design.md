@@ -88,7 +88,7 @@ Les clubs de chant ont besoin de lire les paroles de chansons arabes et tunisien
 | Membre (compte avec e-mail vérifié) | Tout ce que fait le visiteur, plus : gérer ses playlists personnelles, proposer des ajouts et des corrections, rejoindre **un** club, activer la translittération. Un membre appartient à **un seul club** : rejoindre un autre club lui fait quitter le premier, après confirmation |
 | Animateur (rôle global attribué par un admin, puis rôle dans chaque club qu'il anime) | Créer des clubs et en animer **plusieurs** ; voir, modifier et choisir ses clubs ; gérer les playlists et les membres de ses clubs, régénérer le lien d'invitation, promouvoir un membre en animateur du club |
 | Modérateur (rôle global, attribué par un admin) | Approuver et rejeter les révisions, traiter les signalements, retirer et rétablir une chanson. **Il ne peut pas approuver sa propre révision.** |
-| Admin (rôle global) | Tout ce que fait le modérateur, plus : attribuer les rôles (modérateur, animateur) *(depuis le 22/11/2026, plan 2 : en ligne de commande, `pnpm user:role <adresse> [--animator\|--no-animator] [--role member\|moderator\|admin]`, sans page d'administration)*, approuver ses propres révisions (pour amorcer la plateforme), retirer en masse par source, lancer les imports |
+| Admin (rôle global) | Tout ce que fait le modérateur, plus : attribuer les rôles (modérateur, animateur) *(depuis le 22/11/2026, plan 2 : en ligne de commande, `pnpm user:role <adresse> [--animator\|--no-animator] [--role member\|moderator\|admin]`, sans page d'administration)*, approuver ses propres révisions (pour amorcer la plateforme), retirer en masse par source *(depuis le 23/11/2026, plan 3 : en ligne de commande, `pnpm songs:remove`, voir §9)*, lancer les imports |
 
 ### 4.4 Pages
 
@@ -103,6 +103,8 @@ Les clubs de chant ont besoin de lire les paroles de chansons arabes et tunisien
 | `/lecture/[playlistId]/[position]` | Lecteur plein écran |
 | `/contribuer`, `/contribuer/[songId]`, `/mes-contributions` | Ajout d'une chanson, correction, suivi des propositions |
 | `/moderation`, `/moderation/signalements` | File des révisions et file des signalements |
+| `/moderation/[revisionId]`, `/moderation/signalements/[id]` | Une révision à relire, un signalement à traiter *(ajoutées le 23/11/2026, plan 3)* |
+| `GET /api/artistes?q=` | Autocomplétion des artistes du formulaire de proposition, réservée aux personnes connectées *(ajoutée le 23/11/2026, plan 3, écart 4)* |
 | `/signaler/[songId]` | Formulaire de signalement |
 
 ## 5. Modèle de données
@@ -143,12 +145,15 @@ song_revisions(
   status: pending|approved|rejected,
   reviewer_id null, review_note null, reviewed_at null
 )
+-- depuis le 23/11/2026 (plan 3) : author_id et reviewer_id peuvent être nuls (ON DELETE SET NULL, voir §12) ;
+-- index unique partiel sur (author_id, song_id) pour le statut pending (une seule révision en attente par auteur et par chanson)
 
 reports(
   id, song_id, reporter_id null, contact_email null,
   reason: copyright|wrong_lyrics|duplicate|spam|other,
   details, status: open|resolved|dismissed, resolution_note, resolved_by null
 )
+-- depuis le 23/11/2026 (plan 3) : reporter_id et resolved_by peuvent être nuls (ON DELETE SET NULL)
 
 clubs(id, name, slug unique, description, invite_code unique, created_by)
 club_members(club_id, user_id, role: animator|member, primary key(club_id, user_id))
@@ -243,7 +248,7 @@ playlist_items(id, playlist_id, song_id, position, note text null, unique(playli
    - les paroles, dans une zone de texte en `dir="rtl"`, obligatoires, entre 20 et 20 000 caractères ;
    - la translittération, facultative ;
    - la case « Ce contenu est dans le domaine public ou j'ai le droit de le partager », obligatoire.
-2. **Détection des doublons** : avant l'envoi, `searchSongs` est lancé sur le titre et l'artiste, et les trois meilleurs résultats sont proposés sous l'en-tête « existe peut-être déjà ». Le contributeur peut confirmer et envoyer quand même.
+2. **Détection des doublons** : avant l'envoi, `searchSongs` est lancé sur le titre et l'artiste, et les trois meilleurs résultats sont proposés sous l'en-tête « existe peut-être déjà ». *(Depuis le 23/11/2026, plan 3, écart 5 : la recherche porte sur les titres et ne lit pas les paroles ; l'artiste saisi en premier sert au classement.)* Le contributeur peut confirmer et envoyer quand même.
 3. **Envoi** : une ligne `song_revisions` est créée en `pending`.
    - Pour une correction (`/contribuer/[songId]`), le formulaire est pré-rempli et la révision porte le `song_id`.
    - Une seule révision `pending` est autorisée par auteur et par chanson.
@@ -255,6 +260,7 @@ playlist_items(id, playlist_id, song_id, position, note text null, unique(playli
    - une révision d'ajout crée la chanson (`source = contribution`) ;
    - une révision de correction met à jour la chanson ;
    - dans les deux cas, les colonnes de recherche sont recalculées ;
+   - une correction approuvée pose `import_locked` sur la chanson, pour qu'un nouvel import ne l'écrase pas *(depuis le 23/11/2026, plan 3, écart 6)* ;
    - si les paroles ont changé sans qu'une nouvelle translittération soit fournie, `lyrics_translit` est remise à vide et `translit_status` à `none`.
 6. **Suivi** : le contributeur voit le statut et la note du modérateur dans `/mes-contributions`. Il n'y a pas de notification par e-mail dans le MVP.
 7. **Anti-spam** : un e-mail vérifié est obligatoire, avec 10 révisions par jour au maximum par utilisateur.
@@ -267,8 +273,8 @@ playlist_items(id, playlist_id, song_id, position, note text null, unique(playli
   - retirer la chanson (`status = removed`, avec le motif) ;
   - corriger la chanson ;
   - classer le signalement sans suite.
-- **Retrait en masse** : un admin peut retirer d'un coup toutes les chansons d'une `source` donnée, au besoin filtrées par artiste.
-- **Réversibilité** : un retrait est annulable par un modérateur, puisque c'est un retrait doux.
+- **Retrait en masse** : un admin peut retirer d'un coup toutes les chansons d'une `source` donnée, au besoin filtrées par artiste. *(Depuis le 23/11/2026, plan 3, écarts 2 et 3 : il se lance en ligne de commande, `pnpm songs:remove --source <source> [--artist <uuid>] --reason "<motif>" [--dry-run] [--restore]`, comme `pnpm user:role`. Un retrait pose `import_locked`.)*
+- **Réversibilité** : un retrait est annulable par un modérateur, puisque c'est un retrait doux. *(Depuis le 23/11/2026, plan 3, écart 3 : une chanson se rétablit depuis la page du signalement qui l'a retirée ; un retrait en masse se rétablit par `--restore`.)*
 - **Page publique** : `/a-propos/droits` décrit la procédure de retrait.
 
 ## 10. Clubs, playlists et lecteur
@@ -330,7 +336,7 @@ Les chansons importées sont publiées directement, sans passer par la file de m
   - signalements : 10 par jour et par IP ;
   - translittération : plafond global quotidien.
 - **Erreurs** : une page d'erreur générique est prévue, et les exceptions serveur sont journalisées avec un identifiant de corrélation.
-- **Suppression de compte** : un utilisateur peut supprimer son compte. Ses playlists personnelles et ses adhésions aux clubs sont alors supprimées. Ses révisions sont conservées, mais elles sont anonymisées : `author_id` pointe vers un utilisateur système « compte supprimé ». S'il était le dernier animateur d'un club, il doit d'abord désigner un autre animateur ou supprimer le club.
+- **Suppression de compte** : un utilisateur peut supprimer son compte. Ses playlists personnelles et ses adhésions aux clubs sont alors supprimées. Ses révisions sont conservées, mais elles sont anonymisées : `author_id` pointe vers un utilisateur système « compte supprimé » *(modifié le 23/11/2026, plan 3, écart 1 : `author_id` est mis à nul, sans utilisateur système ; l'interface affiche « un compte supprimé »)*. S'il était le dernier animateur d'un club, il doit d'abord désigner un autre animateur ou supprimer le club.
 - **Hébergement retenu** : l'application est hébergée sur **Vercel**, et PostgreSQL est managé chez **Neon**, qui prend en charge `pg_trgm`, les sauvegardes et la restauration à un instant donné. C'est l'option qui demande le moins de maintenance. L'application reste portable, avec un Dockerfile fourni pour un futur passage sur un serveur dédié.
 - **Sauvegardes** : en plus de celles de Neon, une GitHub Action fait chaque nuit un `pg_dump` vers un stockage objet.
 - **CI** (GitHub Actions) : lint, vérification des types, tests unitaires, tests d'intégration sur un PostgreSQL de service, et tests de bout en bout Playwright à chaque pull request.
