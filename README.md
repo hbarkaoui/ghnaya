@@ -57,7 +57,7 @@ pnpm user:role rania@example.com --role moderator --no-animator
 
   `pnpm songs:remove --source lrclib|public_domain|contribution --reason "<motif>" [--artist <uuid>] [--dry-run] [--restore]`
 
-  `--dry-run` compte sans rien changer ; `--restore` rétablit les chansons retirées avec le même motif. Un retrait protège la chanson des imports (`import_locked`), et un rétablissement laisse cette protection.
+  `--dry-run` compte sans rien changer ; `--restore` rétablit les chansons retirées en masse avec le même motif, pas celles retirées depuis un signalement. Un retrait protège la chanson des imports (`import_locked`), et un rétablissement laisse cette protection.
 - **Comptes supprimés** : leurs propositions et leurs signalements restent, sans auteur (« un compte supprimé »).
 
 ## Import LRCLIB

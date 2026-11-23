@@ -274,7 +274,7 @@ playlist_items(id, playlist_id, song_id, position, note text null, unique(playli
   - corriger la chanson ;
   - classer le signalement sans suite.
 - **Retrait en masse** : un admin peut retirer d'un coup toutes les chansons d'une `source` donnée, au besoin filtrées par artiste. *(Depuis le 23/11/2026, plan 3, écarts 2 et 3 : il se lance en ligne de commande, `pnpm songs:remove --source <source> [--artist <uuid>] --reason "<motif>" [--dry-run] [--restore]`, comme `pnpm user:role`. Un retrait pose `import_locked`.)*
-- **Réversibilité** : un retrait est annulable par un modérateur, puisque c'est un retrait doux. *(Depuis le 23/11/2026, plan 3, écart 3 : une chanson se rétablit depuis la page du signalement qui l'a retirée ; un retrait en masse se rétablit par `--restore`.)*
+- **Réversibilité** : un retrait est annulable par un modérateur, puisque c'est un retrait doux. *(Depuis le 23/11/2026, plan 3, écart 3 : une chanson se rétablit depuis la page du signalement qui l'a retirée ; un retrait en masse se rétablit par `--restore`, qui ne touche pas aux retraits faits depuis un signalement (colonne `removed_by_bulk`, durcissement du 23/11/2026).)*
 - **Page publique** : `/a-propos/droits` décrit la procédure de retrait.
 
 ## 10. Clubs, playlists et lecteur
