@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { toCurrentUser, type CurrentUser } from "@/lib/auth/types";
 import { db } from "@/lib/db/client";
 import { songs, users } from "@/lib/db/schema";
+import * as fixedWindow from "@/lib/ratelimit/fixedWindow";
 import { fakeTranslit } from "@/lib/translit/fake";
 import type { TranslitGenerator } from "@/lib/translit/generator";
 import { TRANSLIT_LIMIT_KEY, requestSongTranslit, type TranslitServiceOptions } from "@/lib/translit/service";
@@ -179,6 +180,36 @@ describe("requestSongTranslit", () => {
       status: "reviewed",
     });
     expect(await song(id)).toMatchObject({ lyricsTranslit: "relue\nrelue", translitStatus: "reviewed" });
+  });
+
+  it("une erreur de la base après la prise du verrou le relâche, et remonte", async () => {
+    const id = await insertSong("Ya Lil");
+    const spy = vi.spyOn(fixedWindow, "hitRateLimit").mockRejectedValue(new Error("base indisponible"));
+    try {
+      const generator = echo();
+      await expect(requestSongTranslit(id, await member(), options(generator))).rejects.toThrow("base indisponible");
+      expect(generator).not.toHaveBeenCalled();
+    } finally {
+      spy.mockRestore();
+    }
+    expect(await song(id)).toMatchObject({ translitStatus: "none", translitStartedAt: null });
+  });
+
+  it("une révision sans translittération pendant la génération : « failed », la chanson reste « none » (écart 8)", async () => {
+    const id = await insertSong("Ya Lil");
+    const generator = vi.fn<TranslitGenerator>(async ({ lyrics }) => {
+      // Ce que fait l'approbation d'une correction des paroles sans translittération.
+      await db
+        .update(songs)
+        .set({ lyricsTranslit: null, translitStatus: "none", translitStartedAt: null, updatedAt: new Date() })
+        .where(eq(songs.id, id));
+      return fakeTranslit(lyrics);
+    });
+    await expect(requestSongTranslit(id, await member(), options(generator))).resolves.toEqual({
+      ok: false,
+      reason: "failed",
+    });
+    expect(await song(id)).toMatchObject({ lyricsTranslit: null, translitStatus: "none" });
   });
 
   it("une chanson retirée ou absente : « failed », sans génération", async () => {

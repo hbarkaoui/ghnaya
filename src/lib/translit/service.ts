@@ -64,18 +64,22 @@ export async function requestSongTranslit(
     return readyResult(await readTranslit(songId)) ?? waitForTranslit(songId, options.waitMs ?? WAIT_MS, options.pollMs ?? POLL_MS);
   }
 
-  const { allowed } = await hitRateLimit(TRANSLIT_LIMIT_KEY, options.dailyLimit, DAY_SECONDS);
-  if (!allowed) {
-    await releaseTranslit(songId, claim.startedAt);
-    return { ok: false, reason: "limit" };
-  }
+  // Toute erreur après la prise (base, plafond) doit lever le verrou, sinon la chanson reste « generating »
+  // jusqu'à la reprise des 2 minutes. `releaseTranslit` est sans effet si une écriture a déjà levé le verrou.
+  try {
+    const { allowed } = await hitRateLimit(TRANSLIT_LIMIT_KEY, options.dailyLimit, DAY_SECONDS);
+    if (!allowed) return { ok: false, reason: "limit" };
 
-  const generation = await generateAligned(options.generator, { lyrics: claim.lyrics, dialect: claim.dialect }, options.timeoutMs);
-  if (generation.ok && (await finishTranslit(songId, claim.startedAt, generation.text))) {
-    return { ok: true, text: generation.text, status: "auto" };
+    const generation = await generateAligned(options.generator, { lyrics: claim.lyrics, dialect: claim.dialect }, options.timeoutMs);
+    if (generation.ok && (await finishTranslit(songId, claim.startedAt, generation.text))) {
+      return { ok: true, text: generation.text, status: "auto" };
+    }
+    if (!generation.ok) console.error(`[translit] chanson ${songId} : échec de la génération (${generation.reason})`);
+    await releaseTranslit(songId, claim.startedAt);
+    // Résultat jeté (écart 8) : la chanson a changé pendant la génération.
+    return readyResult(await readTranslit(songId)) ?? FAILED;
+  } finally {
+    // Sans effet quand le verrou est déjà levé ; une erreur du relâchement ne masque pas l'erreur d'origine.
+    await releaseTranslit(songId, claim.startedAt).catch(() => undefined);
   }
-  if (!generation.ok) console.error(`[translit] chanson ${songId} : échec de la génération (${generation.reason})`);
-  await releaseTranslit(songId, claim.startedAt);
-  // Résultat jeté (écart 8) : la chanson a changé pendant la génération.
-  return readyResult(await readTranslit(songId)) ?? FAILED;
 }
