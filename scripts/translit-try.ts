@@ -6,6 +6,7 @@ import { db, pool } from "@/lib/db/client";
 import { isUuid } from "@/lib/db/uuid";
 import { songs } from "@/lib/db/schema";
 import { anthropicGenerator } from "@/lib/translit/anthropic";
+import { translitLines } from "@/lib/translit/align";
 import { generateAligned } from "@/lib/translit/generate";
 
 async function main(): Promise<void> {
@@ -23,7 +24,7 @@ async function main(): Promise<void> {
     return;
   }
   const latin = result.text.split("\n");
-  song.lyrics.split("\n").forEach((line, i) => console.log(`${line}\n    ${latin[i]}`));
+  translitLines(song.lyrics).forEach((line, i) => console.log(`${line}\n    ${latin[i]}`));
 }
 
 main()
