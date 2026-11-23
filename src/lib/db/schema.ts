@@ -6,6 +6,7 @@ import {
   check,
   index,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   primaryKey,
@@ -15,6 +16,8 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { DIALECTS, SONG_SOURCES, TRANSLIT_STATUSES } from "../../types/catalog";
+import { PROPOSAL_STATUSES, type ProposalPayload } from "../../types/proposal";
+import { REPORT_REASONS, REPORT_STATUSES } from "../../types/report";
 
 export { DIALECTS, SONG_SOURCES };
 export type { Dialect, SongSource } from "../../types/catalog";
@@ -235,5 +238,64 @@ export const playlistItems = pgTable(
   (t) => [
     uniqueIndex("playlist_items_position_uq").on(t.playlistId, t.position),
     uniqueIndex("playlist_items_song_uq").on(t.playlistId, t.songId),
+  ],
+);
+
+// Plan 3, tâche 1 : propositions (révisions) et signalements (spec §5, §8, §9).
+export const revisionStatusEnum = pgEnum("revision_status", PROPOSAL_STATUSES);
+export const reportReasonEnum = pgEnum("report_reason", REPORT_REASONS);
+export const reportStatusEnum = pgEnum("report_status", REPORT_STATUSES);
+
+export const songRevisions = pgTable(
+  "song_revisions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    // Nul pour un ajout. Pas de cascade : une chanson n'est jamais supprimée, seulement retirée.
+    songId: uuid("song_id").references(() => songs.id),
+    // Nul une fois le compte supprimé : la proposition reste, anonymisée (écart 1).
+    authorId: uuid("author_id").references(() => users.id, { onDelete: "set null" }),
+    // Version complète proposée (titres, artistes, paroles, translittération, dialecte).
+    payload: jsonb("payload").$type<ProposalPayload>().notNull(),
+    rightsDeclared: boolean("rights_declared").notNull(),
+    status: revisionStatusEnum("status").notNull().default("pending"),
+    reviewerId: uuid("reviewer_id").references(() => users.id, { onDelete: "set null" }),
+    reviewNote: text("review_note"),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+    ...timestamps,
+  },
+  (t) => [
+    // Une seule révision en attente par auteur et par chanson (spec §8.3). Un ajout (`song_id` nul) et un
+    // auteur supprimé (`author_id` nul) n'y sont pas soumis : deux valeurs nulles ne sont jamais égales.
+    uniqueIndex("song_revisions_pending_uq").on(t.authorId, t.songId).where(sql`status = 'pending'`),
+    index("song_revisions_queue_idx").on(t.status, t.createdAt),
+    index("song_revisions_author_idx").on(t.authorId),
+    check("song_revisions_rights_ck", sql`${t.rightsDeclared} = true`),
+    check("song_revisions_reviewed_ck", sql`(${t.status} = 'pending') = (${t.reviewedAt} IS NULL)`),
+    check("song_revisions_reject_note_ck", sql`${t.status} <> 'rejected' OR ${t.reviewNote} IS NOT NULL`),
+  ],
+);
+
+export const reports = pgTable(
+  "reports",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    songId: uuid("song_id")
+      .notNull()
+      .references(() => songs.id),
+    // Nul pour un visiteur (qui laisse `contact_email`), ou une fois le compte supprimé (écart 1).
+    reporterId: uuid("reporter_id").references(() => users.id, { onDelete: "set null" }),
+    contactEmail: text("contact_email"),
+    reason: reportReasonEnum("reason").notNull(),
+    details: text("details").notNull(),
+    status: reportStatusEnum("status").notNull().default("open"),
+    resolutionNote: text("resolution_note"),
+    resolvedBy: uuid("resolved_by").references(() => users.id, { onDelete: "set null" }),
+    ...timestamps,
+  },
+  (t) => [
+    index("reports_queue_idx").on(t.status, t.createdAt),
+    index("reports_song_idx").on(t.songId),
+    // Un signalement traité ou classé porte toujours sa note (spec §9) ; un signalement ouvert n'en a pas.
+    check("reports_resolution_ck", sql`(${t.status} = 'open') = (${t.resolutionNote} IS NULL)`),
   ],
 );

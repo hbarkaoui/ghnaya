@@ -34,3 +34,22 @@ export interface Proposal {
   createdAt: string;
   reviewedAt: string | null;
 }
+
+/**
+ * Proposition lue en base (plan 3). L'auteur peut avoir supprimé son compte depuis : `authorId` et
+ * `authorName` sont alors nuls (écart 1), et l'interface affiche « un compte supprimé ».
+ */
+export interface Revision extends Omit<Proposal, "authorId"> {
+  authorId: string | null;
+  authorName: string | null;
+}
+
+/**
+ * Proposition dans une liste (Mes contributions, file de modération) : sans les paroles ni la
+ * translittération, qui comptent jusqu'à 20 000 caractères chacune. `songPublished` : la chanson corrigée
+ * est encore publiée (lien « Voir la chanson »).
+ */
+export interface RevisionSummary extends Omit<Revision, "payload"> {
+  payload: Pick<ProposalPayload, "titleAr" | "titleLatin" | "artists">;
+  songPublished: boolean;
+}

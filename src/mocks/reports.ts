@@ -3,9 +3,10 @@
  * Module partagé par la tâche 14 (modération) et la tâche 15 (formulaire « Signaler ») : ne pas le
  * modifier ; étendre dans un autre module si besoin.
  */
-export const REPORT_REASONS = ["copyright", "wrong_lyrics", "duplicate", "spam", "other"] as const;
-export type ReportReason = (typeof REPORT_REASONS)[number];
-export type ReportStatus = "open" | "resolved" | "dismissed";
+import { REPORT_REASONS, type ReportReason, type ReportStatus } from "@/types/report";
+
+export { REPORT_REASONS };
+export type { ReportReason, ReportStatus };
 
 export interface Report {
   id: string;

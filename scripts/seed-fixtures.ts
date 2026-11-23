@@ -10,7 +10,7 @@ async function main(): Promise<void> {
   if (!/@(localhost|127\.0\.0\.1)(:\d+)?\//.test(url)) {
     throw new Error("seed-fixtures vide la base : refusé hors de localhost.");
   }
-  await db.execute(sql`TRUNCATE playlist_items, playlists, club_members, clubs, verifications, accounts, sessions,
+  await db.execute(sql`TRUNCATE reports, song_revisions, playlist_items, playlists, club_members, clubs, verifications, accounts, sessions,
     users, song_artists, songs, artists, rate_limits CASCADE`);
   const ids = await seedFixtures(db);
   console.log(`${ids.size} chansons de test insérées.`);

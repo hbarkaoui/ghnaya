@@ -11,3 +11,8 @@ if (process.env.NODE_ENV !== "production") globalForDb.ghanniPool = pool;
 
 export const db = drizzle(pool, { schema });
 export type Db = typeof db;
+
+/** Transaction ouverte par `db.transaction`. */
+export type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
+/** La base, ou une transaction en cours : pour les écritures qui servent seules ou dans une transaction. */
+export type Executor = Db | Tx;
