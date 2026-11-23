@@ -165,7 +165,7 @@ playlist_items(id, playlist_id, song_id, position, note text null, unique(playli
 
 **Règles**
 
-- **Retrait doux.** Une chanson retirée passe en `removed` sans être supprimée. Les playlists affichent alors « chanson retirée », et `/chanson/[id]` renvoie une page 410.
+- **Retrait doux.** Une chanson retirée passe en `removed` sans être supprimée. Les playlists affichent alors « chanson retirée », et `/chanson/[id]` renvoie une page 410. *(Depuis le 23/11/2026, plan 3, écart 10 : c'est une page 404 « introuvable ou retirée », comme depuis le plan 1.)*
 - **Colonnes de recherche.** Les colonnes `search_*` sont recalculées par `lib/text` à chaque écriture, que ce soit par import ou par l'approbation d'une révision. Elles ne sont jamais modifiées à la main.
 - **Animateurs.** Un club garde toujours au moins un animateur. Le dernier animateur ne peut ni partir ni être rétrogradé.
 - **Un seul club par membre** (rectification du 19/11/2026). Un utilisateur sans `is_animator` a au plus une ligne dans `club_members`. La règle est appliquée par `lib/clubs`, dans la transaction d'adhésion : rejoindre un club supprime l'adhésion précédente. Un animateur (`is_animator`) peut appartenir à plusieurs clubs.
