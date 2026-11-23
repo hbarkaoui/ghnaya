@@ -19,7 +19,8 @@
     "import:public-domain": "tsx scripts/import/publicDomain.ts",
     "bench:search": "tsx scripts/bench-search.ts",
     "reindex:search": "tsx scripts/reindex-search.ts",
-    "user:role": "tsx scripts/user-role.ts"
+    "user:role": "tsx scripts/user-role.ts",
+    "songs:remove": "tsx scripts/remove-songs.ts"
   },
   "dependencies": {
     "better-auth": "^1.7.27",

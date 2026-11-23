@@ -4,10 +4,10 @@ import { ARTIST_PAGE_SIZE } from "@/lib/artist/routes";
 import type { ArtistPage } from "@/lib/artist/types";
 import { db } from "@/lib/db/client";
 import type { Dialect, SongSource } from "@/lib/db/schema";
+import { isUuid } from "@/lib/db/uuid";
 import type { ArtistRef, Song, TranslitStatus } from "@/types/catalog";
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-export const isUuid = (value: string): boolean => UUID_RE.test(value);
+export { isUuid };
 
 /** Artistes d'une chanson `s`, dans l'ordre du générique, en JSON (`ArtistRef[]`). */
 export const ARTISTS_OF = (songAlias: string) =>
