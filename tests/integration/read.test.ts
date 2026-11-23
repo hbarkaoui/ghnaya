@@ -15,19 +15,20 @@ describe("passerelle de lecture du catalogue", () => {
     ids = await seedFixtures(db);
   });
 
-  it("lit un UUID en base et un identifiant fictif dans le catalogue fictif", async () => {
-    const fromDb = await getSong(ids.get("s-sidi-mansour")!);
-    expect(fromDb).toMatchObject({ id: ids.get("s-sidi-mansour"), titleLatin: "Sidi Mansour" });
-    const fromMock = await getSong("s-sidi-mansour");
-    expect(fromMock).toMatchObject({ id: "s-sidi-mansour", titleLatin: "Sidi Mansour" });
+  it("lit un UUID en base ; un identifiant fictif ou inconnu n'est aucune chanson", async () => {
+    expect(await getSong(ids.get("s-sidi-mansour")!)).toMatchObject({
+      id: ids.get("s-sidi-mansour"),
+      titleLatin: "Sidi Mansour",
+    });
+    expect(await getSong("s-sidi-mansour")).toBeUndefined();
     expect(await getSong(UNKNOWN_UUID)).toBeUndefined();
     expect(await getSong("s-inconnue")).toBeUndefined();
   });
 
-  it("lit la page artiste en base ou dans le catalogue fictif", async () => {
+  it("lit la page artiste en base ; un identifiant fictif n'est aucun artiste", async () => {
     const r = await db.execute<{ id: string }>(sql`SELECT id FROM artists WHERE identity_key = 'saber rebai'`);
     expect((await getArtistPage(r.rows[0].id, 1))?.artist.nameLatin).toBe("Saber Rebai");
-    expect((await getArtistPage("a-saber", 1))?.artist.id).toBe("a-saber");
+    expect(await getArtistPage("a-saber", 1)).toBeNull();
   });
 
   it("numérote une playlist d'après la base seule, sans les chansons retirées, inconnues ou fictives", async () => {
@@ -48,13 +49,12 @@ describe("passerelle de lecture du catalogue", () => {
     ]);
   });
 
-  it("songExists : connue publiée ou retirée, en base comme en fictif", async () => {
+  it("songExists : connue publiée ou retirée, en base seulement", async () => {
     const removed = ids.get("s-ala-nar")!;
     await db.update(songs).set({ status: "removed" }).where(eq(songs.id, removed));
     expect(await songExists(removed)).toBe(true);
     expect(await songExists(ids.get("s-habaytak")!)).toBe(true);
     expect(await songExists(UNKNOWN_UUID)).toBe(false);
-    expect(await songExists("s-sidi-mansour")).toBe(true);
-    expect(await songExists("s-inconnue")).toBe(false);
+    expect(await songExists("s-sidi-mansour")).toBe(false);
   });
 });
