@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { knownArtists, resolveArtists, suggestArtists, type KnownArtist } from "@/lib/contribution/artists";
-import { SONGS } from "@/mocks/catalog";
+import { resolveArtists, suggestArtists, type KnownArtist } from "@/lib/contribution/artists";
 
 const ARTISTS: KnownArtist[] = [
   { id: "a-saber", nameAr: "صابر الرباعي", nameLatin: "Saber Rebai" },
@@ -11,14 +10,6 @@ const ARTISTS: KnownArtist[] = [
 ];
 
 const ids = (artists: KnownArtist[]) => artists.map((a) => a.id);
-
-describe("knownArtists", () => {
-  it("rassemble les artistes du catalogue, chacun une seule fois", () => {
-    const artists = knownArtists(SONGS);
-    expect(artists.length).toBe(new Set(artists.map((a) => a.id)).size);
-    expect(artists).toContainEqual({ id: "a-saber", nameAr: "صابر الرباعي", nameLatin: "Saber Rebai" });
-  });
-});
 
 describe("suggestArtists", () => {
   it("ne propose rien sous 2 lettres", () => {

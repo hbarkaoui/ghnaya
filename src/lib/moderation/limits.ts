@@ -18,3 +18,15 @@ export async function allowReport(ip: string): Promise<boolean> {
   const { allowed } = await hitRateLimit(`report:${ip}`, REPORT_LIMIT.limit, REPORT_LIMIT.windowSeconds);
   return allowed;
 }
+
+/** L'autocomplétion des artistes interroge la base à chaque frappe : 120 requêtes par minute et par personne. */
+export const ARTIST_SUGGEST_LIMIT = { limit: 120, windowSeconds: 60 } as const;
+
+export async function allowArtistSuggestion(userId: string): Promise<boolean> {
+  const { allowed } = await hitRateLimit(
+    `artists:${userId}`,
+    ARTIST_SUGGEST_LIMIT.limit,
+    ARTIST_SUGGEST_LIMIT.windowSeconds,
+  );
+  return allowed;
+}

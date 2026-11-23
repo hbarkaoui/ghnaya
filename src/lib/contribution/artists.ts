@@ -2,22 +2,13 @@ import { countSignificant, detectScript } from "@/lib/text/detectScript";
 import { normalizeArabic } from "@/lib/text/normalizeArabic";
 import { normalizeLatin } from "@/lib/text/normalizeLatin";
 import { toSearchKey } from "@/lib/text/searchKey";
-import type { ArtistRef, Song } from "@/types/catalog";
+import type { ArtistRef } from "@/types/catalog";
 import type { ProposedArtist } from "@/types/proposal";
 
 /** Artiste de la base, tel que l'autocomplétion le connaît. */
 export type KnownArtist = Pick<ArtistRef, "id" | "nameAr" | "nameLatin">;
 
 const SUGGESTIONS_MAX = 5;
-
-/** Artistes du catalogue, chacun une seule fois. MAQUETTE : le plan 3 interrogera la table `artists`. */
-export function knownArtists(songs: readonly Pick<Song, "artists">[]): KnownArtist[] {
-  const byId = new Map<string, KnownArtist>();
-  for (const { artists } of songs) {
-    for (const { id, nameAr, nameLatin } of artists) if (!byId.has(id)) byId.set(id, { id, nameAr, nameLatin });
-  }
-  return [...byId.values()];
-}
 
 const words = (text: string) => text.split(/\s+/).filter(Boolean);
 

@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
-import { knownArtists, resolveArtists } from "@/lib/contribution/artists";
+import { artistCandidates } from "@/lib/catalog/artistSuggestions";
+import { resolveArtists } from "@/lib/contribution/artists";
 import { isSameAsSong } from "@/lib/contribution/correction";
 import { contributionsHref, loginHref } from "@/lib/contribution/routes";
 import {
@@ -14,7 +15,6 @@ import {
 } from "@/lib/contribution/validate";
 import { getCurrentUser } from "@/lib/session";
 import { getSong } from "@/lib/catalog/read";
-import { SONGS } from "@/mocks/catalog";
 import { proposalStore } from "@/mocks/proposals";
 
 /** Réponse à un envoi refusé : les messages d'erreur, déjà traduits, champ par champ. */
@@ -65,7 +65,7 @@ export async function submitProposal(
   const result = validateProposal(proposalInputFromFormData(formData));
   if (!result.ok) return fail(result.errors);
 
-  const payload = { ...result.draft, artists: resolveArtists(result.draft.artists, knownArtists(SONGS)) };
+  const payload = { ...result.draft, artists: resolveArtists(result.draft.artists, await artistCandidates(result.draft.artists)) };
   if (song && isSameAsSong(payload, song)) return fail({ form: { code: "unchanged" } });
 
   const proposal = proposalStore.add({ authorId: user.id, songId: song?.id ?? null, payload });

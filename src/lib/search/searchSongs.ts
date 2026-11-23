@@ -39,7 +39,7 @@ const or = (parts: SQL[]): SQL => (parts.length > 0 ? sql`(${sql.join(parts, sql
  * 6 points ; passage trouvé dans les paroles, 3 points. Des paroles qui n'ont que tous les mots de la requête arabe
  * (`lyricsWords`) sont trouvées, sans points.
  */
-function buildClauses(q: PreparedQuery): { score: SQL; lyricsMatch: SQL; where: SQL } {
+function buildClauses(q: PreparedQuery, inLyrics: boolean): { score: SQL; lyricsMatch: SQL; where: SQL } {
   const textPrefix: SQL[] = [];
   const keyPrefix: SQL[] = [];
   const similarity: SQL[] = [];
@@ -66,7 +66,7 @@ function buildClauses(q: PreparedQuery): { score: SQL; lyricsMatch: SQL; where: 
 
   const lyrics: SQL[] = [];
   const scoredLyrics: SQL[] = [];
-  if (q.ar) {
+  if (inLyrics && q.ar) {
     const found = contains(COL.lyricsSearchAr, q.ar);
     lyrics.push(found);
     scoredLyrics.push(found);
@@ -79,7 +79,7 @@ function buildClauses(q: PreparedQuery): { score: SQL; lyricsMatch: SQL; where: 
   }
   // Spec §6.2 : la clé ne cherche dans les paroles que pour une requête en latin ; en arabe, le texte
   // normalisé suffit, et une clé de 4 consonnes se retrouve dans les paroles d'une chanson sur dix.
-  if (q.lat && q.key.length >= LYRICS_KEY_MIN_LENGTH) {
+  if (inLyrics && q.lat && q.key.length >= LYRICS_KEY_MIN_LENGTH) {
     const found = contains(COL.lyricsSearchKey, q.key);
     lyrics.push(found);
     if (q.key.length >= LYRICS_KEY_SCORE_MIN_LENGTH) scoredLyrics.push(found);
@@ -115,7 +115,7 @@ export async function searchSongs(raw: string, opts: SearchOptions = {}): Promis
   const q = prepareQuery(raw);
   if (q.significant < MIN_SIGNIFICANT) return { items: [], total: 0, page, tooShort: true };
 
-  const { score, lyricsMatch, where } = buildClauses(q);
+  const { score, lyricsMatch, where } = buildClauses(q, opts.inLyrics ?? true);
   const filters: SQL[] = [sql`s.status = 'published'`, where];
   if (opts.dialect) filters.push(sql`s.dialect = ${opts.dialect}`);
   if (opts.artistId) {

@@ -12,7 +12,6 @@ import { LyricsTextarea } from "@/components/form/LyricsTextarea";
 import { Select } from "@/components/form/Select";
 import { TextField } from "@/components/form/TextField";
 import { useActionGuard } from "@/components/system/useActionGuard";
-import type { KnownArtist } from "@/lib/contribution/artists";
 import type { ContributionFormValues } from "@/lib/contribution/correction";
 import { contributeHref } from "@/lib/contribution/routes";
 import { ARTISTS_MAX, type ProposalField } from "@/lib/contribution/validate";
@@ -50,12 +49,10 @@ type ArtistRow = { key: number; value: string };
 export function ContributionForm({
   songId,
   initial,
-  artists,
   similar,
 }: {
   songId: string | null;
   initial: ContributionFormValues;
-  artists: readonly KnownArtist[];
   similar?: ReactNode;
 }) {
   const t = useTranslations("contribute");
@@ -182,7 +179,6 @@ export function ContributionForm({
                 name="artist"
                 value={row.value}
                 onChange={(value) => setArtist(i, value)}
-                artists={artists}
                 label={t("artists.label", { n: String(i + 1) })}
                 listLabel={t("artists.suggestions")}
                 invalid={Boolean(errors.artists)}

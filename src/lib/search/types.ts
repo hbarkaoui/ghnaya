@@ -20,6 +20,8 @@ export interface SearchOptions {
   artistId?: string;
   dialect?: Dialect;
   page?: number;
+  /** Chercher aussi dans les paroles (vrai par défaut). « Existe peut-être déjà » ne compare que les titres et les artistes. */
+  inLyrics?: boolean;
 }
 
 export interface SearchResult {

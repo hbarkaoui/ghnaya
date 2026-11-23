@@ -7,12 +7,10 @@ import { ContributionForm } from "@/components/contribute/ContributionForm";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
 import { ArtistNames } from "@/components/song/ArtistNames";
-import { knownArtists } from "@/lib/contribution/artists";
 import { formValuesFromSong } from "@/lib/contribution/correction";
 import { contributionsHref, loginHref } from "@/lib/contribution/routes";
 import { getCurrentUser } from "@/lib/session";
 import { getSong } from "@/lib/catalog/read";
-import { SONGS } from "@/mocks/catalog";
 import { proposalStore } from "@/mocks/proposals";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -78,7 +76,7 @@ export default async function CorrectionPage({ params }: PageProps<"/contribuer/
         ) : (
           <>
             <p className="mt-6 mb-6 text-ink-2">{t("correctionIntro")}</p>
-            <ContributionForm songId={song.id} initial={formValuesFromSong(song, locale)} artists={knownArtists(SONGS)} />
+            <ContributionForm songId={song.id} initial={formValuesFromSong(song, locale)} />
           </>
         )}
       </PageMain>

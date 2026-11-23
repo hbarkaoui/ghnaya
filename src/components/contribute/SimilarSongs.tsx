@@ -1,15 +1,14 @@
 import { Info } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { SongResultItem } from "@/components/search/SongResultItem";
-import { SONGS } from "@/mocks/catalog";
-import { findSimilarSongs } from "@/mocks/similar";
+import { findSimilarSongs } from "@/lib/contribution/similarSongs";
 
 /**
  * Encadré « existe peut-être déjà » (spec §8.2) : jusqu'à 3 chansons proches du titre et des artistes
  * saisis, sans extrait. On peut ouvrir l'une d'elles, ou continuer sa proposition. Rien s'il n'y en a pas.
  */
 export async function SimilarSongs({ titles, artists }: { titles: string[]; artists: string[] }) {
-  const hits = findSimilarSongs(SONGS, { titles, artists });
+  const hits = await findSimilarSongs({ titles, artists });
   if (hits.length === 0) return null;
   const t = await getTranslations("contribute.similar");
 

@@ -1,12 +1,13 @@
 "use client";
 
 import { useLocale } from "next-intl";
-import { useId, useMemo, useState, type Ref } from "react";
+import { useId, useState, type Ref } from "react";
 import { CONTROL_CLASS } from "@/components/form/Field";
-import { suggestArtists, type KnownArtist } from "@/lib/contribution/artists";
+import type { KnownArtist } from "@/lib/contribution/artists";
 import { normalizeArabic } from "@/lib/text/normalizeArabic";
 import { normalizeLatin } from "@/lib/text/normalizeLatin";
 import { detectScript } from "@/lib/text/detectScript";
+import { useArtistSuggestions } from "./useArtistSuggestions";
 
 /** Les deux noms d'une suggestion, celui de l'écriture de l'interface d'abord. */
 function ArtistOptionNames({ artist, arabicFirst }: { artist: KnownArtist; arabicFirst: boolean }) {
@@ -39,7 +40,7 @@ const sameName = (a: string, b: string) => normalizeLatin(normalizeArabic(a)) ==
 
 /**
  * Champ d'artiste avec autocomplétion (motif « combobox » de l'ARIA APG) : les artistes connus
- * s'affichent dès 2 lettres, en arabe comme en arabizi ; ↑ ↓ pour parcourir, Entrée pour choisir,
+ * s'affichent dès 2 lettres (lus en base par `/api/artistes`), en arabe comme en arabizi ; ↑ ↓ pour parcourir, Entrée pour choisir,
  * Échap pour fermer. Un nom absent de la liste reste accepté : c'est un nouvel artiste.
  */
 export function ArtistInput({
@@ -47,7 +48,6 @@ export function ArtistInput({
   name,
   value,
   onChange,
-  artists,
   label,
   listLabel,
   describedBy,
@@ -58,7 +58,6 @@ export function ArtistInput({
   name: string;
   value: string;
   onChange: (value: string) => void;
-  artists: readonly KnownArtist[];
   label: string;
   listLabel: string;
   describedBy?: string;
@@ -69,7 +68,7 @@ export function ArtistInput({
   const listId = useId();
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
-  const suggestions = useMemo(() => suggestArtists(value, artists), [value, artists]);
+  const suggestions = useArtistSuggestions(value);
   // Rien à proposer quand le champ contient déjà exactement le seul artiste trouvé.
   const settled =
     suggestions.length === 1 && [suggestions[0].nameAr, suggestions[0].nameLatin].some((n) => n && sameName(n, value));

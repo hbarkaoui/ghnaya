@@ -6,10 +6,8 @@ import { ContributionForm } from "@/components/contribute/ContributionForm";
 import { SimilarSongs } from "@/components/contribute/SimilarSongs";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
-import { knownArtists } from "@/lib/contribution/artists";
 import { contributeHref, loginHref, prefillFromParams } from "@/lib/contribution/routes";
 import { getCurrentUser } from "@/lib/session";
-import { SONGS } from "@/mocks/catalog";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("contribute");
@@ -46,7 +44,6 @@ export default async function ContributePage({ searchParams }: PageProps<"/contr
         <ContributionForm
           songId={null}
           initial={{ ...prefill, lyrics: "", dialect: "", translit: "" }}
-          artists={knownArtists(SONGS)}
           similar={similar}
         />
       </PageMain>
