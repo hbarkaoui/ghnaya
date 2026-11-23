@@ -10,7 +10,8 @@ import { PageMain } from "@/components/shell/PageMain";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { contributionsHref, loginHref, parseStatusFilter } from "@/lib/contribution/routes";
 import { getCurrentUser } from "@/lib/session";
-import { countByStatus, proposalStore } from "@/mocks/proposals";
+import { revisionsOf } from "@/lib/moderation/queries";
+import { countByStatus } from "@/lib/moderation/queue";
 import { PROPOSAL_STATUSES, type ProposalStatus } from "@/types/proposal";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -33,7 +34,7 @@ export default async function MyContributionsPage({ searchParams }: PageProps<"/
   if (!user) redirect(loginHref(contributionsHref({ status })));
 
   const t = await getTranslations("contributions");
-  const proposals = proposalStore.listFor(user.id);
+  const proposals = await revisionsOf(user.id);
   const counts = countByStatus(proposals);
   const shown = status ? proposals.filter((p) => p.status === status) : proposals;
   const sentId = first(raw.envoyee);

@@ -11,7 +11,7 @@ import { formValuesFromSong } from "@/lib/contribution/correction";
 import { contributionsHref, loginHref } from "@/lib/contribution/routes";
 import { getCurrentUser } from "@/lib/session";
 import { getSong } from "@/lib/catalog/read";
-import { proposalStore } from "@/mocks/proposals";
+import { hasPendingRevision } from "@/lib/moderation/queries";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("contribute");
@@ -32,7 +32,7 @@ export default async function CorrectionPage({ params }: PageProps<"/contribuer/
   if (!user) redirect(loginHref(`/contribuer/${song.id}`));
 
   const [t, locale] = await Promise.all([getTranslations("contribute"), getLocale()]);
-  const pending = proposalStore.hasPending(user.id, song.id);
+  const pending = await hasPendingRevision(user.id, song.id);
 
   return (
     <>

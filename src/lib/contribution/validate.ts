@@ -69,7 +69,9 @@ export type ProposalErrorCode =
   | "rightsMissing"
   | "unchanged"
   | "pendingExists"
-  | "songMissing";
+  | "songMissing"
+  | "emailNotVerified"
+  | "tooMany";
 
 export interface ProposalError {
   code: ProposalErrorCode;

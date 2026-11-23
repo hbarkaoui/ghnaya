@@ -1,3 +1,4 @@
+export { formatProposalDate } from "@/lib/moderation/age";
 import type { Proposal, ProposalPayload, ProposalStatus } from "@/types/proposal";
 import { getSong } from "./catalog";
 import { moderationSeedProposals } from "./moderationSeed";
@@ -145,14 +146,4 @@ export const proposalStore: ProposalStore = (globalStore.__ghnayaProposals ??= c
 export function countByStatus(proposals: readonly Proposal[]): Record<"all" | ProposalStatus, number> {
   const count = (status: ProposalStatus) => proposals.filter((p) => p.status === status).length;
   return { all: proposals.length, pending: count("pending"), approved: count("approved"), rejected: count("rejected") };
-}
-
-/** Date d'une proposition, dans la langue de l'interface ; chiffres occidentaux en arabe (usage tunisien). */
-export function formatProposalDate(iso: string, locale: string): string {
-  return new Intl.DateTimeFormat(locale === "ar" ? "ar-TN-u-nu-latn" : "fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "Africa/Tunis",
-  }).format(new Date(iso));
 }

@@ -14,7 +14,7 @@ import { Bidi } from "@/components/ui/Bidi";
 import type { CurrentUser } from "@/lib/auth/types";
 import type { ClubRef } from "@/lib/clubs/types";
 import { getCurrentUser } from "@/lib/session";
-import { pendingContributionsOf } from "@/mocks/account";
+import { pendingRevisionCountOf } from "@/lib/moderation/queries";
 import { moderationQueueSize } from "@/mocks/moderation";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -32,7 +32,7 @@ export default async function MePage({ searchParams }: PageProps<"/moi">) {
 
   if (!user) return <VisitorMe accountDeleted={(await searchParams).compte === "supprime"} />;
 
-  const pendingContributions = pendingContributionsOf(user.id);
+  const pendingContributions = await pendingRevisionCountOf(user.id);
   const moderationQueue = user.isModerator ? moderationQueueSize() : 0;
 
   return (

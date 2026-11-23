@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ageOf, formatAge } from "@/lib/moderation/age";
+import { ageOf, formatAge, formatProposalDate } from "@/lib/moderation/age";
 
 const NOW = new Date("2026-11-19T12:00:00Z");
 
@@ -39,5 +39,12 @@ describe("formatAge", () => {
     expect(text).toMatch(/3/);
     expect(text).not.toMatch(/[٠-٩]/);
     expect(text).toMatch(/[؀-ۿ]/);
+  });
+});
+
+describe("formatProposalDate", () => {
+  it("écrit la date dans la langue de l'interface, en chiffres occidentaux", () => {
+    expect(formatProposalDate("2026-11-18T10:00:00Z", "fr")).toBe("18 novembre 2026");
+    expect(formatProposalDate("2026-11-18T10:00:00Z", "ar")).toMatch(/^18 .+ 2026$/);
   });
 });

@@ -767,7 +767,9 @@
       "rightsMissing": "Cochez cette case pour confirmer que vous pouvez partager ces paroles.",
       "unchanged": "Vous n'avez rien modifié. Corrigez au moins un champ avant d'envoyer.",
       "pendingExists": "Vous avez déjà une correction en attente pour cette chanson.",
-      "songMissing": "Cette chanson est introuvable ou a été retirée."
+      "songMissing": "Cette chanson est introuvable ou a été retirée.",
+      "emailNotVerified": "Votre adresse e-mail n'est pas vérifiée. Connectez-vous avec le lien reçu par e-mail pour proposer une chanson.",
+      "tooMany": "Vous avez atteint la limite de {max} propositions par jour. Réessayez demain."
     }
   },
   "contributions": {

@@ -25,3 +25,13 @@ export function formatAge(iso: string, now: Date, locale: string): string {
   const format = new Intl.RelativeTimeFormat(locale === "ar" ? "ar-TN-u-nu-latn" : "fr-FR", { numeric: "always" });
   return format.format(-value, unit).replace(/(\d) (?=\S)/g, "$1 ");
 }
+
+/** Date d'une proposition, dans la langue de l'interface ; chiffres occidentaux en arabe (usage tunisien). */
+export function formatProposalDate(iso: string, locale: string): string {
+  return new Intl.DateTimeFormat(locale === "ar" ? "ar-TN-u-nu-latn" : "fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "Africa/Tunis",
+  }).format(new Date(iso));
+}

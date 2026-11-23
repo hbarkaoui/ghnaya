@@ -3,24 +3,22 @@ import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { ArtistNames } from "@/components/song/ArtistNames";
 import { scriptAttrs } from "@/lib/text/scriptAttrs";
-import { getSong } from "@/lib/catalog/read";
-import { formatProposalDate } from "@/mocks/proposals";
+import { formatProposalDate } from "@/lib/moderation/age";
 import type { ArtistRef } from "@/types/catalog";
-import type { Proposal } from "@/types/proposal";
+import type { RevisionSummary } from "@/types/proposal";
 import { ProposalStatusBadge } from "./ProposalStatusBadge";
 
 /** Artistes proposés, affichables par ArtistNames (sans lien : un nouvel artiste n'a pas encore de page). */
-const displayArtists = (proposal: Proposal): ArtistRef[] =>
+const displayArtists = (proposal: RevisionSummary): ArtistRef[] =>
   proposal.payload.artists.map((a, i) => ({ ...a, id: a.id ?? `nouveau-${i}`, role: "main" }));
 
 /**
  * Une proposition dans Mes contributions : type et date, statut, titres et artistes proposés ; la note
  * du modérateur pour un refus ; le lien vers la chanson pour une correction.
  */
-export async function ProposalCard({ proposal }: { proposal: Proposal }) {
+export async function ProposalCard({ proposal }: { proposal: RevisionSummary }) {
   const [t, locale] = await Promise.all([getTranslations("contributions"), getLocale()]);
   const { titleAr, titleLatin } = proposal.payload;
-  const song = proposal.songId ? await getSong(proposal.songId) : undefined;
 
   return (
     <li className="rounded-lg border border-line-subtle bg-card p-4">
@@ -56,9 +54,9 @@ export async function ProposalCard({ proposal }: { proposal: Proposal }) {
         </div>
       ) : null}
 
-      {song ? (
+      {proposal.songId && proposal.songPublished ? (
         <Link
-          href={`/chanson/${song.id}`}
+          href={`/chanson/${proposal.songId}`}
           className="-mx-2 mt-2 inline-flex min-h-11 items-center gap-1 rounded-md px-2 font-medium text-link hover:bg-well"
         >
           {t("seeSong")}
