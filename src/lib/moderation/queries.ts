@@ -118,3 +118,9 @@ export async function moderationCounts(): Promise<{ proposals: number; reports: 
       (SELECT count(*) FROM reports WHERE status = 'open') AS reports`);
   return { proposals: Number(res.rows[0].proposals), reports: Number(res.rows[0].reports) };
 }
+
+/** Éléments en file, propositions et signalements : la pastille « N à relire » de la page Moi. */
+export async function moderationQueueSize(): Promise<number> {
+  const { proposals, reports } = await moderationCounts();
+  return proposals + reports;
+}

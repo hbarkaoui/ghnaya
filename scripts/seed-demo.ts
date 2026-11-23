@@ -4,18 +4,27 @@
 import "dotenv/config";
 import { inArray } from "drizzle-orm";
 import { db, pool } from "@/lib/db/client";
-import { clubMembers, clubs, playlistItems, playlists, users } from "@/lib/db/schema";
+import { clubMembers, clubs, playlistItems, playlists, songRevisions, users } from "@/lib/db/schema";
 import { seedFixtures } from "../tests/fixtures/seed";
 import { DEMO_CLUBS, DEMO_MEMBERSHIPS, DEMO_PEOPLE, DEMO_PLAYLISTS } from "./demo/demoData";
+import { demoRevisions } from "./demo/demoRevisions";
 
 async function main(): Promise<void> {
   const url = process.env.DATABASE_URL ?? "";
   if (!/@(localhost|127\.0\.0\.1)(:\d+)?\//.test(url)) throw new Error("seed-demo : refusé hors de localhost.");
 
   const songIds = await seedFixtures(db);
+  const revisions = await demoRevisions(songIds);
 
   await db.transaction(async (tx) => {
     await tx.delete(clubs).where(inArray(clubs.slug, DEMO_CLUBS.map((c) => c.slug)));
+    const previous = await tx
+      .select({ id: users.id })
+      .from(users)
+      .where(inArray(users.email, DEMO_PEOPLE.map((p) => p.email)));
+    if (previous.length > 0) {
+      await tx.delete(songRevisions).where(inArray(songRevisions.authorId, previous.map((u) => u.id)));
+    }
     await tx.delete(users).where(inArray(users.email, DEMO_PEOPLE.map((p) => p.email)));
 
     const people = new Map<string, string>();
@@ -26,6 +35,20 @@ async function main(): Promise<void> {
         .returning({ id: users.id });
       people.set(p.key, row.id);
     }
+
+    await tx.insert(songRevisions).values(
+      revisions.map((r) => ({
+        authorId: people.get(r.author)!,
+        songId: r.song ? songIds.get(r.song)! : null,
+        payload: r.payload,
+        rightsDeclared: true,
+        status: r.status,
+        reviewerId: r.reviewer ? people.get(r.reviewer)! : null,
+        reviewNote: r.reviewNote ?? null,
+        reviewedAt: r.reviewedAt ? new Date(r.reviewedAt) : null,
+        createdAt: new Date(r.createdAt),
+      })),
+    );
 
     const clubIds = new Map<string, string>();
     for (const c of DEMO_CLUBS) {
@@ -68,7 +91,7 @@ async function main(): Promise<void> {
     }
   });
 
-  console.log(`${DEMO_PEOPLE.length} comptes, ${DEMO_CLUBS.length} clubs et ${DEMO_PLAYLISTS.length} playlists de démonstration.`);
+  console.log(`${DEMO_PEOPLE.length} comptes, ${DEMO_CLUBS.length} clubs, ${DEMO_PLAYLISTS.length} playlists et ${revisions.length} propositions de démonstration.`);
 }
 
 main()

@@ -20,16 +20,17 @@ import { ReviewForm } from "@/components/moderation/ReviewForm";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
 import { ArtistNames } from "@/components/song/ArtistNames";
+import { canApproveRevision } from "@/lib/auth/permissions";
+import { songLabelsOf } from "@/lib/catalog/queries";
 import { changedFields, type ComparedField } from "@/lib/moderation/apply";
+import { formatProposalDate } from "@/lib/moderation/age";
 import { requireModerator } from "@/lib/moderation/gate";
+import { getRevision, pendingRevisions } from "@/lib/moderation/queries";
 import { compareProposals, nextInQueue } from "@/lib/moderation/queue";
 import { scriptAttrs } from "@/lib/text/scriptAttrs";
 import { getSong } from "@/lib/catalog/read";
-import { getRemovedSong } from "@/mocks/catalog";
-import { pendingProposals } from "@/mocks/moderation";
-import { formatProposalDate, proposalStore } from "@/mocks/proposals";
 import type { ArtistRef, Song } from "@/types/catalog";
-import type { Proposal } from "@/types/proposal";
+import type { Revision } from "@/types/proposal";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("moderation.proposal");
@@ -37,7 +38,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /** Artistes proposés, affichables par ArtistNames (un nouvel artiste n'a pas encore d'identifiant). */
-const displayArtists = (proposal: Proposal): ArtistRef[] =>
+const displayArtists = (proposal: Revision): ArtistRef[] =>
   proposal.payload.artists.map((a, i) => ({ ...a, id: a.id ?? `nouveau-${i}`, role: "main" }));
 
 /**
@@ -48,7 +49,7 @@ const displayArtists = (proposal: Proposal): ArtistRef[] =>
 export default async function ProposalReviewPage({ params, searchParams }: PageProps<"/moderation/[revisionId]">) {
   const { revisionId } = await params;
   const user = await requireModerator(`/moderation/${revisionId}`);
-  const proposal = proposalStore.get(revisionId);
+  const proposal = await getRevision(revisionId);
   if (!proposal) notFound();
 
   const [t, locale, done] = await Promise.all([
@@ -56,12 +57,13 @@ export default async function ProposalReviewPage({ params, searchParams }: PageP
     getLocale(),
     doneMessage((await searchParams).statut),
   ]);
-  const queue = pendingProposals();
+  const queue = await pendingRevisions();
   const index = queue.findIndex((p) => p.id === proposal.id);
   const next = nextInQueue(queue, proposal, compareProposals);
   const isCorrection = proposal.songId !== null;
   const song = proposal.songId ? await getSong(proposal.songId) : undefined;
-  const removedSong = proposal.songId && !song ? getRemovedSong(proposal.songId) : undefined;
+  const songRemoved =
+    proposal.songId && !song ? (await songLabelsOf([proposal.songId])).get(proposal.songId)?.removed === true : false;
   const own = proposal.authorId === user.id;
   const { payload } = proposal;
 
@@ -87,7 +89,7 @@ export default async function ProposalReviewPage({ params, searchParams }: PageP
             </div>
             <ArtistNames artists={displayArtists(proposal)} className="mt-1 block text-ink-2" />
             <p className="mt-2 text-sm text-ink-2">
-              {t.rich("by", { name: await personLabel(proposal.authorId), person })}
+              {t.rich("by", { name: await personLabel(proposal.authorName), person })}
               <span aria-hidden="true"> · </span>
               <Age iso={proposal.createdAt} />
             </p>
@@ -100,7 +102,7 @@ export default async function ProposalReviewPage({ params, searchParams }: PageP
                 <ChevronRight aria-hidden="true" className="size-4 rtl:-scale-x-100" />
               </Link>
             ) : null}
-            {removedSong ? <p className="mt-2 rounded-md bg-warning-soft px-3 py-2 text-warning">{t("report.songRemoved")}</p> : null}
+            {songRemoved ? <p className="mt-2 rounded-md bg-warning-soft px-3 py-2 text-warning">{t("report.songRemoved")}</p> : null}
             <p className="mt-3 flex items-start gap-2 text-sm text-ink-2">
               <ShieldCheck aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
               {t("proposal.rights")}
@@ -151,7 +153,7 @@ export default async function ProposalReviewPage({ params, searchParams }: PageP
             </section>
           ) : null}
 
-          {proposal.status === "pending" ? <ReviewForm proposalId={proposal.id} canApprove={!own} /> : null}
+          {proposal.status === "pending" ? <ReviewForm proposalId={proposal.id} canApprove={canApproveRevision(user, proposal)} /> : null}
 
           {next ? (
             <div className="flex justify-end">
@@ -168,7 +170,7 @@ export default async function ProposalReviewPage({ params, searchParams }: PageP
  * Champs modifiés par une correction, hors paroles (spec §8.4) : avant / après, chacun avec son
  * libellé. La translittération modifiée a sa propre vue des différences, en latin.
  */
-async function ChangedFields({ proposal, song }: { proposal: Proposal; song: Song }) {
+async function ChangedFields({ proposal, song }: { proposal: Revision; song: Song }) {
   const [t, tDialects] = await Promise.all([getTranslations("moderation.proposal"), getTranslations("dialects")]);
   const fields = changedFields(proposal.payload, song);
   const shown = fields.filter((f) => f !== "translit");

@@ -12,7 +12,9 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { requireModerator } from "@/lib/moderation/gate";
 import { getSong } from "@/lib/catalog/read";
 import { getRemovedSong } from "@/mocks/catalog";
-import { openReports, pendingProposals } from "@/mocks/moderation";
+import { moderationCounts } from "@/lib/moderation/queries";
+// MAQUETTE : retiré à la tâche 7
+import { openReports, personName } from "@/mocks/moderation";
 import { listReports, type Report } from "@/mocks/reports";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -43,7 +45,7 @@ export default async function ReportsPage({ searchParams }: PageProps<"/moderati
             <EmptyState
               title={t("empty.title")}
               body={t("empty.reportsBody")}
-              action={pendingProposals().length > 0 ? { label: t("empty.toProposals"), href: "/moderation" } : undefined}
+              action={(await moderationCounts()).proposals > 0 ? { label: t("empty.toProposals"), href: "/moderation" } : undefined}
             />
           ) : (
             <>
@@ -75,7 +77,7 @@ async function ReportItem({ report }: { report: Report }) {
   const t = await getTranslations("moderation");
   const song = (await getSong(report.songId)) ?? getRemovedSong(report.songId);
   const reporter = report.reporterId
-    ? t.rich("report.by", { name: await personLabel(report.reporterId), person })
+    ? t.rich("report.by", { name: await personLabel(personName(report.reporterId)), person })
     : t("report.byVisitor");
 
   return (

@@ -5,21 +5,20 @@ import type { ReactNode } from "react";
 import { Bidi } from "@/components/ui/Bidi";
 import { SubTabs } from "@/components/ui/SubTabs";
 import { Badge } from "@/components/ui/Badge";
-import { formatAge } from "@/lib/moderation/age";
-import { openReports, pendingProposals, personName } from "@/mocks/moderation";
-import { formatProposalDate } from "@/mocks/proposals";
+import { formatAge, formatProposalDate } from "@/lib/moderation/age";
+import { moderationCounts } from "@/lib/moderation/queries";
 import type { ReportReason } from "@/mocks/reports";
 import type { Song } from "@/types/catalog";
 
 /** Sous-onglets Propositions · Signalements, avec le nombre d'éléments en file de chacun. */
 export async function ModerationTabs() {
-  const t = await getTranslations("moderation.tabs");
+  const [t, counts] = await Promise.all([getTranslations("moderation.tabs"), moderationCounts()]);
   return (
     <SubTabs
       label={t("label")}
       items={[
-        { href: "/moderation", label: t("proposals", { n: String(pendingProposals().length) }) },
-        { href: "/moderation/signalements", label: t("reports", { n: String(openReports().length) }) },
+        { href: "/moderation", label: t("proposals", { n: String(counts.proposals) }) },
+        { href: "/moderation/signalements", label: t("reports", { n: String(counts.reports) }) },
       ]}
     />
   );
@@ -35,10 +34,10 @@ export async function Age({ iso }: { iso: string }) {
   );
 }
 
-/** Nom d'une personne de la maquette ; « un compte supprimé » s'il est inconnu. */
-export async function personLabel(userId: string): Promise<string> {
+/** Nom d'une personne ; « un compte supprimé » si son compte n'existe plus (spec §12, écart 1). */
+export async function personLabel(name: string | null): Promise<string> {
   const t = await getTranslations("moderation");
-  return personName(userId) ?? t("unknownAuthor");
+  return name ?? t("unknownAuthor");
 }
 
 /** Balise `<person>` des messages (« Proposée par <person>{name}</person> ») : nom isolé et balisé selon son écriture. */

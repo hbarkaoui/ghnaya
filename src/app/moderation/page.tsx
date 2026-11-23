@@ -16,7 +16,7 @@ import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { requireModerator } from "@/lib/moderation/gate";
-import { openReports, pendingProposals } from "@/mocks/moderation";
+import { moderationCounts, pendingRevisions } from "@/lib/moderation/queries";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("moderation");
@@ -31,8 +31,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ModerationPage({ searchParams }: PageProps<"/moderation">) {
   const user = await requireModerator("/moderation");
   const [t, done] = await Promise.all([getTranslations("moderation"), doneMessage((await searchParams).statut)]);
-  const queue = pendingProposals();
-  const reportsWaiting = openReports().length;
+  const queue = await pendingRevisions();
+  const reportsWaiting = (await moderationCounts()).reports;
 
   return (
     <>
@@ -65,7 +65,7 @@ export default async function ModerationPage({ searchParams }: PageProps<"/moder
                       title={<SongTitles titleAr={proposal.payload.titleAr} titleLatin={proposal.payload.titleLatin} />}
                       meta={
                         <>
-                          {t.rich("by", { name: await personLabel(proposal.authorId), person })}
+                          {t.rich("by", { name: await personLabel(proposal.authorName), person })}
                           <span aria-hidden="true"> · </span>
                           <Age iso={proposal.createdAt} />
                         </>

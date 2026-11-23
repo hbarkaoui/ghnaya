@@ -15,7 +15,8 @@ import { compareReports, nextInQueue } from "@/lib/moderation/queue";
 import { scriptAttrs } from "@/lib/text/scriptAttrs";
 import { getSong } from "@/lib/catalog/read";
 import { getRemovedSong } from "@/mocks/catalog";
-import { openReports } from "@/mocks/moderation";
+// MAQUETTE : retiré à la tâche 7
+import { openReports, personName } from "@/mocks/moderation";
 import { getReport } from "@/mocks/reports";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -80,7 +81,7 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/m
             </h2>
             <p className="mt-1 text-sm text-ink-2">
               {report.reporterId
-                ? t.rich("report.by", { name: await personLabel(report.reporterId), person })
+                ? t.rich("report.by", { name: await personLabel(personName(report.reporterId)), person })
                 : t("report.byVisitor")}
               <span aria-hidden="true"> · </span>
               <Age iso={report.createdAt} />
@@ -109,7 +110,7 @@ export default async function ReportPage({ params, searchParams }: PageProps<"/m
               </p>
               {report.resolvedBy ? (
                 <p className="mt-2 text-sm text-ink-2">
-                  {t.rich("report.resolvedBy", { name: await personLabel(report.resolvedBy), person })}
+                  {t.rich("report.resolvedBy", { name: await personLabel(personName(report.resolvedBy)), person })}
                 </p>
               ) : null}
             </section>

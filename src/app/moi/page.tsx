@@ -15,7 +15,7 @@ import type { CurrentUser } from "@/lib/auth/types";
 import type { ClubRef } from "@/lib/clubs/types";
 import { getCurrentUser } from "@/lib/session";
 import { pendingRevisionCountOf } from "@/lib/moderation/queries";
-import { moderationQueueSize } from "@/mocks/moderation";
+import { moderationQueueSize } from "@/lib/moderation/queries";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("me");
@@ -33,7 +33,7 @@ export default async function MePage({ searchParams }: PageProps<"/moi">) {
   if (!user) return <VisitorMe accountDeleted={(await searchParams).compte === "supprime"} />;
 
   const pendingContributions = await pendingRevisionCountOf(user.id);
-  const moderationQueue = user.isModerator ? moderationQueueSize() : 0;
+  const moderationQueue = user.isModerator ? await moderationQueueSize() : 0;
 
   return (
     <>

@@ -88,3 +88,14 @@ describe("countByStatus", () => {
     expect(countByStatus(list)).toEqual({ all: 3, pending: 1, approved: 1, rejected: 1 });
   });
 });
+
+describe("nextInQueue, avec un repère d'un autre type que la file", () => {
+  it("compare une proposition lue en entier à la file des résumés", () => {
+    const queue = [
+      { id: "b", createdAt: "2026-11-02" },
+      { id: "c", createdAt: "2026-11-03" },
+    ];
+    const current = { id: "a", createdAt: "2026-11-01", payload: { lyrics: "سطر" } };
+    expect(nextInQueue(queue, current, compareProposals)?.id).toBe("b");
+  });
+});

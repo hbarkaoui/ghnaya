@@ -36,11 +36,11 @@ export function countByStatus(proposals: readonly { status: ProposalStatus }[]):
  * si `current` vient d'en sortir (relu) ; après le dernier, on revient au premier élément restant
  * (ceux qu'on a passés). `null` quand il ne reste rien d'autre : c'est l'état « Plus rien à relire ».
  */
-export function nextInQueue<T extends { id: string }>(
-  queue: readonly T[],
-  current: T,
-  compare: (a: T, b: T) => number,
-): T | null {
+export function nextInQueue<Item extends { id: string }, Current extends { id: string }>(
+  queue: readonly Item[],
+  current: Current,
+  compare: (a: Item | Current, b: Item | Current) => number,
+): Item | null {
   const others = queue.filter((item) => item.id !== current.id);
   return others.find((item) => compare(item, current) > 0) ?? others[0] ?? null;
 }

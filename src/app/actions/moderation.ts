@@ -4,8 +4,10 @@ import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { canApproveRevision } from "@/lib/auth/permissions";
-import { songFromProposal } from "@/lib/moderation/apply";
+import { db } from "@/lib/db/client";
 import { requireModerator } from "@/lib/moderation/gate";
+import { getRevision, pendingRevisions } from "@/lib/moderation/queries";
+import { approveRevision, rejectRevision } from "@/lib/moderation/revisionWrite";
 import { compareProposals, compareReports, nextInQueue } from "@/lib/moderation/queue";
 import {
   NOTE_MAX,
@@ -16,8 +18,7 @@ import {
   statusAfter,
 } from "@/lib/moderation/review";
 import { getSong } from "@/lib/catalog/read";
-import { openReports, pendingProposals } from "@/mocks/moderation";
-import { proposalStore } from "@/mocks/proposals";
+import { openReports } from "@/mocks/moderation";
 import { getReport, resolveReport } from "@/mocks/reports";
 import { songStore } from "@/mocks/songStore";
 
@@ -34,9 +35,8 @@ const withStatus = (path: string, status: DoneStatus) => `${path}?statut=${statu
 
 /**
  * Approuver ou rejeter une proposition (spec §8.4, §8.5), puis ouvrir la suivante de la file, ou la
- * file vide « Plus rien à relire ». Les règles sont rejouées ici : une action serveur peut être
- * appelée directement.
- * MAQUETTE : écrit dans les données en mémoire ; le plan 3 le fera en une transaction (`lib/moderation`).
+ * file vide « Plus rien à relire ». Les règles sont rejouées ici : une action serveur peut être appelée
+ * directement. L'approbation écrit la chanson en une transaction (`lib/moderation/revisionWrite`).
  */
 export async function reviewProposal(
   proposalId: string,
@@ -44,7 +44,7 @@ export async function reviewProposal(
   formData: FormData,
 ): Promise<ModerationFormState> {
   const user = await requireModerator(`/moderation/${proposalId}`);
-  const proposal = proposalStore.get(proposalId);
+  const proposal = await getRevision(proposalId);
   if (!proposal) notFound();
 
   const t = await getTranslations("moderation.review.errors");
@@ -52,23 +52,22 @@ export async function reviewProposal(
 
   const decision = parseDecision(formData.get("decision"));
   if (!decision) return fail(t("notPending"));
-  const checked = checkReview({ proposal, mayApprove: canApproveRevision(user, proposal), decision, note: formData.get("note") });
+  const checked = checkReview({
+    proposal,
+    mayApprove: canApproveRevision(user, proposal),
+    decision,
+    note: formData.get("note"),
+  });
   if (!checked.ok) return fail(t(checked.error, { max: String(NOTE_MAX) }));
 
-  if (decision === "approve") {
-    const song = proposal.songId ? await getSong(proposal.songId) : undefined;
-    if (proposal.songId && !song) return fail(t("songGone"));
-    songStore.publish(
-      songFromProposal(proposal.payload, song, {
-        songId: `s-${crypto.randomUUID()}`,
-        artistId: () => `a-${crypto.randomUUID()}`,
-      }),
-    );
-  }
-  proposalStore.review(proposal.id, { status: decision === "approve" ? "approved" : "rejected", note: checked.note });
+  const result =
+    decision === "approve"
+      ? await approveRevision(db, { revisionId: proposal.id, reviewerId: user.id, note: checked.note })
+      : await rejectRevision(db, { revisionId: proposal.id, reviewerId: user.id, note: checked.note ?? "" });
+  if (!result.ok) return fail(t(result.error === "notFound" ? "notPending" : result.error));
   revalidatePath("/", "layout");
 
-  const next = nextInQueue(pendingProposals(), proposal, compareProposals);
+  const next = nextInQueue(await pendingRevisions(), proposal, compareProposals);
   redirect(withStatus(next ? `/moderation/${next.id}` : "/moderation", decision === "approve" ? "approved" : "rejected"));
 }
 
