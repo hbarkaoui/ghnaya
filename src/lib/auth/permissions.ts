@@ -52,6 +52,12 @@ export function canCopyPlaylist(user: CurrentUser | null, playlist: PlaylistAcce
 export const canContribute = (user: CurrentUser | null): boolean => user?.emailVerified ?? false;
 
 /**
+ * Déclencher la génération d'une translittération : un membre, c'est-à-dire un compte à l'adresse vérifiée
+ * (spec §4.3, §7). Un visiteur voit les translittérations existantes, sans en déclencher.
+ */
+export const canGenerateTranslit = (user: CurrentUser | null): boolean => user?.emailVerified ?? false;
+
+/**
  * Approuver une proposition : un modérateur, sauf la sienne ; un admin approuve aussi les siennes, pour
  * amorcer la plateforme (spec §4.3). Une proposition d'un compte supprimé (`authorId` nul) n'est à personne.
  * Rejeter reste permis à tout modérateur (`canModerate`).

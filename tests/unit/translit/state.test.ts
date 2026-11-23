@@ -23,6 +23,15 @@ describe("initialTranslits", () => {
 });
 
 describe("toTranslitState", () => {
+  it("garde une translittération relue et le refus d'un visiteur", () => {
+    expect(toTranslitState({ ok: true, text: "ya lella", status: "reviewed" })).toEqual({
+      kind: "ready",
+      text: "ya lella",
+      status: "reviewed",
+    });
+    expect(toTranslitState({ ok: false, reason: "signin" })).toEqual({ kind: "signin" });
+  });
+
   it("traduit une génération réussie en translittération prête", () => {
     expect(toTranslitState({ ok: true, text: "ya lella", status: "auto" })).toEqual({
       kind: "ready",
@@ -38,6 +47,10 @@ describe("toTranslitState", () => {
 });
 
 describe("translitView", () => {
+  it("reflète le refus d'un visiteur pour un mode latin", () => {
+    expect(translitView(true, { kind: "signin" })).toBe("signin");
+  });
+
   it("est éteinte quand le mode arabe seul est choisi, même si une translittération existe", () => {
     expect(translitView(false, { kind: "ready", text: "x", status: "auto" })).toBe("off");
     expect(translitView(false, undefined)).toBe("off");

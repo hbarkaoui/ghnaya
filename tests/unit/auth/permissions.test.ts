@@ -5,6 +5,7 @@ import {
   canCopyPlaylist,
   canCreateClub,
   canEditPlaylist,
+  canGenerateTranslit,
   canManageClub,
   canModerate,
   canViewPlaylist,
@@ -146,6 +147,12 @@ describe("rôle dans le club", () => {
 });
 
 describe("propositions et modération", () => {
+  it("générer une translittération exige un compte à l'adresse vérifiée (spec §4.3, §7)", () => {
+    expect(canGenerateTranslit(null)).toBe(false);
+    expect(canGenerateTranslit(userWith())).toBe(true);
+    expect(canGenerateTranslit(userWith({ emailVerified: false }))).toBe(false);
+  });
+
   it("proposer exige une adresse vérifiée (spec §8.7)", () => {
     expect(canContribute(null)).toBe(false);
     expect(canContribute(userWith())).toBe(true);

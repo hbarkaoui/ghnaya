@@ -4,15 +4,16 @@ import type { Song } from "@/types/catalog";
 export type TranslitState =
   | { kind: "ready"; text: string; status: "auto" | "reviewed" }
   | { kind: "failed" }
-  | { kind: "limit" };
+  | { kind: "limit" }
+  | { kind: "signin" };
 
-/** Ce qu'il faut afficher : rien (arabe seul), génération en cours, translittération prête, échec, limite. */
+/** Ce qu'il faut afficher : rien (arabe seul), génération en cours, translittération prête, échec, limite, connexion demandée. */
 export type TranslitView = "off" | "generating" | TranslitState["kind"];
 
-/** Réponse de la génération à la demande (miroir de l'action serveur `requestTranslit`). */
+/** Réponse de la génération à la demande (action serveur `requestTranslit`, plan 4). */
 export type TranslitResult =
-  | { ok: true; text: string; status: "auto" }
-  | { ok: false; reason: "failed" | "limit" };
+  | { ok: true; text: string; status: "auto" | "reviewed" }
+  | { ok: false; reason: "failed" | "limit" | "signin" };
 
 /** Les translittérations déjà en base au chargement, automatiques ou relues, indexées par chanson. */
 export function initialTranslits(
