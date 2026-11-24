@@ -1,5 +1,5 @@
 // Plan 5, tâche 1 : vérifier une configuration de production avant de la saisir chez l'hébergeur.
-//   pnpm env:check --file .env.production.local   (fichier ignoré par git, à supprimer ensuite)
+//   pnpm env:check --file .env.prod-check   (fichier ignoré par git, à supprimer ensuite ; pas `.env.production.local`, que next build/start charge tout seul)
 //   pnpm env:check                                 (variables du shell)
 // Les valeurs ne sont jamais affichées.
 import { readFileSync } from "node:fs";

@@ -10,7 +10,7 @@ import * as schema from "./schema";
 const globalForDb = globalThis as unknown as { ghanniPool?: Pool };
 
 export const pool =
-  globalForDb.ghanniPool ?? new Pool({ connectionString: process.env.DATABASE_URL, max: 5, idleTimeoutMillis: 5_000 });
+  globalForDb.ghanniPool ?? new Pool({ connectionString: process.env.DATABASE_URL, max: 5, idleTimeoutMillis: 5_000, connectionTimeoutMillis: 10_000 });
 if (process.env.NODE_ENV !== "production") globalForDb.ghanniPool = pool;
 if (process.env.VERCEL) attachDatabasePool(pool);
 

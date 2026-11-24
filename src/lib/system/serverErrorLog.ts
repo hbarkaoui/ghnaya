@@ -3,6 +3,7 @@
 // la donne au support permet de retrouver la ligne (filtre Vercel : "event":"server_error").
 // Ni chemin réel (codes d'invitation, identifiants), ni en-têtes, ni cookies : seulement le motif de la route.
 import { errorDigest } from "./actionFailure";
+import { summarizeError } from "./errorSummary";
 
 export interface ErrorRequest {
   method: string;
@@ -15,10 +16,8 @@ export interface ErrorContext {
   routeType: string;
 }
 
-const STACK_LINES = 5;
-
 export function serverErrorLogLine(err: unknown, request: ErrorRequest, context: ErrorContext, now = new Date()): string {
-  const error = err instanceof Error ? err : null;
+  const summary = summarizeError(err);
   return JSON.stringify({
     level: "error",
     event: "server_error",
@@ -27,8 +26,10 @@ export function serverErrorLogLine(err: unknown, request: ErrorRequest, context:
     route: context.routePath,
     routeType: context.routeType,
     method: request.method,
-    name: error?.name ?? null,
-    message: error ? error.message : String(err),
-    stack: error?.stack?.split("\n").slice(0, STACK_LINES) ?? [],
+    name: summary.name,
+    message: summary.message,
+    code: summary.code,
+    causeName: summary.causeName,
+    stack: summary.stack,
   });
 }

@@ -27,7 +27,7 @@ describe("serverErrorLogLine", () => {
     err.stack = ["Error: x", ...Array.from({ length: 20 }, (_, i) => `    at f${i} (fichier.ts:${i}:1)`)].join("\n");
     const { stack } = JSON.parse(serverErrorLogLine(err, { method: "POST" }, context, at)) as { stack: string[] };
     expect(stack).toHaveLength(5);
-    expect(stack[0]).toBe("Error: x");
+    expect(stack[0]).toBe("    at f0 (fichier.ts:0:1)");
   });
 
   it("accepte une valeur qui n'est pas une Error, sans référence", () => {
@@ -42,5 +42,21 @@ describe("serverErrorLogLine", () => {
     const line = serverErrorLogLine(new Error("x"), request, context, at);
     expect(line).not.toContain("ABCDEF1234");
     expect(line).not.toContain("session=secret");
+  });
+
+  it("ne journalise pas les paramètres d'une requête échouée (DrizzleQueryError)", () => {
+    const cause = Object.assign(new Error('duplicate key value violates unique constraint "users_email_key"'), { code: "23505" });
+    const message = "Failed query: insert into users (email) values ($1)\nparams: alice@example.com";
+    const err = Object.assign(new Error(message, { cause }), { name: "DrizzleQueryError", query: "insert …", params: ["alice@example.com"] });
+    err.stack = `DrizzleQueryError: ${message}\n    at query (drizzle.js:1:1)\n    at action (page.ts:2:2)`;
+    const line = serverErrorLogLine(err, { method: "POST" }, context, at);
+    expect(line).not.toContain("alice@example.com");
+    expect(JSON.parse(line)).toMatchObject({
+      name: "DrizzleQueryError",
+      message: "Failed query: insert into users (email) values ($1)",
+      code: "23505",
+      causeName: "Error",
+      stack: ["    at query (drizzle.js:1:1)", "    at action (page.ts:2:2)"],
+    });
   });
 });

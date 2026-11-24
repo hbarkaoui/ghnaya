@@ -146,7 +146,7 @@ Détail et marche à suivre : `docs/exploitation/mise-en-production.md`.
 
 - `pnpm env:check [--file <chemin>]` vérifie la configuration de production (sans afficher de valeur). À lancer avant chaque déploiement : une configuration invalide n'arrête pas `next start`, qui répond 500 à toutes les requêtes.
 - `GET /api/sante` répond 200 (`ok`) ou 503 (`migrations_pending`, `db_unreachable`). `db_unreachable` couvre aussi une base jamais migrée.
-- `pnpm smoke <url> [--query "<requête>"]` vérifie un déploiement de l'extérieur (sept contrôles). Passer l'adresse canonique : les redirections ne sont pas suivies. Le contrôle de recherche demande le catalogue importé, sinon utiliser `--query`.
+- `pnpm smoke <url> [--query "<requête>"] [--indexable]` vérifie un déploiement de l'extérieur (sept contrôles ; sans `--indexable`, il exige que le site soit fermé aux moteurs, avec, qu'il soit ouvert). Passer l'adresse canonique : les redirections ne sont pas suivies. Le contrôle de recherche demande le catalogue importé, sinon utiliser `--query`.
 - Les erreurs serveur sont écrites en JSON (`"event":"server_error"`) dans les journaux de Vercel ; la référence (`digest`) est affichée sur la page d'erreur.
 - `SITE_INDEXABLE` : tant qu'il ne vaut pas `true`, le site est fermé aux moteurs de recherche (`robots.txt`, `X-Robots-Tag`). La valeur est lue au build : la changer demande un redéploiement.
 

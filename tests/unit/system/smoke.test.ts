@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { runSmoke, type Fetcher } from "@/lib/system/smoke";
 
-const SECURE = { "x-content-type-options": "nosniff", "x-frame-options": "DENY" };
+const SECURE = { "x-content-type-options": "nosniff", "x-frame-options": "DENY", "x-robots-tag": "noindex, nofollow" };
 const HSTS = { "strict-transport-security": "max-age=63072000; includeSubDomains" };
 
 /** Un site en bonne santé ; `overrides` remplace la réponse d'un chemin. */
@@ -63,5 +63,25 @@ describe("runSmoke", () => {
     const checks = await runSmoke("http://localhost:3200/", { fetch });
     expect(failed(checks)).toEqual(["manifeste"]);
     expect(checks.find((c) => c.name === "manifeste")?.detail).toContain("fetch failed");
+  });
+
+  it("signale un site ouvert aux moteurs sans --indexable, et l'inverse avec", async () => {
+    const open = { ...SECURE, "x-robots-tag": "index, follow" };
+    const openSite = site({ "/robots.txt": () => new Response("User-Agent: *\nAllow: /\nDisallow: /moi\n") }, open);
+    expect(failed(await runSmoke("http://localhost:3200", { fetch: openSite }))).toEqual(["en-têtes", "robots"]);
+    expect(failed(await runSmoke("http://localhost:3200", { fetch: openSite, indexable: true }))).toEqual([]);
+    expect(failed(await runSmoke("http://localhost:3200", { fetch: site(), indexable: true }))).toEqual(["en-têtes", "robots"]);
+  });
+
+  it("donne un délai de 30 s à chaque requête", async () => {
+    const healthy = site();
+    const signals: (AbortSignal | null | undefined)[] = [];
+    const fetch: Fetcher = async (url, init) => {
+      signals.push(init?.signal);
+      return healthy(url, init);
+    };
+    await runSmoke("http://localhost:3200", { fetch });
+    expect(signals).toHaveLength(7);
+    expect(signals.every((s) => s instanceof AbortSignal)).toBe(true);
   });
 });

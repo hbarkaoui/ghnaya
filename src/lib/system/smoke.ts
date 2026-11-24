@@ -19,7 +19,7 @@ interface Step {
 const expectStatus = (response: Response, status: number) =>
   response.status === status ? null : `statut ${response.status}, attendu ${status}`;
 
-function steps(query: string): Step[] {
+function steps(query: string, indexable: boolean): Step[] {
   return [
     {
       name: "santé",
@@ -42,7 +42,11 @@ function steps(query: string): Step[] {
         if (base.protocol === "https:" && !preview && !r.headers.get("strict-transport-security")) {
           missing.push("strict-transport-security");
         }
-        return missing.length === 0 ? null : `manquants : ${missing.join(", ")}`;
+        if (missing.length > 0) return `manquants : ${missing.join(", ")}`;
+        const noindex = /noindex/i.test(r.headers.get("x-robots-tag") ?? "");
+        if (indexable && noindex) return "x-robots-tag noindex sur /, alors que le site doit être indexable";
+        if (!indexable && !noindex) return "pas de x-robots-tag noindex sur / : le site est ouvert aux moteurs (SITE_INDEXABLE ?)";
+        return null;
       },
     },
     {
@@ -53,17 +57,31 @@ function steps(query: string): Step[] {
     },
     { name: "introuvable", path: `/chanson/${MISSING_SONG}`, verify: (r) => expectStatus(r, 404) },
     { name: "manifeste", path: "/manifest.webmanifest", verify: (r) => expectStatus(r, 200) },
-    { name: "robots", path: "/robots.txt", verify: (r) => expectStatus(r, 200) },
+    {
+      name: "robots",
+      path: "/robots.txt",
+      verify: (r, body) => {
+        const status = expectStatus(r, 200);
+        if (status) return status;
+        const closed = /^disallow:\s*\/\s*$/im.test(body);
+        if (indexable && closed) return "robots.txt ferme tout le site (Disallow: /), alors qu'il doit être indexable";
+        if (!indexable && !closed) return "robots.txt sans « Disallow: / » : le site est ouvert aux moteurs (SITE_INDEXABLE ?)";
+        return null;
+      },
+    },
   ];
 }
 
-export async function runSmoke(baseUrl: string, opts: { fetch: Fetcher; query?: string }): Promise<SmokeCheck[]> {
+export async function runSmoke(baseUrl: string, opts: { fetch: Fetcher; query?: string; indexable?: boolean }): Promise<SmokeCheck[]> {
   const root = baseUrl.replace(/\/+$/, "");
   const base = new URL(root);
   const checks: SmokeCheck[] = [];
-  for (const step of steps(opts.query ?? "sidi mansour")) {
+  for (const step of steps(opts.query ?? "sidi mansour", opts.indexable ?? false)) {
     try {
-      const response = await opts.fetch(root + step.path, { headers: { "user-agent": "ghnaya-smoke" }, redirect: "manual" });
+      const response = await opts.fetch(root + step.path, {
+        headers: { "user-agent": "ghnaya-smoke" }, redirect: "manual",
+        signal: AbortSignal.timeout(30_000),
+      });
       const body = await response.text();
       const problem = step.verify(response, body, base);
       checks.push({ name: step.name, ok: problem === null, detail: problem ?? `${response.status}` });
