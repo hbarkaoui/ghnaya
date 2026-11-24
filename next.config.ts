@@ -1,6 +1,7 @@
 import { networkInterfaces } from "node:os";
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
+import { securityHeaders } from "./src/lib/system/securityHeaders";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
@@ -29,6 +30,10 @@ const nextConfig: NextConfig = {
   cacheComponents: false,
   // L'indicateur de développement masquait l'onglet Accueil de la barre du bas.
   devIndicators: false,
+  // Plan 5, tâche 4 : en-têtes de sécurité et indexation, calculés au build.
+  async headers() {
+    return securityHeaders(process.env);
+  },
   turbopack: {
     rules: {
       "*.css": {
