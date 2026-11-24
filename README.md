@@ -67,7 +67,7 @@ pnpm user:role rania@example.com --role moderator --no-animator
 - **Développement et tests :** sans clé et hors production, un générateur factice (table de lettres arabe vers latin, déterministe) remplace le modèle. `playwright.config.ts` fixe `TRANSLIT_PROVIDER=fake`. En production sans clé, la génération échoue proprement et le lecteur affiche l'arabe seul.
 - **Essai manuel :** `pnpm translit:try <id>` génère la translittération d'une chanson de la base, en lecture seule (rien n'est écrit). Chaque lancement est facturé.
 - **Coût (estimation prudente) :** Opus 5.5 à 4 $ / 20 $ par million de jetons d'entrée / sortie ; une chanson d'une trentaine de lignes représente environ 1 000 jetons d'entrée et 400 à 900 de sortie, soit 0,01 à 0,02 $ par génération, donc 4 à 7 $ par jour au plafond de 300, et jusqu'au double si les seconds essais d'alignement sont fréquents. À mesurer avec `pnpm translit:try`.
-- **Ne jamais mettre `TRANSLIT_PROVIDER=fake` en production :** le texte factice (lettre à lettre, sans voyelles) serait enregistré en `auto` et servi aux lecteurs.
+- **`TRANSLIT_PROVIDER=fake` en production :** refusé au démarrage en production hors de localhost (plan 5), car le texte factice (lettre à lettre, sans voyelles) serait enregistré en `auto` et servi aux lecteurs.
 - **Avant d'activer la fonction en production :** lancer `pnpm translit:try` avec une clé sur une chanson courte et sur une chanson longue (80 à 100 lignes), pour vérifier la durée (moins de 30 s) et l'alignement.
 - **Durée des fonctions :** une génération peut durer jusqu'à 30 s, et l'attente d'une génération en cours jusqu'à 35 s. Sur Vercel, la durée maximale des fonctions doit être d'au moins 60 s, ce qui est le cas par défaut avec Fluid Compute.
 
@@ -122,14 +122,11 @@ Les migrations et les imports ne sont pas dans l'image : ils se lancent depuis u
 
 ## Déploiement (Vercel + Neon)
 
-1. Neon : créer un projet PostgreSQL 17, dans une région européenne. Récupérer l'URL **directe**
-   (pour les migrations et les imports) et l'URL **poolée** (pour l'application).
-2. Vérifier que la locale prend en charge l'arabe : `SELECT show_trgm('سيدي');` doit renvoyer des trigrammes.
-3. Migrer : `DATABASE_URL=<url directe> pnpm db:migrate`.
-4. Importer en local vers Neon : `DATABASE_URL=<url directe> pnpm import:public-domain`, puis l'import
-   LRCLIB (section « Import LRCLIB »).
-5. Vercel : importer le dépôt, définir `DATABASE_URL=<url poolée>` et `ANTHROPIC_API_KEY` (translittération, voir « Translittération »), puis déployer. Ne pas définir `TRUSTED_PROXY_HOPS` : le proxy de Vercel réécrit `x-forwarded-for`, sa première adresse est celle du client.
-6. Lancer `DATABASE_URL=<url directe> pnpm bench:search` sur la base de production (script de la tâche 15 du plan 1).
+Suivre `docs/exploitation/mise-en-production.md`, étape par étape. En résumé :
+
+- Neon à Francfort (AWS `eu-central-1`), fonctions Vercel à Francfort (`fra1`, réglé par `vercel.json`) ;
+- migrations et imports lancés depuis un poste, avec l'URL directe de Neon dans `DATABASE_URL` ;
+- après le déploiement, `pnpm smoke https://<domaine>` vérifie le site de l'extérieur.
 
 ### Comptes (plan 2)
 
@@ -142,6 +139,16 @@ Avant le premier déploiement avec des comptes :
 3. **Google** (facultatif) : dans Google Cloud Console, créer un identifiant OAuth « Application Web ». URI de redirection autorisée : `https://<domaine>/api/auth/callback/google`, plus `http://localhost:3000/api/auth/callback/google` pour le développement. Reporter `GOOGLE_CLIENT_ID` et `GOOGLE_CLIENT_SECRET`.
 4. **Premier admin** : se connecter une fois, puis `DATABASE_URL=<url directe> pnpm user:role <adresse> --role admin --animator`.
 5. **Adresses en minuscules** (si la base contient déjà des comptes) : `pnpm user:role` compare l'adresse telle quelle, et Better Auth l'enregistre en minuscules. Vérifier que `select email from users where email <> lower(email);` ne renvoie rien.
+
+## Exploitation
+
+Détail et marche à suivre : `docs/exploitation/mise-en-production.md`.
+
+- `pnpm env:check [--file <chemin>]` vérifie la configuration de production (sans afficher de valeur). À lancer avant chaque déploiement : une configuration invalide n'arrête pas `next start`, qui répond 500 à toutes les requêtes.
+- `GET /api/sante` répond 200 (`ok`) ou 503 (`migrations_pending`, `db_unreachable`). `db_unreachable` couvre aussi une base jamais migrée.
+- `pnpm smoke <url> [--query "<requête>"]` vérifie un déploiement de l'extérieur (sept contrôles). Passer l'adresse canonique : les redirections ne sont pas suivies. Le contrôle de recherche demande le catalogue importé, sinon utiliser `--query`.
+- Les erreurs serveur sont écrites en JSON (`"event":"server_error"`) dans les journaux de Vercel ; la référence (`digest`) est affichée sur la page d'erreur.
+- `SITE_INDEXABLE` : tant qu'il ne vaut pas `true`, le site est fermé aux moteurs de recherche (`robots.txt`, `X-Robots-Tag`). La valeur est lue au build : la changer demande un redéploiement.
 
 ## Sauvegardes
 

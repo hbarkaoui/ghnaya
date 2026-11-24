@@ -106,6 +106,7 @@ Les clubs de chant ont besoin de lire les paroles de chansons arabes et tunisien
 | `/moderation/[revisionId]`, `/moderation/signalements/[id]` | Une révision à relire, un signalement à traiter *(ajoutées le 23/11/2026, plan 3)* |
 | `GET /api/artistes?q=` | Autocomplétion des artistes du formulaire de proposition, réservée aux personnes connectées *(ajoutée le 23/11/2026, plan 3, écart 4)* |
 | `/signaler/[songId]` | Formulaire de signalement |
+| `GET /api/sante` | État de la base et des migrations, pour la vérification après déploiement *(ajoutée le 24/11/2026, plan 5)* |
 
 ## 5. Modèle de données
 
@@ -337,9 +338,9 @@ Les chansons importées sont publiées directement, sans passer par la file de m
   - révisions : 10 par jour et par utilisateur ;
   - signalements : 10 par jour et par IP ;
   - translittération : plafond global quotidien *(23/11/2026, plan 4 : `TRANSLIT_DAILY_LIMIT`, 300 par défaut)*.
-- **Erreurs** : une page d'erreur générique est prévue, et les exceptions serveur sont journalisées avec un identifiant de corrélation.
+- **Erreurs** : une page d'erreur générique est prévue, et les exceptions serveur sont journalisées avec un identifiant de corrélation. *(24/11/2026, plan 5 : l'identifiant de corrélation est la référence `digest` de Next, affichée sur la page d'erreur et écrite dans une ligne JSON `"event":"server_error"` ; une configuration de production incomplète empêche le démarrage.)*
 - **Suppression de compte** : un utilisateur peut supprimer son compte. Ses playlists personnelles et ses adhésions aux clubs sont alors supprimées. Ses révisions sont conservées, mais elles sont anonymisées : `author_id` pointe vers un utilisateur système « compte supprimé » *(modifié le 23/11/2026, plan 3, écart 1 : `author_id` est mis à nul, sans utilisateur système ; l'interface affiche « un compte supprimé »)*. S'il était le dernier animateur d'un club, il doit d'abord désigner un autre animateur ou supprimer le club.
-- **Hébergement retenu** : l'application est hébergée sur **Vercel**, et PostgreSQL est managé chez **Neon**, qui prend en charge `pg_trgm`, les sauvegardes et la restauration à un instant donné. C'est l'option qui demande le moins de maintenance. L'application reste portable, avec un Dockerfile fourni pour un futur passage sur un serveur dédié.
+- **Hébergement retenu** : l'application est hébergée sur **Vercel**, et PostgreSQL est managé chez **Neon**, qui prend en charge `pg_trgm`, les sauvegardes et la restauration à un instant donné. C'est l'option qui demande le moins de maintenance. L'application reste portable, avec un Dockerfile fourni pour un futur passage sur un serveur dédié. *(24/11/2026, plan 5 : Neon et les fonctions Vercel à Francfort ; en-têtes de sécurité ; guide `docs/exploitation/mise-en-production.md`.)*
 - **Sauvegardes** : en plus de celles de Neon, une GitHub Action fait chaque nuit un `pg_dump` vers un stockage objet.
 - **CI** (GitHub Actions) : lint, vérification des types, tests unitaires, tests d'intégration sur un PostgreSQL de service, et tests de bout en bout Playwright à chaque pull request.
 
@@ -359,7 +360,7 @@ Le service de translittération est simulé dans les tests, sauf pour un test ma
 
 | Risque | Parade |
 |---|---|
-| **Droits d'auteur** sur les paroles importées ou proposées | Sources affichées, procédure de retrait publique, retrait doux et en masse par source, déclaration du contributeur, pas de scraping. **Ce design n'est pas un avis juridique : il faut consulter un juriste avant l'ouverture publique.** |
+| **Droits d'auteur** sur les paroles importées ou proposées | Sources affichées, procédure de retrait publique, retrait doux et en masse par source, déclaration du contributeur, pas de scraping. **Ce design n'est pas un avis juridique : il faut consulter un juriste avant l'ouverture publique.** *(24/11/2026, plan 5 : le site reste fermé aux moteurs de recherche tant que `SITE_INDEXABLE` ne vaut pas `true`, à définir après l'avis juridique.)* |
 | **Qualité des données LRCLIB** (doublons, titres sales, artistes mal orthographiés) | Nettoyage, fichier d'alias, dédoublonnage, corrections par les contributeurs |
 | **Goulot d'étranglement à la modération**, puisque tout passe par validation | File triée de la plus ancienne à la plus récente, diff lisible, plusieurs modérateurs. La file est mesurée, et un passage à la confiance progressive reste possible plus tard sans changer le modèle de données |
 | **Coût et qualité de la translittération automatique** | Génération à la demande, plafond quotidien, étiquette « automatique », correction par révision |

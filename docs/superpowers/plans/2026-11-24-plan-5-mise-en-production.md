@@ -49,13 +49,13 @@ export DATABASE_URL_TEST=postgres://ghanni:ghanni@localhost:5433/ghanni_test_pla
 
 | Tâche | État | Ce qui a été vérifié, et les écarts constatés |
 |---|---|---|
-| 1. Configuration vérifiée au démarrage | À faire | |
-| 2. Journal des erreurs serveur | À faire | |
-| 3. Exécution sur Vercel | À faire | |
-| 4. En-têtes de sécurité et indexation | À faire | |
-| 5. Route de santé | À faire | |
-| 6. Vérification après déploiement | À faire | |
-| 7. Guide d'exploitation, README, spec | À faire | |
+| 1. Configuration vérifiée au démarrage | Fait le 25/11/2026 (7ebb84c) | Tests unitaires du contrôle et de `translitProvider`, `pnpm env:check --file .env.example` (code 1, nomme `BETTER_AUTH_SECRET` et `SMTP_URL`/`MAIL_FROM`, sans valeur), build, e2e. Écart : une configuration invalide n'arrête pas `next start`, qui journalise « Configuration de production invalide » et répond 500 à toutes les requêtes. Le second cas de l'étape 11 échoue aussi sans `MAIL_TRANSPORT=outbox` (pas de SMTP dans le `.env` local) ; avec, 200. |
+| 2. Journal des erreurs serveur | Fait le 25/11/2026 (bb4cba2) | Tests unitaires de la ligne JSON ; appel direct de `onRequestError` : la ligne porte le motif de la route, ni chemin réel ni cookie. Non vérifié sur un serveur de développement. |
+| 3. Exécution sur Vercel | Fait le 25/11/2026 (8df24de) | `@vercel/functions` 3.11.3, `attachDatabasePool` quand `VERCEL` est défini, `vercel.json` en `fra1`, `maxDuration = 60` : le manifeste du build le liste pour `/chanson/[id]`, `/chanson/[id]/lecture` et `/lecture/[playlistId]/[position]`. À observer au premier déploiement réel : le journal de build autour de `attachDatabasePool` et la durée de 60 s. |
+| 4. En-têtes de sécurité et indexation | Fait le 25/11/2026 (d4b3eb9) | Tests unitaires (6), e2e (18, dont 2 sur les en-têtes), build. `/recherche`, `/a-propos`, `/artiste` et `/chanson` restent indexables une fois `SITE_INDEXABLE=true`. |
+| 5. Route de santé | Fait le 25/11/2026 (ce5372b) | Tests d'intégration (5). `db_unreachable` couvre toute panne de base, y compris une base jamais migrée. |
+| 6. Vérification après déploiement | Fait le 25/11/2026 (4c32574) | Tests unitaires (6) ; essai sur un serveur local : 7 contrôles verts, échec de `recherche` avec une requête absente, usage affiché pour une URL invalide. Passer l'adresse canonique (redirections non suivies) ; `recherche` demande le catalogue importé. |
+| 7. Guide d'exploitation, README, spec | Fait le 25/11/2026 (voir le commit `docs(exploitation)` de la branche) | Guide créé, README (déploiement, exploitation, translittération) et spec (§4.4, §12, §14) datés ; commandes documentées vérifiées dans `package.json`. Suites : unitaires 699/699 (70 fichiers), intégration 235/235 (32 fichiers), e2e 18/18, typecheck et lint propres. |
 | 8. Mise en ligne avec l'utilisateur | À faire | |
 
 ## Contraintes globales
