@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { getLocale, getTranslations } from "next-intl/server";
+import QRCode from "qrcode";
 import { InviteLink } from "@/components/club/InviteLink";
 import { MemberActions } from "@/components/club/MemberActions";
 import { Avatar } from "@/components/ui/Avatar";
@@ -19,7 +20,10 @@ export async function generateMetadata({ params }: PageProps<"/clubs/[slug]/memb
 async function inviteUrl(code: string) {
   const h = await headers();
   const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost";
-  const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") || host.includes(".localhost") ? "http" : "https");
+  // Sans proxy devant (développement, y compris sur un téléphone du même Wi-Fi via http://192.168.x.y:3000),
+  // le serveur répond en http : un lien en https ne s'ouvrirait pas.
+  const local = process.env.NODE_ENV !== "production" || host.startsWith("localhost") || host.includes(".localhost");
+  const proto = h.get("x-forwarded-proto") ?? (local ? "http" : "https");
   return `${proto}://${host}/rejoindre/${code}`;
 }
 
@@ -34,16 +38,19 @@ export default async function ClubMembersPage({ params }: PageProps<"/clubs/[slu
   const members = await membersOf(club.id, locale);
   const animator = role === "animator";
   const bdi = (chunks: React.ReactNode) => <Bidi>{chunks}</Bidi>;
+  const url = animator ? await inviteUrl(club.inviteCode) : null;
+  // QR code dessiné côté serveur : noir sur blanc quel que soit le thème, pour rester lisible par l'appareil photo.
+  const qrSvg = url ? await QRCode.toString(url, { type: "svg", margin: 0, errorCorrectionLevel: "M", color: { dark: "#000000", light: "#ffffff" } }) : null;
 
   return (
     <div className="flex flex-col gap-8">
-      {animator ? (
+      {url && qrSvg ? (
         <section aria-labelledby="invite-title" className="rounded-lg border border-line-subtle bg-card p-4">
           <h2 id="invite-title" className="text-lg font-medium">
             {t("members.inviteTitle")}
           </h2>
           <p className="mt-1 mb-4 text-ink-2">{t.rich("members.inviteBody", { name: club.name, club: bdi })}</p>
-          <InviteLink url={await inviteUrl(club.inviteCode)} clubName={club.name} />
+          <InviteLink url={url} qrSvg={qrSvg} clubName={club.name} />
         </section>
       ) : null}
 
