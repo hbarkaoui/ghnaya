@@ -55,7 +55,7 @@ export DATABASE_URL_TEST=postgres://ghanni:ghanni@localhost:5433/ghanni_test_pla
 | 4. En-têtes de sécurité et indexation | Fait le 25/11/2026 (d4b3eb9) | Tests unitaires (6), e2e (18, dont 2 sur les en-têtes), build. `/recherche`, `/a-propos`, `/artiste` et `/chanson` restent indexables une fois `SITE_INDEXABLE=true`. |
 | 5. Route de santé | Fait le 25/11/2026 (ce5372b) | Tests d'intégration (5). `db_unreachable` couvre toute panne de base, y compris une base jamais migrée. |
 | 6. Vérification après déploiement | Fait le 25/11/2026 (4c32574) | Tests unitaires (6) ; essai sur un serveur local : 7 contrôles verts, échec de `recherche` avec une requête absente, usage affiché pour une URL invalide. Passer l'adresse canonique (redirections non suivies) ; `recherche` demande le catalogue importé. |
-| 7. Guide d'exploitation, README, spec | Fait le 25/11/2026 (voir le commit `docs(exploitation)` de la branche) | Guide créé, README (déploiement, exploitation, translittération) et spec (§4.4, §12, §14) datés ; commandes documentées vérifiées dans `package.json`. Suites : unitaires 699/699 (70 fichiers), intégration 235/235 (32 fichiers), e2e 18/18, typecheck et lint propres. |
+| 7. Guide d'exploitation, README, spec | Fait le 25/11/2026 (288ea52) | Guide créé, README (déploiement, exploitation, translittération) et spec (§4.4, §12, §14) datés ; commandes documentées vérifiées dans `package.json`. Suites : unitaires 699/699 (70 fichiers), intégration 235/235 (32 fichiers), e2e 18/18, typecheck et lint propres. |
 | 8. Mise en ligne avec l'utilisateur | À faire | |
 
 ## Contraintes globales
