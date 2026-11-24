@@ -49,3 +49,6 @@ next-env.d.ts
 # local mail outbox
 /.outbox/
 /.outbox-e2e/
+
+# Certificats du serveur de développement en https (pnpm dev:https)
+/certificates
