@@ -69,7 +69,13 @@ jobs:
       # L'accueil ne lit pas la base : il doit répondre même sans PostgreSQL.
       - name: Vérifier que l'image sert l'accueil
         run: |
-          docker run -d --name ghanni -p 3000:3000 -e DATABASE_URL=postgres://ghanni:ghanni@localhost:5433/ghanni ghanni
+          # Configuration minimale valide en production (plan 5, tâche 1) : localhost permet la boîte locale.
+          docker run -d --name ghanni -p 3000:3000 \
+            -e DATABASE_URL=postgres://ghanni:ghanni@localhost:5433/ghanni \
+            -e BETTER_AUTH_SECRET=ci-secret-ci-secret-ci-secret-0123 \
+            -e BETTER_AUTH_URL=http://localhost:3000 \
+            -e MAIL_TRANSPORT=outbox \
+            ghanni
           for i in $(seq 1 30); do
             if curl -fsS -o /dev/null http://localhost:3000/; then echo "Accueil servi."; exit 0; fi
             sleep 1

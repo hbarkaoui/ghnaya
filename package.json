@@ -22,7 +22,8 @@
     "reindex:search": "tsx scripts/reindex-search.ts",
     "user:role": "tsx scripts/user-role.ts",
     "songs:remove": "tsx scripts/remove-songs.ts",
-    "translit:try": "tsx scripts/translit-try.ts"
+    "translit:try": "tsx scripts/translit-try.ts",
+    "env:check": "tsx scripts/env-check.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.12.0",

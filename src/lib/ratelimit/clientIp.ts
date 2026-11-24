@@ -23,7 +23,7 @@ export function clientIp(headers: Headers, env: NodeJS.ProcessEnv = process.env)
   return headers.get("x-real-ip")?.trim() || "unknown";
 }
 
-function trustedProxyHops(env: NodeJS.ProcessEnv): number {
+export function trustedProxyHops(env: NodeJS.ProcessEnv): number {
   const value = env.TRUSTED_PROXY_HOPS?.trim();
   if (!value) return 0;
   if (!/^\d+$/.test(value)) {

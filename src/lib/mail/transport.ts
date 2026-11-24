@@ -24,7 +24,7 @@ export interface OutboxEntry extends MailMessage {
 
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1"]);
 
-const isLocalUrl = (url: string | undefined) => {
+export const isLocalUrl = (url: string | undefined) => {
   if (!url) return false;
   try {
     return LOCAL_HOSTS.has(new URL(url).hostname);

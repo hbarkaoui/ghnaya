@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { fakeGenerator } from "@/lib/translit/fake";
 import * as anthropic from "@/lib/translit/anthropic";
-import { DEFAULT_TRANSLIT_DAILY_LIMIT, translitDailyLimit, translitGenerator } from "@/lib/translit/config";
+import { DEFAULT_TRANSLIT_DAILY_LIMIT, translitDailyLimit, translitGenerator, translitProvider } from "@/lib/translit/config";
 
 const env = (values: Record<string, string>) => values as unknown as NodeJS.ProcessEnv;
 
@@ -55,5 +55,20 @@ describe("translitDailyLimit", () => {
     for (const value of ["cent", "-1", "1.5", "10 par jour"]) {
       expect(() => translitDailyLimit(env({ TRANSLIT_DAILY_LIMIT: value }))).toThrow("TRANSLIT_DAILY_LIMIT");
     }
+  });
+});
+
+describe("translitProvider", () => {
+  it("lit TRANSLIT_PROVIDER, sans espaces", () => {
+    expect(translitProvider(env({ TRANSLIT_PROVIDER: " fake " }))).toBe("fake");
+    expect(translitProvider(env({ TRANSLIT_PROVIDER: "none", ANTHROPIC_API_KEY: "sk-test" }))).toBe("none");
+  });
+  it("sans valeur : Claude avec une clé, factice hors production, aucun en production", () => {
+    expect(translitProvider(env({ ANTHROPIC_API_KEY: "sk-test" }))).toBe("anthropic");
+    expect(translitProvider(env({ NODE_ENV: "development" }))).toBe("fake");
+    expect(translitProvider(env({ NODE_ENV: "production" }))).toBe("none");
+  });
+  it("refuse une valeur inconnue en la nommant", () => {
+    expect(() => translitProvider(env({ TRANSLIT_PROVIDER: "openai" }))).toThrow(/TRANSLIT_PROVIDER invalide : « openai »/);
   });
 });

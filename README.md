@@ -106,8 +106,15 @@ Pour un futur hébergement sur un serveur dédié. Le `Dockerfile` s'appuie sur 
 
 ```bash
 docker build -t ghanni .
-docker run --rm -p 3000:3000 -e DATABASE_URL=postgres://ghanni:ghanni@host.docker.internal:5433/ghanni ghanni
+docker run --rm -p 3000:3000 \
+  -e DATABASE_URL=postgres://ghanni:ghanni@host.docker.internal:5433/ghanni \
+  -e BETTER_AUTH_SECRET=remplacer-par-un-secret-de-32-caracteres-au-moins-x \
+  -e BETTER_AUTH_URL=http://localhost:3000 \
+  -e MAIL_TRANSPORT=outbox \
+  ghanni
 ```
+
+En production, l'application refuse de démarrer si sa configuration est incomplète (voir `pnpm env:check`).
 
 Les migrations et les imports ne sont pas dans l'image : ils se lancent depuis un poste, avec `DATABASE_URL` pointant vers la base cible.
 
