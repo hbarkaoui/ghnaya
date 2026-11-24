@@ -7,6 +7,10 @@ import { songDisplayTitle } from "@/components/song/songTitle";
 import { toReaderEntry } from "@/lib/reader/entry";
 import { getSong } from "@/lib/catalog/read";
 
+// Plan 5, tâche 3 : l'action de translittération appelée depuis cette page peut durer 30 s (génération) ou
+// 35 s (attente d'une génération en cours). Valable pour toutes les actions serveur de la page.
+export const maxDuration = 60;
+
 export async function generateMetadata({ params }: PageProps<"/chanson/[id]/lecture">): Promise<Metadata> {
   const { id } = await params;
   const song = await getSong(id);

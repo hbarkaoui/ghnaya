@@ -10,6 +10,10 @@ import { toReaderEntry } from "@/lib/reader/entry";
 import { getCurrentUser } from "@/lib/session";
 import type { ReaderEntry } from "@/types/catalog";
 
+// Plan 5, tâche 3 : l'action de translittération appelée depuis cette page peut durer 30 s (génération) ou
+// 35 s (attente d'une génération en cours). Valable pour toutes les actions serveur de la page.
+export const maxDuration = 60;
+
 type Props = { params: Promise<{ playlistId: string; position: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
