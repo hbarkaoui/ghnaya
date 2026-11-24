@@ -1,16 +1,9 @@
-import { ImageResponse } from "next/og";
-import { brandIconSvg, svgDataUri } from "@/components/brand/logo-geometry";
+import { APPLE_TOUCH_ICON_SIZE, appleTouchIcon } from "@/components/brand/appleTouchIcon";
 
-/** Icône d'écran d'accueil iOS : carré plein (iOS arrondit lui-même les coins). */
-export const size = { width: 180, height: 180 };
+/** Icône déclarée dans <head> (`<link rel="apple-touch-icon">`). Voir aussi apple-touch-icon.png/route.ts. */
+export const size = { width: APPLE_TOUCH_ICON_SIZE, height: APPLE_TOUCH_ICON_SIZE };
 export const contentType = "image/png";
 
 export default function AppleIcon() {
-  const src = svgDataUri(brandIconSvg({ size: 180, scale: 0.64, radius: 0, simplified: false }));
-
-  return new ImageResponse(
-    // Rendu par Satori (ImageResponse), pas par le navigateur.
-    <img src={src} width={180} height={180} alt="" />,
-    size,
-  );
+  return appleTouchIcon();
 }
