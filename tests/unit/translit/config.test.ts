@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { fakeGenerator } from "@/lib/translit/fake";
+import * as anthropic from "@/lib/translit/anthropic";
 import { DEFAULT_TRANSLIT_DAILY_LIMIT, translitDailyLimit, translitGenerator } from "@/lib/translit/config";
 
 const env = (values: Record<string, string>) => values as unknown as NodeJS.ProcessEnv;
@@ -13,6 +14,18 @@ describe("translitGenerator", () => {
     const generator = translitGenerator(env({ ANTHROPIC_API_KEY: "sk-test", NODE_ENV: "production" }));
     expect(generator).not.toBeNull();
     expect(generator).not.toBe(fakeGenerator);
+  });
+
+  it("passe TRANSLIT_MODEL au générateur Claude, le modèle par défaut s'il est vide", () => {
+    const spy = vi.spyOn(anthropic, "anthropicGenerator");
+    try {
+      translitGenerator(env({ ANTHROPIC_API_KEY: "sk-test", TRANSLIT_MODEL: " claude-sonnet-5-5 " }));
+      expect(spy).toHaveBeenLastCalledWith({ model: "claude-sonnet-5-5" });
+      translitGenerator(env({ ANTHROPIC_API_KEY: "sk-test", TRANSLIT_MODEL: " " }));
+      expect(spy).toHaveBeenLastCalledWith({ model: undefined });
+    } finally {
+      spy.mockRestore();
+    }
   });
 
   it("sans clé : factice hors production, indisponible en production", () => {

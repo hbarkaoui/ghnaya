@@ -49,6 +49,8 @@ export function TranslitStatus({
   const t = useTranslations("lyrics.translit");
   const pathname = usePathname();
   const styles = TONES[tone];
+  // Encadré commun à l'échec, à la limite et à l'invitation à se connecter.
+  const notice = `mb-5 rounded-md p-3 text-sm ${styles.box}`;
 
   if (view === "generating") {
     return (
@@ -77,7 +79,7 @@ export function TranslitStatus({
 
   if (view === "failed") {
     return (
-      <div role="alert" className={`mb-5 rounded-md p-3 text-sm ${styles.box}`}>
+      <div role="alert" className={notice}>
         <p>{t("failed")}</p>
         <button
           type="button"
@@ -93,7 +95,7 @@ export function TranslitStatus({
 
   if (view === "limit") {
     return (
-      <p role="status" className={`mb-5 rounded-md p-3 text-sm ${styles.box}`}>
+      <p role="status" className={notice}>
         {t("limit")}
       </p>
     );
@@ -101,7 +103,7 @@ export function TranslitStatus({
 
   if (view === "signin") {
     return (
-      <p role="status" className={`mb-5 rounded-md p-3 text-sm ${styles.box}`}>
+      <p role="status" className={notice}>
         {t("signin")}{" "}
         <Link
           href={signInHref(pathname)}

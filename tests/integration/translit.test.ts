@@ -185,11 +185,17 @@ describe("requestSongTranslit", () => {
         .where(eq(songs.id, id));
       return fakeTranslit(lyrics);
     });
-    await expect(requestSongTranslit(id, await member(), options(generator))).resolves.toEqual({
-      ok: true,
-      text: "relue\nrelue",
-      status: "reviewed",
-    });
+    const log = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    try {
+      await expect(requestSongTranslit(id, await member(), options(generator))).resolves.toEqual({
+        ok: true,
+        text: "relue\nrelue",
+        status: "reviewed",
+      });
+      expect(log).toHaveBeenCalledWith(expect.stringContaining(`chanson ${id} : résultat jeté`));
+    } finally {
+      log.mockRestore();
+    }
     expect(await song(id)).toMatchObject({ lyricsTranslit: "relue\nrelue", translitStatus: "reviewed" });
   });
 

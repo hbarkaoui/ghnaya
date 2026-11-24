@@ -1,8 +1,8 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { signIn } from "./support/signIn";
 
 /** Ouvre la fiche d'une chanson du jeu de test depuis la recherche. */
-async function openSong(page: import("@playwright/test").Page, query: string, name: RegExp) {
+async function openSong(page: Page, query: string, name: RegExp) {
   await page.goto(`/recherche?q=${encodeURIComponent(query)}`);
   await page.getByRole("link", { name }).first().click();
   await expect(page.getByTestId("lyrics")).toBeVisible();

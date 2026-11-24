@@ -78,6 +78,26 @@ Deux remarques laissées en l'état :
 - `TRANSLIT_PROVIDER=fake` n'est pas refusé en production : les parcours de bout en bout tournent sur un build de production avec le générateur factice. Un avertissement figure dans le README.
 - La configuration est lue avant le contrôle des droits dans l'action : sous une configuration invalide, un visiteur voit « Réessayer » au lieu de l'invitation à se connecter.
 
+### Remarques restantes traitées (24/11/2026)
+
+Chaque correction de comportement a d'abord un test qui échoue. Après ces corrections : 666 tests unitaires, 230 tests d'intégration et 16 parcours de bout en bout passent, avec `pnpm typecheck` et `pnpm lint`.
+
+- **Configuration lue après les droits** : `requestSongTranslit` accepte une fonction qui fournit les options, appelée seulement une fois les droits vérifiés. Sous une configuration invalide, un visiteur reçoit l'invitation à se connecter (et non plus « Réessayer »), et tout le monde voit une translittération déjà prête ; un membre reçoit l'erreur qui nomme la variable. Trois tests au niveau de l'action, dont celui du visiteur qui voit une translittération existante (remarque de la tâche 5).
+- **Résultat jeté journalisé** (écart 8) : `console.warn` nomme la chanson.
+- **Erreur du générateur journalisée** : `generateAligned` garde le message d'erreur (`detail`), que le service écrit dans le journal. Une erreur levée après le délai reste un dépassement : c'est presque toujours l'annulation.
+- **`TRANSLIT_MODEL`** : un test unitaire vérifie qu'il est passé, sans espaces, au générateur Claude.
+- **Tâche 1** : titre du test du schéma précisé, filtre sur `table_schema`.
+- **Tâche 5** : titre du test de l'identifiant mal formé corrigé (« avant toute lecture de la session ») ; l'encadré de l'échec, de la limite et de l'invitation partage une seule classe.
+- **Tâche 6** : type `Page` importé au lieu d'être écrit en ligne.
+
+Laissées en l'état, avec la raison :
+
+- `signInHref(pathname)` perd la chaîne de requête : ni la fiche chanson ni le lecteur, seuls écrans à afficher l'invitation, n'en lisent une. Sans effet aujourd'hui.
+- `stop_reason` `pause_turn` et `stop_sequence` rejetés : l'appel n'utilise ni outil serveur ni séquence d'arrêt, ces valeurs ne peuvent pas survenir.
+- « ء = 2 » et « ق glottal → 2 » : même son (coup de glotte), même chiffre, comme en arabizi courant.
+- `translit_started_at` périmé après une révision ou un import : sans effet, le verrou ne se lit qu'avec le statut `generating`.
+- Dépendances de pair dans le fichier de verrouillage : imposées par le SDK.
+
 ### Remarques mineures des revues, laissées à la revue finale
 
 - **Tâche 1 :** le titre du test « vide par défaut » veut dire « sans valeur par défaut de colonne » ; la requête sur `information_schema` ne filtre pas `table_schema`.

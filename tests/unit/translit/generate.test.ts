@@ -28,7 +28,7 @@ describe("generateAligned", () => {
     const generator = vi.fn<TranslitGenerator>(async () => {
       throw new Error("503");
     });
-    await expect(generateAligned(generator, INPUT)).resolves.toEqual({ ok: false, reason: "error" });
+    await expect(generateAligned(generator, INPUT)).resolves.toEqual({ ok: false, reason: "error", detail: "503" });
     expect(generator).toHaveBeenCalledTimes(1);
   });
 

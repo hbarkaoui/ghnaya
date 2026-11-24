@@ -46,16 +46,22 @@ async function waitForTranslit(songId: string, waitMs: number, pollMs: number): 
   return FAILED;
 }
 
+/**
+ * `options` peut être une fonction : elle n'est appelée qu'une fois les droits vérifiés. L'action y lit la
+ * configuration, si bien qu'une configuration invalide n'empêche ni un visiteur de voir la translittération
+ * existante ou l'invitation à se connecter, ni personne de lire une translittération prête.
+ */
 export async function requestSongTranslit(
   songId: string,
   user: CurrentUser | null,
-  options: TranslitServiceOptions,
+  optionsOrLoader: TranslitServiceOptions | (() => TranslitServiceOptions),
 ): Promise<TranslitResult> {
   const row = await readTranslit(songId);
   if (!row) return FAILED;
   const existing = readyResult(row);
   if (existing) return existing;
   if (!canGenerateTranslit(user)) return { ok: false, reason: "signin" };
+  const options = typeof optionsOrLoader === "function" ? optionsOrLoader() : optionsOrLoader;
   if (!options.generator) return FAILED;
 
   const claim = await claimTranslit(songId);
@@ -74,9 +80,14 @@ export async function requestSongTranslit(
     if (generation.ok && (await finishTranslit(songId, claim.startedAt, generation.text))) {
       return { ok: true, text: generation.text, status: "auto" };
     }
-    if (!generation.ok) console.error(`[translit] chanson ${songId} : échec de la génération (${generation.reason})`);
+    if (generation.ok) {
+      // Résultat jeté (écart 8) : la chanson a changé pendant la génération (révision approuvée, import).
+      console.warn(`[translit] chanson ${songId} : résultat jeté, la chanson a changé pendant la génération`);
+    } else {
+      const detail = generation.reason === "error" ? ` : ${generation.detail}` : "";
+      console.error(`[translit] chanson ${songId} : échec de la génération (${generation.reason}${detail})`);
+    }
     await releaseTranslit(songId, claim.startedAt);
-    // Résultat jeté (écart 8) : la chanson a changé pendant la génération.
     return readyResult(await readTranslit(songId)) ?? FAILED;
   } finally {
     // Sans effet quand le verrou est déjà levé ; une erreur du relâchement ne masque pas l'erreur d'origine.

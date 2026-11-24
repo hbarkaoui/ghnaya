@@ -5,7 +5,11 @@ import type { TranslitGenerator, TranslitInput } from "./generator";
 /** Le délai couvre toute la génération, second essai compris (écart 5). */
 export const TRANSLIT_TIMEOUT_MS = 30_000;
 
-export type Generation = { ok: true; text: string } | { ok: false; reason: "misaligned" | "error" | "timeout" };
+/** `detail` : le message de l'erreur du générateur, pour le journal. */
+export type Generation =
+  | { ok: true; text: string }
+  | { ok: false; reason: "misaligned" | "timeout" }
+  | { ok: false; reason: "error"; detail: string };
 
 /** Rejette dès l'annulation, même si le générateur ignore le signal. */
 function untilAborted<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
@@ -33,7 +37,9 @@ export async function generateAligned(
       if (aligned.ok) return { ok: true, text: aligned.text };
     }
     return { ok: false, reason: "misaligned" };
-  } catch {
-    return { ok: false, reason: signal.aborted ? "timeout" : "error" };
+  } catch (error) {
+    // Une erreur levée après le délai est rapportée comme dépassement : c'est presque toujours l'annulation.
+    if (signal.aborted) return { ok: false, reason: "timeout" };
+    return { ok: false, reason: "error", detail: error instanceof Error ? error.message : String(error) };
   }
 }
