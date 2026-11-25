@@ -33,3 +33,20 @@ export function serverErrorLogLine(err: unknown, request: ErrorRequest, context:
     stack: summary.stack,
   });
 }
+
+/**
+ * Échec rattrapé dans une action (le formulaire affiche son propre message, Next ne journalise rien).
+ * Sans message : celui d'une requête porte ses paramètres, celui d'un envoi d'e-mail peut citer le destinataire.
+ */
+export function actionErrorLogLine(action: string, err: unknown, now = new Date()): string {
+  const summary = summarizeError(err);
+  return JSON.stringify({
+    level: "error",
+    event: "action_error",
+    time: now.toISOString(),
+    action,
+    name: summary.name,
+    code: summary.code,
+    causeName: summary.causeName,
+  });
+}

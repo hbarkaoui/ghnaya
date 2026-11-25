@@ -9,6 +9,7 @@ import { allowMagicLinkRequest } from "@/lib/auth/magicLinkLimit";
 import { safeReturnPath, signInHref } from "@/lib/auth/returnPath";
 import { MAGIC_LINK_SENT_COOKIE, MAGIC_LINK_SENT_COOKIE_OPTIONS } from "@/lib/auth/signInCookie";
 import { clientIp } from "@/lib/ratelimit/clientIp";
+import { actionErrorLogLine } from "@/lib/system/serverErrorLog";
 
 /**
  * Demande d'un lien magique (spec §4.1). Adresse refusée ou trop de demandes : l'erreur revient en ligne.
@@ -36,7 +37,7 @@ export async function requestMagicLink(_previous: MagicLinkState, formData: Form
       headers: requestHeaders,
     });
   } catch (error) {
-    console.error("requestMagicLink", error);
+    console.error(actionErrorLogLine("requestMagicLink", error));
     return { email: typed, error: "failed" };
   }
 
@@ -58,7 +59,7 @@ export async function continueWithGoogle(formData: FormData): Promise<void> {
       headers: await headers(),
     }));
   } catch (error) {
-    console.error("continueWithGoogle", error);
+    console.error(actionErrorLogLine("continueWithGoogle", error));
   }
   // `redirect()` lève : hors du try/catch.
   if (!url) redirect(failed, RedirectType.replace);
