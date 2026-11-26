@@ -232,6 +232,8 @@
     "language": "Langue",
     "account": "Compte",
     "rights": "Vos droits et le retrait de contenus",
+    "privacy": "Politique de confidentialité",
+    "terms": "Conditions d'utilisation",
     "signOut": "Se déconnecter",
     "visitorTitle": "Connectez-vous à Ghnaya",
     "visitorBody": "Retrouvez les playlists de votre club, vos playlists personnelles et vos propositions.",
@@ -508,6 +510,9 @@
       "body": "Le même formulaire sert à signaler des paroles erronées, un doublon ou du spam. Si vous connaissez la bonne version des paroles, vous pouvez aussi proposer une correction depuis la fiche de la chanson : elle sera relue avant d'être publiée."
     },
     "searchAction": "Chercher une chanson"
+  },
+  "legal": {
+    "frenchOnly": "Cette page n'existe qu'en français pour l'instant."
   },
   "myPlaylists": {
     "title": "Mes playlists",
