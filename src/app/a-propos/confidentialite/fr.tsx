@@ -55,8 +55,8 @@ export function PrivacyFr() {
           </li>
           <li>
             <strong className="font-medium">si vous vous connectez avec Google</strong> : l&rsquo;identifiant
-            de votre compte Google, votre nom, votre adresse e-mail et l&rsquo;adresse de votre photo de profil,
-            ainsi que les jetons que Google remet à la connexion (accès, actualisation, identité) ;
+            de votre compte Google, votre nom, votre adresse e-mail et l&rsquo;adresse de votre photo de profil.
+            Les jetons que Google remet à la connexion ne sont pas conservés ;
           </li>
           <li>
             <strong className="font-medium">vos sessions</strong> : pour chaque appareil connecté, un jeton de
@@ -98,10 +98,6 @@ export function PrivacyFr() {
           Enfin, votre navigateur garde vos préférences du lecteur (taille du texte, mode sombre, affichage) dans
           son stockage local : elles ne sont pas envoyées à Ghnaya.
         </p>
-        <ToValidate>
-          les jetons Google ne servent plus après la connexion : cesser de les conserver (principe de
-          minimisation), puis retirer leur mention ci-dessus.
-        </ToValidate>
       </Section>
 
       <Section id="conf-finalites" title="Pourquoi, et sur quelle base">
