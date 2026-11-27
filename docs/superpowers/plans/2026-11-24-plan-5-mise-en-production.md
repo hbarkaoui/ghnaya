@@ -63,7 +63,7 @@ export DATABASE_URL_TEST=postgres://ghanni:ghanni@localhost:5433/ghanni_test_pla
 - **Ouverture publique (section 12)** : le site reste fermé aux moteurs (`SITE_INDEXABLE` absent) en attendant l'avis juridique. Les pages légales sont sur la branche `claude/pages-legales`, ni fusionnée ni déployée.
 - **Connexion Google en mode test** : seuls les comptes de test peuvent se connecter par Google. La publication de l'application attend les pages légales.
 - **Durée maximale de 60 s** : Vercel ne l'affiche pas par fonction. Le déploiement est en Fluid Compute avec une durée par défaut de 300 s, qui couvre les 60 s demandées ; l'arrêt à 60 s n'a pas été observé.
-- **Filtrage des e-mails** : une messagerie d'entreprise n'a pas reçu l'e-mail de connexion ; une adresse Gmail l'a reçu. Pas diagnostiqué.
+- **Filtrage des e-mails** : le 26/11, l'e-mail de test vers une messagerie d'entreprise (Google Workspace) a été accepté par le serveur (« Delivered » chez Resend) mais n'est pas arrivé en boîte de réception, quelques heures après l'enregistrement du domaine. Le 27/11, un lien de connexion vers la même adresse est arrivé en boîte de réception. Cause probable : filtre sur les domaines tout juste créés. DKIM, SPF et DMARC (`p=none`) valides ; pas de rapports DMARC (`rua`) configurés.
 - **Sauvegarde planifiée** : seul le run manuel a été observé ; le premier run de 2 h UTC reste à vérifier.
 
 ## Contraintes globales
