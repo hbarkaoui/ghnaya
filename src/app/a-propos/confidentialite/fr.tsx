@@ -33,12 +33,14 @@ export function PrivacyFr() {
           question sur vos données, écrivez à <SupportEmail />. Ghnaya n&rsquo;a pas désigné de délégué à la
           protection des données : il n&rsquo;y est pas tenu.
         </p>
+        {/*
+          Écart assumé (décision de l'éditeur, 27/11/2026) : le RGPD (art. 13, 1, a) demande le nom du
+          responsable du traitement ; l'éditeur, particulier, garde l'anonymat que permet la LCEN (art. 6, III, 2).
+        */}
         <ToValidate>
-          le RGPD (article 13, 1, a) impose de donner l&rsquo;identité du responsable du traitement et ses
-          coordonnées ; l&rsquo;anonymat permis par la LCEN ne couvre pas cette obligation. Une adresse e-mail
-          suffit comme coordonnée, mais le nom est requis. Choisir : l&rsquo;indiquer ici, ou accepter
-          l&rsquo;écart. L&rsquo;adresse de contact est un groupe Google : vérifier que ses archives ne sont
-          lisibles que par ses gestionnaires, ou la remplacer par une boîte privée.
+          l&rsquo;adresse de contact est un groupe Google : vérifier que ses archives ne sont lisibles que par
+          ses gestionnaires (les demandes contiendront des données personnelles), ou la remplacer par une boîte
+          privée.
         </ToValidate>
       </Section>
 
