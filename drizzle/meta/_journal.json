@@ -50,6 +50,13 @@
       "when": 1795788527807,
       "tag": "0006_accounts_clear_oauth_tokens",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795788727143,
+      "tag": "0007_users_retention",
+      "breakpoints": true
     }
   ]
 }

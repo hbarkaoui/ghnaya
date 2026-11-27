@@ -97,6 +97,27 @@ describe("connexion par lien magique", () => {
   });
 });
 
+describe("activité du compte", () => {
+  beforeEach(resetDb);
+
+  // Durées de conservation : une connexion remet à zéro le délai d'inactivité et l'avertissement.
+  it("une connexion note l'activité et annule l'avertissement d'inactivité", async () => {
+    const old = new Date("2020-01-01T00:00:00Z");
+    await db.insert(users).values({
+      email: "karim@example.com",
+      name: "karim",
+      emailVerified: true,
+      lastActiveAt: old,
+      inactivityNoticeAt: old,
+    });
+    const start = Date.now();
+    await signInByMagicLink("karim@example.com");
+    const [row] = await db.select().from(users).where(eq(users.email, "karim@example.com"));
+    expect(row.lastActiveAt.getTime()).toBeGreaterThanOrEqual(start - 1000);
+    expect(row.inactivityNoticeAt).toBeNull();
+  });
+});
+
 describe("comptes Google", () => {
   beforeEach(resetDb);
 

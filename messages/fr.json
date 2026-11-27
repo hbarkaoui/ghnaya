@@ -838,6 +838,15 @@
       "button": "Me connecter",
       "fallback": "Si le bouton ne marche pas, copiez cette adresse dans votre navigateur :",
       "ignore": "Vous n'avez rien demandé ? Ignorez cet e-mail : personne ne pourra se connecter sans ce lien."
+    },
+    "inactivity": {
+      "subject": "Votre compte Ghnaya sera supprimé le {date}",
+      "greeting": "Bonjour,",
+      "body": "Vous ne vous êtes pas connecté à Ghnaya depuis près de 3 ans. Sans connexion de votre part, votre compte sera supprimé le {date}, avec vos playlists personnelles. Vos propositions resteront, sans votre nom.",
+      "keep": "Pour garder votre compte, il suffit de vous connecter avant cette date.",
+      "button": "Me connecter",
+      "fallback": "Si le bouton ne marche pas, copiez cette adresse dans votre navigateur :",
+      "ignore": "Vous ne souhaitez pas le garder ? Ne faites rien : il sera supprimé à cette date."
     }
   }
 }

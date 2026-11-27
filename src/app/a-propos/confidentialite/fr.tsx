@@ -183,21 +183,28 @@ export function PrivacyFr() {
 
       <Section id="conf-duree" title="Combien de temps">
         <List>
-          <li>votre compte et ce qui s&rsquo;y rattache : jusqu&rsquo;à ce que vous le supprimiez ;</li>
-          <li>une session : 7 jours, prolongés tant que vous utilisez le site ;</li>
-          <li>un lien de connexion : 15 minutes ;</li>
+          <li>
+            votre compte et ce qui s&rsquo;y rattache : jusqu&rsquo;à ce que vous le supprimiez, ou après 3 ans
+            sans connexion. Dans ce cas, un e-mail vous prévient un mois avant : il suffit de vous connecter
+            pour garder votre compte. Le compte du seul animateur d&rsquo;un club n&rsquo;est pas supprimé
+            automatiquement ;
+          </li>
+          <li>
+            une session : 7 jours, prolongés tant que vous utilisez le site ; une session expirée est effacée
+            dans la nuit ;
+          </li>
+          <li>un lien de connexion : 15 minutes, puis effacé dans la nuit ;</li>
           <li>les compteurs des limites de requêtes : effacés après un jour environ ;</li>
+          <li>l&rsquo;adresse de contact d&rsquo;un signalement : effacée un an après sa clôture ;</li>
           <li>
             vos propositions et vos signalements : conservés après la suppression de votre compte, mais sans
-            lien avec vous.
+            lien avec vous ;
           </li>
+          <li>les copies de sauvegarde de la base : 30 jours.</li>
         </List>
         <ToValidate>
-          règles proposées, que le site n&rsquo;applique pas encore et qu&rsquo;il faut programmer avant de les
-          annoncer : adresse de contact d&rsquo;un signalement effacée 1 an après sa clôture ; sessions et liens
-          expirés effacés chaque jour ; sauvegardes gardées 30 jours ; compte sans connexion depuis 3 ans
-          supprimé, après un e-mail de prévenance un mois avant. Ajouter la durée des journaux de Vercel, telle
-          que Vercel l&rsquo;indique.
+          ajouter la durée des journaux de Vercel et celle de l&rsquo;historique de Neon (restauration à un
+          instant donné), telles que leurs offres les indiquent.
         </ToValidate>
       </Section>
 

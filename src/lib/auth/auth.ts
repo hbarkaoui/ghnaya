@@ -8,6 +8,7 @@ import { db } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
 import { magicLinkEmail } from "@/lib/mail/magicLinkEmail";
 import { sendMail } from "@/lib/mail/transport";
+import { markUserActive } from "@/lib/retention/retention";
 import { defaultNameFromEmail, normalizeUserName } from "./name";
 
 /**
@@ -59,6 +60,16 @@ const createAuth = () =>
           before: async (data) => {
             if (!OAUTH_TOKEN_FIELDS.some((field) => field in data)) return;
             return { data: { ...data, ...NO_OAUTH_TOKENS } };
+          },
+        },
+      },
+      // Durées de conservation (lib/retention) : une connexion, ou une session prolongée à l'usage (une fois
+      // par jour au plus), marque le compte actif et annule un avertissement d'inactivité.
+      session: {
+        create: { after: async (session) => markUserActive(db, session.userId) },
+        update: {
+          after: async (session) => {
+            if (session.userId) await markUserActive(db, session.userId);
           },
         },
       },
