@@ -512,7 +512,7 @@
     "searchAction": "Chercher une chanson"
   },
   "legal": {
-    "frenchOnly": "Cette page n'existe qu'en français pour l'instant."
+    "toValidate": "À valider :"
   },
   "myPlaylists": {
     "title": "Mes playlists",

@@ -34,3 +34,20 @@ test("la connexion annonce l'acceptation des conditions, avec les deux liens", a
   await page.getByRole("link", { name: "politique de confidentialité" }).click();
   await expect(page).toHaveURL(/\/a-propos\/confidentialite$/);
 });
+
+const PAGES_AR = [
+  { path: "/a-propos/confidentialite", title: "سياسة الخصوصية" },
+  { path: "/a-propos/conditions", title: "شروط الاستخدام" },
+];
+
+for (const { path, title } of PAGES_AR) {
+  test(`${path} s'affiche en arabe, de droite à gauche`, async ({ page, context, baseURL }) => {
+    await context.addCookies([{ name: "locale", value: "ar", url: baseURL! }]);
+    await page.goto(path);
+    await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+    await expect(page).toHaveTitle(new RegExp(title));
+    await expect(page.getByRole("heading", { level: 1, name: title })).toBeVisible();
+    // L'adresse de contact garde son ordre de gauche à droite dans la phrase arabe.
+    await expect(page.getByRole("link", { name: "ghnaya-support@googlegroups.com" }).first()).toHaveAttribute("dir", "ltr");
+  });
+}

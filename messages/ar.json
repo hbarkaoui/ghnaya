@@ -512,7 +512,7 @@
     "searchAction": "ابحثوا عن أغنية"
   },
   "legal": {
-    "frenchOnly": "هذه الصفحة متوفّرة بالفرنسية فقط في الوقت الحالي."
+    "toValidate": "للتحقّق:"
   },
   "myPlaylists": {
     "title": "قوائمي",

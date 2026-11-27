@@ -1,14 +1,14 @@
 import Link from "next/link";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 import { PageHeader } from "@/components/shell/PageHeader";
 import { PageMain } from "@/components/shell/PageMain";
 
 /**
  * Pages juridiques (`/a-propos/confidentialite`, `/a-propos/conditions`) : texte sobre, du même gabarit que
- * `/a-propos/droits`. Leur texte est en français seulement, écrit dans la page et non dans `messages/` :
- * une version arabe attend la relecture juridique du texte français. En arabe, un avis le dit, et le
- * contenu garde `lang="fr"` et le sens de gauche à droite.
+ * `/a-propos/droits`. Leur texte est écrit dans un fichier par langue (`fr.tsx`, `ar.tsx`) et non dans
+ * `messages/` : un texte juridique se relit d'un seul tenant, et ses phrases portent des liens.
+ * La version française fait foi ; la version arabe la suit section par section, avec les mêmes `id`.
  */
 export const SUPPORT_EMAIL = "ghnaya-support@googlegroups.com";
 
@@ -23,19 +23,11 @@ export async function LegalPage({
   lead: ReactNode;
   children: ReactNode;
 }) {
-  const locale = await getLocale();
-  const t = await getTranslations("legal");
-
   return (
     <>
       <PageHeader variant="sub" backHref="/moi" backToHistory />
       <PageMain>
-        {locale === "fr" ? null : (
-          <p role="note" className="mb-6 rounded-lg bg-info-soft px-4 py-3 text-info">
-            {t("frenchOnly")}
-          </p>
-        )}
-        <article lang="fr" dir="ltr">
+        <article>
           <h1 className="font-display text-2xl leading-snug font-semibold text-balance">{title}</h1>
           <p className="mt-2 text-sm text-ink-2">{updated}</p>
           <div className="mt-3 text-md text-ink-2 leading-relaxed">{lead}</div>
@@ -65,17 +57,23 @@ export function List({ children }: { children: ReactNode }) {
  * Point que le code ne permet pas de trancher : visible dans la page tant que la relecture juridique ne
  * l'a pas réglé. `data-a-valider` permet de les compter (test e2e) et de vérifier qu'il n'en reste plus.
  */
-export function ToValidate({ children }: { children: ReactNode }) {
+export async function ToValidate({ children }: { children: ReactNode }) {
+  const t = await getTranslations("legal");
   return (
     <aside
       role="note"
       data-a-valider=""
       className="rounded-lg border border-warning bg-warning-soft px-4 py-3 text-sm leading-relaxed text-ink"
     >
-      <strong className="font-semibold text-warning">À valider : </strong>
+      <strong className="font-semibold text-warning">{t("toValidate")} </strong>
       {children}
     </aside>
   );
+}
+
+/** Texte latin dans une phrase arabe (adresse, raison sociale) : isolé, il garde son ordre. */
+export function Ltr({ children }: { children: ReactNode }) {
+  return <bdi dir="ltr">{children}</bdi>;
 }
 
 export function InlineLink({ href, children }: { href: string; children: ReactNode }) {
@@ -86,9 +84,10 @@ export function InlineLink({ href, children }: { href: string; children: ReactNo
   );
 }
 
+/** Adresse isolée de gauche à droite : dans une phrase arabe, ses points et son @ resteraient sinon à l'envers. */
 export function SupportEmail() {
   return (
-    <a href={`mailto:${SUPPORT_EMAIL}`} className="font-medium text-link underline underline-offset-4">
+    <a dir="ltr" href={`mailto:${SUPPORT_EMAIL}`} className="font-medium text-link underline underline-offset-4">
       {SUPPORT_EMAIL}
     </a>
   );
