@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /**
  * Moi (IA, hiérarchie du contenu) : le nom et les pastilles de club ; Mes playlists, Mes contributions,
- * Proposer une chanson ; Modération (modérateurs) ; Langue, Compte, Vos droits ; Se déconnecter.
+ * Proposer une chanson ; Modération (modérateurs) ; Langue, Compte, pages juridiques ; Se déconnecter.
  */
 export default async function MePage({ searchParams }: PageProps<"/moi">) {
   const t = await getTranslations("me");
@@ -129,7 +129,7 @@ async function ClubPills({ user, clubs }: { user: CurrentUser; clubs: ClubRef[] 
 }
 
 /**
- * Langue, Compte (membres), Vos droits et le retrait de contenus, la politique de confidentialité et les
+ * Langue, Compte (membres), Droits d'auteur et retrait de contenus, la politique de confidentialité et les
  * conditions d'utilisation (pour tous, visiteurs compris).
  */
 async function SettingsList({ withAccount = false }: { withAccount?: boolean }) {

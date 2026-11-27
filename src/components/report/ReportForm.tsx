@@ -39,7 +39,7 @@ function link(href: string) {
  * Formulaire de /signaler/[songId] (IA, parcours 7) : motif, détails, et l'adresse e-mail d'un
  * visiteur (un membre connecté n'en donne pas, son compte suffit). Erreurs en ligne avec un
  * récapitulatif qui reçoit le focus ; une fois envoyé, la confirmation remplace le formulaire et
- * renvoie vers « Vos droits et le retrait de contenus ».
+ * renvoie vers « Droits d'auteur et retrait de contenus ».
  */
 export function ReportForm({ songId, memberName }: { songId: string; memberName: string | null }) {
   const t = useTranslations("reportForm");
@@ -177,7 +177,7 @@ export function ReportForm({ songId, memberName }: { songId: string; memberName:
   );
 }
 
-/** Confirmation : elle reçoit le focus (lue par le lecteur d'écran) et mène à la page « Vos droits ». */
+/** Confirmation : elle reçoit le focus (lue par le lecteur d'écran) et mène à la page « Droits d’auteur et retrait de contenus ». */
 function ReportSent({ songId, sentTo }: { songId: string; sentTo: string | null }) {
   const t = useTranslations("reportForm.sent");
   const ref = useRef<HTMLDivElement>(null);

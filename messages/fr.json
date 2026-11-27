@@ -231,7 +231,7 @@
     "moderationQueue": "{n} à relire",
     "language": "Langue",
     "account": "Compte",
-    "rights": "Vos droits et le retrait de contenus",
+    "rights": "Droits d'auteur et retrait de contenus",
     "privacy": "Politique de confidentialité",
     "terms": "Conditions d'utilisation",
     "signOut": "Se déconnecter",
@@ -469,20 +469,20 @@
       "title": "Signalement envoyé",
       "body": "Merci. Un modérateur va l'examiner ; les signalements pour droits d'auteur passent en priorité.",
       "contact": "S'il a besoin de précisions, il vous écrira à <b>{email}</b>.",
-      "rightsTitle": "Vos droits et le retrait de contenus",
+      "rightsTitle": "Droits d'auteur et retrait de contenus",
       "rightsHint": "Ce qui se passe après un signalement",
       "backToSong": "Revenir à la chanson"
     }
   },
   "rightsPage": {
     "metaDescription": "Ce que Ghnaya publie, comment demander le retrait d'une chanson et ce qui se passe ensuite.",
-    "title": "Vos droits et le retrait de contenus",
+    "title": "Droits d'auteur et retrait de contenus",
     "lead": "Ghnaya aide les clubs de chant à lire des paroles en séance. Si une chanson publiée ici vous appartient, ou si vous représentez ses ayants droit, vous pouvez demander son retrait.",
     "publish": {
       "title": "Ce que Ghnaya publie",
       "body": "Ghnaya publie des paroles, en texte seul : ni enregistrement, ni partition, ni publicité. Chaque fiche de chanson indique la source de ses paroles :",
-      "lrclib": "<source>LRCLIB</source>, une base de paroles ouverte et collaborative ;",
-      "publicDomain": "<source>Domaine public</source> : des chants traditionnels, ou des textes dont l'auteur est mort depuis plus de 50 ans ;",
+      "lrclib": "<source>LRCLIB</source>, des paroles importées d'une base collaborative, sans relecture préalable ;",
+      "publicDomain": "<source>Domaine public</source> : des chants traditionnels, ou des textes dont l'auteur est mort depuis plus de 70 ans ;",
       "contribution": "<source>Proposition</source> : des paroles envoyées par un membre, qui déclare avoir le droit de les partager, puis relues par un modérateur avant d'être publiées."
     },
     "request": {
@@ -705,6 +705,7 @@
       "google": "La connexion avec Google n'a pas abouti. Réessayez, ou recevez un lien par e-mail."
     },
     "noAccount": "Pas encore de compte ? Il est créé à votre première connexion.",
+    "accept": "En vous connectant, vous acceptez les <terms>conditions d'utilisation</terms> et prenez connaissance de la <privacy>politique de confidentialité</privacy>.",
     "verify": {
       "metaTitle": "Vérifiez vos e-mails",
       "title": "Vérifiez vos e-mails",

@@ -1,7 +1,9 @@
 import { CircleAlert } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import type { ReactNode } from "react";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { MagicLinkForm } from "@/components/auth/MagicLinkForm";
 import { SignInLayout } from "@/components/auth/SignInLayout";
@@ -10,6 +12,17 @@ import { isGoogleEnabled } from "@/lib/auth/auth";
 import { signInErrorKey } from "@/lib/auth/signInError";
 import { safeReturnPath } from "@/lib/auth/returnPath";
 import { getCurrentUser } from "@/lib/session";
+
+/** Lien vers une page juridique, dans la phrase d'acceptation : souligné, pour se distinguer du texte. */
+function legalLink(href: string) {
+  return function LegalLink(chunks: ReactNode) {
+    return (
+      <Link href={href} className="font-medium text-link underline underline-offset-4">
+        {chunks}
+      </Link>
+    );
+  };
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("signIn");
@@ -57,6 +70,13 @@ export default async function SignInPage({ searchParams }: PageProps<"/connexion
       </div>
 
       <p className="mt-8 text-center text-sm text-ink-2 text-pretty">{t("noAccount")}</p>
+      {/* Acceptation des conditions : le compte naît à la première connexion, la phrase est donc ici. */}
+      <p className="mt-3 text-center text-sm text-ink-2 text-pretty">
+        {t.rich("accept", {
+          terms: legalLink("/a-propos/conditions"),
+          privacy: legalLink("/a-propos/confidentialite"),
+        })}
+      </p>
     </SignInLayout>
   );
 }

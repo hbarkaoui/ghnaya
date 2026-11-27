@@ -30,7 +30,7 @@ function Section({ id, title, children }: { id: string; title: string; children:
 }
 
 /**
- * Vos droits et le retrait de contenus (spec §9 : « décrit la procédure de retrait ») : page de texte
+ * Droits d'auteur et retrait de contenus (spec §9 : « décrit la procédure de retrait ») : page de texte
  * sobre, ouverte à tous. Ce que Ghnaya publie, comment demander un retrait, ce qui se passe ensuite
  * (retrait doux, réversible par un modérateur) et les autres signalements.
  * Le grand titre est porté par la page : il est trop long pour l'en-tête à 375 px.

@@ -7,29 +7,40 @@ export const metadata: Metadata = {
 };
 
 /**
- * Conditions d'utilisation, tirées de ce que fait le code et de la spec (§4.3 rôles, §8 propositions,
- * §9 retraits, §10 clubs, §11 import). Ce que le code ne dit pas est dans un encadré « À valider ».
+ * Conditions d'utilisation et mentions légales, tirées de ce que fait le code et de la spec (§4.3 rôles,
+ * §8 propositions, §9 retraits, §10 clubs, §11 import), puis relues par une juriste le 27/11/2026.
+ * Restent « À valider » les faits que seul l'éditeur peut donner, et la décision sur les paroles LRCLIB.
  */
 export default function TermsPage() {
   return (
     <LegalPage
       title="Conditions d'utilisation"
-      updated="Version provisoire du 26 novembre 2026, en attente de relecture juridique."
+      updated="Version provisoire du 27 novembre 2026."
       lead={
         <p>
           Ghnaya aide les clubs de chant à lire des paroles de chansons arabes en séance, chacun sur son
           téléphone. Ces conditions disent qui peut faire quoi sur le site, comment les paroles y arrivent et
-          comment elles en sortent.
+          comment elles en sortent. Créer un compte, c&rsquo;est les accepter.
         </p>
       }
     >
-      <Section id="cond-editeur" title="Qui édite Ghnaya">
-        <p>
-          Contact : <SupportEmail />.
-        </p>
+      <Section id="cond-editeur" title="Mentions légales">
+        <List>
+          <li>
+            <strong className="font-medium">Éditeur et directeur de la publication</strong> : voir ci-dessous.
+            Contact : <SupportEmail />.
+          </li>
+          <li>
+            <strong className="font-medium">Hébergeur</strong> : Vercel Inc., 440 N Barranca Ave #4133, Covina,
+            CA 91723, États-Unis.
+          </li>
+        </List>
+        <p>Le service est gratuit.</p>
         <ToValidate>
-          identité de l&rsquo;éditeur du site et du directeur de la publication, adresse, et mentions de
-          l&rsquo;hébergeur (Vercel). Le service est-il gratuit, et le restera-t-il ?
+          éditeur : nom (personne ou association), adresse, et nom du directeur de la publication. Un particulier
+          qui édite le site à titre non professionnel peut ne donner que les coordonnées de l&rsquo;hébergeur, à
+          qui il a communiqué son identité. Confirmer l&rsquo;adresse de Vercel et ajouter son numéro de
+          téléphone, d&rsquo;après ses propres mentions légales.
         </ToValidate>
       </Section>
 
@@ -41,11 +52,10 @@ export default function TermsPage() {
         </p>
         <p>
           Le compte est créé à la première connexion, par un lien envoyé à votre adresse e-mail ou avec Google.
-          Vous êtes responsable de ce qui est fait depuis votre compte : ne partagez pas vos liens de connexion.
-          Vous pouvez supprimer votre compte à tout moment depuis{" "}
-          <InlineLink href="/moi/compte">Compte</InlineLink>.
+          Il faut avoir 15 ans ; en dessous, l&rsquo;accord d&rsquo;un parent est nécessaire. Vous êtes
+          responsable de ce qui est fait depuis votre compte : ne partagez pas vos liens de connexion. Vous
+          pouvez supprimer votre compte à tout moment depuis <InlineLink href="/moi/compte">Compte</InlineLink>.
         </p>
-        <ToValidate>âge minimum pour créer un compte, et accord parental éventuel.</ToValidate>
       </Section>
 
       <Section id="cond-roles" title="Les rôles">
@@ -100,28 +110,45 @@ export default function TermsPage() {
             porte pas votre nom.
           </li>
         </List>
-        <ToValidate>
-          liste des contenus interdits (propos injurieux ou haineux, spam, textes sans rapport avec la chanson…).
-          Droits que le membre accorde à Ghnaya sur ce qu&rsquo;il propose (licence, durée, et maintien après la
-          suppression du compte, puisque les propositions restent publiées sans nom).
-        </ToValidate>
+        <p>
+          <strong className="font-medium">Ce que vous accordez à Ghnaya.</strong> En envoyant une proposition,
+          vous autorisez Ghnaya, gratuitement, sans exclusivité, pour le monde entier et pour toute la durée des
+          droits, à la reproduire, la publier sur le site, la corriger et l&rsquo;accompagner d&rsquo;une
+          translittération. Cette autorisation porte sur les droits que vous détenez vous-même, par exemple sur
+          votre translittération ; elle demeure après la suppression de votre compte, puisque les paroles
+          publiées restent en ligne sans votre nom.
+        </p>
+        <p>
+          <strong className="font-medium">Ce que vous garantissez.</strong> Vous garantissez que la proposition
+          est dans le domaine public ou que vous avez le droit de la partager, et qu&rsquo;elle ne porte atteinte
+          aux droits de personne. Si un tiers met en cause Ghnaya à cause d&rsquo;une proposition qui ne
+          respectait pas cette garantie, vous en répondez.
+        </p>
+        <p>Sont interdits, dans les propositions comme dans les signalements :</p>
+        <List>
+          <li>les contenus illicites, et notamment ceux qui reproduisent une œuvre sans l&rsquo;accord de ses ayants droit ;</li>
+          <li>les propos injurieux, diffamatoires, haineux ou violents ;</li>
+          <li>les données personnelles d&rsquo;autrui ;</li>
+          <li>le spam, la publicité et les textes sans rapport avec la chanson ;</li>
+          <li>les signalements abusifs ou faits de mauvaise foi.</li>
+        </List>
       </Section>
 
       <Section id="cond-paroles" title="Les paroles publiées">
         <p>
-          Ghnaya publie des paroles en texte seul : ni enregistrement, ni partition. Chaque fiche de chanson
-          indique la source de ses paroles :
+          Ghnaya publie des paroles en texte seul : ni enregistrement, ni partition. Les droits sur les paroles
+          appartiennent à leurs auteurs et à leurs ayants droit. Chaque fiche de chanson indique la source de ses
+          paroles :
         </p>
         <List>
           <li>
             <strong className="font-medium">LRCLIB</strong> : paroles importées depuis LRCLIB, une base de
-            paroles ouverte et collaborative, publiées sans relecture préalable ; leur exactitude n&rsquo;est pas
-            garantie et les modérateurs peuvent les corriger ;
+            paroles ouverte et collaborative ; leur exactitude n&rsquo;est pas garantie et les modérateurs peuvent
+            les corriger ;
           </li>
           <li>
             <strong className="font-medium">Domaine public</strong> : chants traditionnels, ou textes dont
-            l&rsquo;auteur est mort depuis plus de 50 ans (règle tunisienne : 50 ans à compter du 1er janvier
-            qui suit le décès) ;
+            l&rsquo;auteur est mort depuis plus de 70 ans, comptés à partir du 1er janvier qui suit le décès ;
           </li>
           <li>
             <strong className="font-medium">Proposition</strong> : paroles envoyées par un membre et relues par
@@ -129,50 +156,85 @@ export default function TermsPage() {
           </li>
         </List>
         <p>
-          Ghnaya ne détient pas les droits sur les paroles qu&rsquo;il publie. La translittération en lettres
-          latines peut être générée automatiquement : elle porte alors la mention « automatique » et peut
-          contenir des erreurs.
+          Un ayant droit qui ne souhaite pas qu&rsquo;un texte figure sur Ghnaya peut en demander le retrait,
+          selon la procédure décrite sur{" "}
+          <InlineLink href="/a-propos/droits">Droits d&rsquo;auteur et retrait de contenus</InlineLink>.
+        </p>
+        <p>
+          La translittération en lettres latines peut être générée automatiquement : elle porte alors la mention
+          « automatique » et peut contenir des erreurs.
         </p>
         <ToValidate>
-          base juridique de la publication des paroles importées de LRCLIB, et conditions de réutilisation
-          de cette base. Validité de la règle des 50 ans pour les pays où le site est lu (70 ans en France et
-          dans l&rsquo;Union européenne).
+          décision à prendre avant la mise en ligne de cette page. Les paroles importées de LRCLIB sont mises en
+          ligne par Ghnaya lui-même, sans relecture : Ghnaya en est l&rsquo;éditeur, non l&rsquo;hébergeur, et
+          LRCLIB n&rsquo;accorde aucun droit sur les textes. Leur publication intégrale sans autorisation des
+          ayants droit est une contrefaçon. Options : obtenir des licences (éditeurs ou agrégateur de paroles),
+          retirer ces paroles du catalogue public, ou documenter le risque accepté. Pour les chants
+          traditionnels, vérifier aussi l&rsquo;encadrement du folklore par la loi tunisienne n° 94-36 et le
+          statut des versions écrites ou arrangées.
         </ToValidate>
       </Section>
 
       <Section id="cond-usage" title="Ce que vous pouvez faire des paroles">
-        <p>Les paroles sont là pour être lues, seul ou en séance avec votre club.</p>
-        <ToValidate>
-          usages autorisés et interdits (copie, diffusion, extraction automatisée du catalogue). Le site limite
-          déjà la recherche à 60 requêtes par minute et par adresse IP.
-        </ToValidate>
+        <p>
+          Les paroles sont là pour être lues, seul ou en séance avec votre club. Il est interdit d&rsquo;extraire
+          le catalogue de façon automatisée ou systématique, et de rediffuser les paroles ailleurs, sauf si elles
+          sont dans le domaine public. Le site limite la recherche à 60 requêtes par minute et par adresse IP.
+        </p>
       </Section>
 
-      <Section id="cond-moderation" title="Signalements et retraits">
+      <Section id="cond-moderation" title="Signalements, retraits et recours">
         <p>
           Tout le monde peut signaler une chanson depuis sa fiche : droits d&rsquo;auteur, paroles erronées,
           doublon ou spam, dans la limite de 10 signalements par jour. Un modérateur retire la chanson, la
           corrige ou classe le signalement sans suite. Un retrait est réversible : la chanson est masquée, pas
           effacée. La procédure de retrait pour droits d&rsquo;auteur est décrite sur{" "}
-          <InlineLink href="/a-propos/droits">Vos droits et le retrait de contenus</InlineLink>.
+          <InlineLink href="/a-propos/droits">Droits d&rsquo;auteur et retrait de contenus</InlineLink>.
         </p>
         <p>Un admin peut aussi retirer d&rsquo;un coup toutes les chansons d&rsquo;une source.</p>
+        <p>
+          Si une proposition que vous avez envoyée est rejetée, la note du modérateur vous en dit la raison,
+          dans Mes contributions. Vous pouvez contester une décision de modération, la vôtre comme celle prise
+          sur votre signalement, en écrivant à <SupportEmail /> : une autre personne que l&rsquo;auteur de la
+          décision la réexamine.
+        </p>
+        <p>
+          En cas de manquement à ces conditions, Ghnaya peut retirer le contenu en cause et, si le manquement est
+          grave ou répété, suspendre ou fermer le compte, après vous en avoir dit la raison.
+        </p>
         <ToValidate>
-          ce qui arrive au compte d&rsquo;un membre qui enfreint ces règles (le site ne permet aujourd&rsquo;hui
-          ni de suspendre ni de fermer le compte d&rsquo;un autre) ; délai de traitement des signalements.
+          délai de traitement des signalements à annoncer (par exemple 7 jours, plus court pour les droits
+          d&rsquo;auteur). Le site ne permet pas encore de suspendre ni de fermer le compte d&rsquo;un autre, ni
+          d&rsquo;écrire au contributeur dont une chanson publiée est retirée : à programmer.
         </ToValidate>
       </Section>
 
       <Section id="cond-responsabilite" title="Disponibilité et responsabilité">
         <p>
-          Si la translittération est indisponible, le lecteur affiche les paroles en arabe seul : la lecture
-          n&rsquo;est jamais bloquée.
+          Ghnaya est fourni gratuitement, tel quel. Nous faisons de notre mieux pour qu&rsquo;il reste disponible
+          et exact, sans pouvoir le garantir : le site peut être interrompu pour maintenance ou à la suite
+          d&rsquo;une panne. Si la translittération est indisponible, le lecteur affiche les paroles en arabe
+          seul : la lecture n&rsquo;est jamais bloquée.
         </p>
-        <ToValidate>
-          engagement de disponibilité, limitation de responsabilité, droit applicable et juridiction
-          compétente, et procédure de modification de ces conditions (prévenir les membres, date
-          d&rsquo;effet). Faut-il demander l&rsquo;accord à ces conditions à la création du compte ?
-        </ToValidate>
+        <p>
+          Ghnaya répond des dommages directs qu&rsquo;il cause par sa faute. Il ne répond pas de l&rsquo;usage que
+          vous faites des paroles, ni des contenus envoyés par les membres avant qu&rsquo;un signalement les lui
+          fasse connaître.
+        </p>
+      </Section>
+
+      <Section id="cond-modifications" title="Modifications, droit applicable">
+        <p>
+          Ces conditions peuvent évoluer. Si elles changent de façon importante, les membres en sont prévenus dans
+          le site avant la date d&rsquo;effet, indiquée en haut de cette page ; continuer à utiliser son compte
+          après cette date vaut accord. Vous pouvez aussi supprimer votre compte.
+        </p>
+        <p>
+          Ces conditions sont soumises au droit français. En cas de litige, écrivez-nous d&rsquo;abord à{" "}
+          <SupportEmail /> pour chercher une solution amiable. À défaut, le litige est porté devant les
+          tribunaux compétents selon les règles de droit commun.
+        </p>
+        <ToValidate>droit français à confirmer selon l&rsquo;établissement de l&rsquo;éditeur.</ToValidate>
       </Section>
 
       <Section id="cond-donnees" title="Vos données">

@@ -8,14 +8,15 @@ export const metadata: Metadata = {
 
 /**
  * Politique de confidentialité, tirée de ce que fait le code (schéma `lib/db/schema`, Better Auth,
- * limites de requêtes, suppression de compte) et du guide de mise en production. Ce que le code ne dit pas
- * est dans un encadré « À valider », pour la relecture juridique.
+ * limites de requêtes, suppression de compte) et du guide de mise en production, puis relue par une
+ * juriste le 27/11/2026. Restent « À valider » les faits que seul l'éditeur peut donner (identité,
+ * régions des prestataires) et les durées que le code n'applique pas encore.
  */
 export default function PrivacyPage() {
   return (
     <LegalPage
       title="Politique de confidentialité"
-      updated="Version provisoire du 26 novembre 2026, en attente de relecture juridique."
+      updated="Version provisoire du 27 novembre 2026."
       lead={
         <p>
           Ghnaya aide les clubs de chant à lire des paroles en séance. Cette page dit quelles données le site
@@ -26,12 +27,15 @@ export default function PrivacyPage() {
     >
       <Section id="conf-responsable" title="Qui est responsable de vos données">
         <p>
-          Pour toute question sur vos données, écrivez à <SupportEmail />.
+          Le responsable du traitement est l&rsquo;éditeur de Ghnaya, désigné dans les{" "}
+          <InlineLink href="/a-propos/conditions#cond-editeur">conditions d&rsquo;utilisation</InlineLink>. Pour
+          toute question sur vos données, écrivez à <SupportEmail />. Ghnaya n&rsquo;a pas désigné de délégué
+          à la protection des données : il n&rsquo;y est pas tenu.
         </p>
         <ToValidate>
-          identité du responsable du traitement (personne ou association), adresse postale, et désignation
-          éventuelle d&rsquo;un délégué à la protection des données. L&rsquo;adresse de contact est un groupe
-          Google : préciser qui le reçoit.
+          identité et adresse postale du responsable du traitement. L&rsquo;adresse de contact est un groupe
+          Google : vérifier que ses archives ne sont lisibles que par ses gestionnaires (les demandes contiendront
+          des données personnelles), ou la remplacer par une boîte privée.
         </ToValidate>
       </Section>
 
@@ -47,8 +51,7 @@ export default function PrivacyPage() {
           <li>
             <strong className="font-medium">si vous vous connectez avec Google</strong> : l&rsquo;identifiant
             de votre compte Google, votre nom, votre adresse e-mail et l&rsquo;adresse de votre photo de profil,
-            ainsi que les jetons que Google remet à la connexion (accès, actualisation, identité), enregistrés
-            par la bibliothèque de connexion ;
+            ainsi que les jetons que Google remet à la connexion (accès, actualisation, identité) ;
           </li>
           <li>
             <strong className="font-medium">vos sessions</strong> : pour chaque appareil connecté, un jeton de
@@ -83,7 +86,7 @@ export default function PrivacyPage() {
           <li>
             <strong className="font-medium">les journaux techniques</strong> : en cas d&rsquo;erreur, le serveur
             note la page en cause, sans les paramètres de l&rsquo;adresse, sans adresse e-mail ni message
-            saisi.
+            saisi. L&rsquo;hébergeur journalise aussi chaque requête (adresse IP, page demandée).
           </li>
         </List>
         <p>
@@ -91,24 +94,33 @@ export default function PrivacyPage() {
           son stockage local : elles ne sont pas envoyées à Ghnaya.
         </p>
         <ToValidate>
-          les jetons Google ne servent plus après la connexion : décider s&rsquo;il faut cesser de les conserver.
-          Préciser aussi ce que l&rsquo;hébergeur (Vercel) journalise de lui-même pour chaque requête
-          (adresse IP, page demandée) et pendant combien de temps.
+          les jetons Google ne servent plus après la connexion : cesser de les conserver (principe de
+          minimisation), puis retirer leur mention ci-dessus.
         </ToValidate>
       </Section>
 
-      <Section id="conf-finalites" title="Pourquoi">
+      <Section id="conf-finalites" title="Pourquoi, et sur quelle base">
         <List>
-          <li>vous connecter et garder votre session ouverte ;</li>
-          <li>afficher votre nom à votre club, et vos playlists et propositions dans votre espace ;</li>
-          <li>relire les propositions et traiter les signalements, et répondre à la personne qui signale ;</li>
-          <li>limiter les abus (envois répétés, recherche automatisée) et corriger les erreurs du site.</li>
+          <li>
+            <strong className="font-medium">fournir le service que vous demandez</strong> (exécution des
+            conditions d&rsquo;utilisation) : vous connecter et garder votre session ouverte, afficher votre nom
+            à votre club, tenir vos playlists et vos propositions, vous envoyer le lien de connexion ;
+          </li>
+          <li>
+            <strong className="font-medium">modérer le catalogue</strong> (intérêt légitime de Ghnaya à
+            publier des paroles exactes et licites) : relire les propositions et traiter les signalements ;
+          </li>
+          <li>
+            <strong className="font-medium">traiter les signalements de contenus illicites</strong>, y compris
+            pour droits d&rsquo;auteur, et répondre à la personne qui signale (obligation légale de
+            l&rsquo;hébergeur) ;
+          </li>
+          <li>
+            <strong className="font-medium">protéger le site</strong> (intérêt légitime) : limiter les abus
+            (envois répétés, recherche automatisée) et corriger les erreurs.
+          </li>
         </List>
         <p>Ghnaya n&rsquo;envoie pas de lettre d&rsquo;information : le seul e-mail est le lien de connexion.</p>
-        <ToValidate>
-          base légale de chaque traitement (exécution du service demandé, intérêt légitime pour la sécurité et
-          la modération…).
-        </ToValidate>
       </Section>
 
       <Section id="conf-visibilite" title="Qui voit quoi">
@@ -124,37 +136,47 @@ export default function PrivacyPage() {
       </Section>
 
       <Section id="conf-prestataires" title="Les prestataires">
-        <p>Ghnaya s&rsquo;appuie sur des prestataires techniques, qui traitent des données pour son compte :</p>
+        <p>
+          Ghnaya s&rsquo;appuie sur des prestataires techniques, qui traitent des données pour son compte et
+          selon ses instructions :
+        </p>
         <List>
           <li>
             <strong className="font-medium">Vercel</strong> héberge le site ; ses fonctions s&rsquo;exécutent à
-            Francfort (région fra1) ;
+            Francfort ;
           </li>
           <li>
-            <strong className="font-medium">Neon</strong> héberge la base de données, à Francfort, et en
-            garde des sauvegardes ;
+            <strong className="font-medium">Neon</strong> héberge la base de données et en garde des
+            sauvegardes ;
           </li>
           <li>
-            <strong className="font-medium">Resend</strong> envoie les e-mails de connexion, depuis
-            l&rsquo;Irlande : il reçoit votre adresse e-mail et le lien ;
+            un <strong className="font-medium">fournisseur d&rsquo;e-mails</strong> envoie les liens de
+            connexion : il reçoit votre adresse e-mail et le lien ;
           </li>
           <li>
             <strong className="font-medium">Anthropic</strong> génère la translittération automatique : il
-            reçoit les paroles de la chanson et son dialecte, jamais de donnée sur vous ;
+            reçoit les paroles de la chanson et son dialecte, sans aucune donnée de votre compte ;
           </li>
           <li>
-            <strong className="font-medium">Google</strong>, seulement si vous choisissez de vous connecter
-            avec Google ;
+            <strong className="font-medium">Google</strong> reçoit les messages écrits à l&rsquo;adresse de
+            contact, et, si vous choisissez de vous connecter avec Google, les données de cette connexion ;
           </li>
           <li>
             <strong className="font-medium">GitHub</strong> lance chaque nuit une copie de sauvegarde de la
             base, déposée chez un stockage objet.
           </li>
         </List>
+        <p>
+          Plusieurs de ces sociétés sont établies aux États-Unis. Quand des données y sont transférées, le
+          transfert est encadré par le cadre de protection des données UE–États-Unis (Data Privacy Framework)
+          auquel la société adhère, ou à défaut par les clauses contractuelles types de la Commission
+          européenne.
+        </p>
         <ToValidate>
-          prestataire et pays du stockage des sauvegardes nocturnes (pas encore choisi). Vercel, Neon, Resend,
-          Anthropic, Google et GitHub sont des sociétés américaines : vérifier les accords de traitement
-          (DPA) et l&rsquo;encadrement des transferts hors de l&rsquo;Union européenne pour chacun.
+          nom et région du fournisseur d&rsquo;e-mails (Resend, Brevo, Mailjet ou Postmark) ; région du projet
+          Neon ; prestataire et pays du stockage des sauvegardes nocturnes. Pour chaque société américaine,
+          vérifier son adhésion au Data Privacy Framework (dataprivacyframework.gov) ou les clauses types de son
+          accord de traitement, avant de garder le paragraphe ci-dessus.
         </ToValidate>
       </Section>
 
@@ -170,10 +192,11 @@ export default function PrivacyPage() {
           </li>
         </List>
         <ToValidate>
-          durée de conservation de l&rsquo;adresse de contact d&rsquo;un signalement (aucune purge
-          aujourd&rsquo;hui) ; des sessions et liens expirés restés en base ; des sauvegardes (Neon, et le
-          stockage objet, 30 jours proposés) ; des journaux de Vercel ; sort des comptes inactifs (aucune
-          suppression automatique aujourd&rsquo;hui).
+          règles proposées, que le site n&rsquo;applique pas encore et qu&rsquo;il faut programmer avant de les
+          annoncer : adresse de contact d&rsquo;un signalement effacée 1 an après sa clôture ; sessions et liens
+          expirés effacés chaque jour ; sauvegardes gardées 30 jours ; compte sans connexion depuis 3 ans
+          supprimé, après un e-mail de prévenance un mois avant. Ajouter la durée des journaux de Vercel, telle
+          que Vercel l&rsquo;indique.
         </ToValidate>
       </Section>
 
@@ -193,27 +216,36 @@ export default function PrivacyPage() {
       <Section id="conf-droits" title="Vos droits">
         <p>
           Vous pouvez demander à accéder à vos données, à les corriger, à les effacer ou à les recevoir dans un
-          format lisible, et vous opposer à un traitement ou demander sa limitation. Votre nom se corrige et
-          votre compte se supprime directement dans Compte. Pour le reste, y compris changer d&rsquo;adresse
-          e-mail, écrivez à <SupportEmail />.
+          format lisible, et vous opposer à un traitement fondé sur l&rsquo;intérêt légitime ou demander sa
+          limitation. Vous pouvez aussi définir des directives sur le sort de vos données après votre décès.
+        </p>
+        <p>
+          Votre nom se corrige et votre compte se supprime directement dans Compte. Pour le reste, y compris
+          changer d&rsquo;adresse e-mail, écrivez à <SupportEmail /> depuis l&rsquo;adresse de votre compte :
+          c&rsquo;est ainsi que nous vérifions que la demande vient de vous. Nous répondons dans un délai
+          d&rsquo;un mois, prolongeable de deux mois si la demande est complexe ; nous vous le dirions alors.
+        </p>
+        <p>
+          Si vous estimez que vos droits ne sont pas respectés, vous pouvez adresser une réclamation à la
+          Commission nationale de l&rsquo;informatique et des libertés (CNIL, cnil.fr).
         </p>
         <ToValidate>
-          délai de réponse annoncé, vérification de l&rsquo;identité du demandeur, et autorité de contrôle
-          auprès de laquelle porter réclamation (la CNIL en France, ou une autre selon l&rsquo;établissement
-          du responsable).
+          la CNIL est compétente si l&rsquo;éditeur est établi en France ; sinon, indiquer l&rsquo;autorité de
+          son pays.
         </ToValidate>
       </Section>
 
       <Section id="conf-cookies" title="Cookies">
-        <p>Ghnaya ne pose que des cookies nécessaires au site, sans traceur ni mesure d&rsquo;audience :</p>
+        <p>
+          Ghnaya ne pose que des cookies nécessaires au fonctionnement du site ou à un choix que vous avez fait,
+          sans traceur ni mesure d&rsquo;audience. Ils ne demandent donc pas votre consentement :
+        </p>
         <List>
           <li>
             <strong className="font-medium">la session</strong> (nom commençant par « better-auth »), qui
             vous garde connecté, 7 jours prolongés à l&rsquo;usage ;
           </li>
-          <li>
-            pendant une connexion avec Google, un cookie de vérification, 5 minutes ;
-          </li>
+          <li>pendant une connexion avec Google, un cookie de vérification, 5 minutes ;</li>
           <li>
             après une demande de lien, l&rsquo;adresse à laquelle il est parti, pour l&rsquo;afficher sur
             « Vérifiez vos e-mails », 15 minutes, limité aux pages de connexion ;
@@ -222,19 +254,18 @@ export default function PrivacyPage() {
             <strong className="font-medium">la langue</strong> choisie (« locale »), 1 an.
           </li>
         </List>
-        <ToValidate>
-          confirmer que ces cookies sont exemptés de consentement, et donc qu&rsquo;aucun bandeau n&rsquo;est
-          requis.
-        </ToValidate>
       </Section>
 
       <Section id="conf-modifications" title="Modifications">
         <p>
+          Si cette politique change de façon importante, les membres en sont prévenus dans le site avant la date
+          d&rsquo;effet, indiquée en haut de cette page.
+        </p>
+        <p>
           Les conditions d&rsquo;utilisation sont sur{" "}
           <InlineLink href="/a-propos/conditions">une page à part</InlineLink>, la procédure de retrait sur{" "}
-          <InlineLink href="/a-propos/droits">Vos droits et le retrait de contenus</InlineLink>.
+          <InlineLink href="/a-propos/droits">Droits d&rsquo;auteur et retrait de contenus</InlineLink>.
         </p>
-        <ToValidate>comment les membres sont prévenus d&rsquo;un changement de cette politique.</ToValidate>
       </Section>
     </LegalPage>
   );

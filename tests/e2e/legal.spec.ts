@@ -25,3 +25,12 @@ test("Moi mène aux deux pages, pour un visiteur", async ({ page }) => {
   await page.getByRole("link", { name: "Conditions d'utilisation" }).click();
   await expect(page).toHaveURL(/\/a-propos\/conditions$/);
 });
+
+test("la connexion annonce l'acceptation des conditions, avec les deux liens", async ({ page }) => {
+  await page.goto("/connexion");
+  await page.getByRole("link", { name: "conditions d'utilisation" }).click();
+  await expect(page).toHaveURL(/\/a-propos\/conditions$/);
+  await page.goto("/connexion");
+  await page.getByRole("link", { name: "politique de confidentialité" }).click();
+  await expect(page).toHaveURL(/\/a-propos\/confidentialite$/);
+});
