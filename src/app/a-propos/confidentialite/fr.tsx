@@ -234,10 +234,6 @@ export function PrivacyFr() {
           Si vous estimez que vos droits ne sont pas respectés, vous pouvez adresser une réclamation à la
           Commission nationale de l&rsquo;informatique et des libertés (CNIL, cnil.fr).
         </p>
-        <ToValidate>
-          la CNIL est compétente si l&rsquo;éditeur est établi en France ; sinon, indiquer l&rsquo;autorité de
-          son pays.
-        </ToValidate>
       </Section>
 
       <Section id="conf-cookies" title="Cookies">

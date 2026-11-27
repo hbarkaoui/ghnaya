@@ -235,7 +235,6 @@ export function TermsFr() {
           <SupportEmail /> pour chercher une solution amiable. À défaut, le litige est porté devant les
           tribunaux compétents selon les règles de droit commun.
         </p>
-        <ToValidate>droit français à confirmer selon l&rsquo;établissement de l&rsquo;éditeur.</ToValidate>
       </Section>
 
       <Section id="cond-donnees" title="Vos données">
