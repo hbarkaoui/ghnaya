@@ -27,8 +27,10 @@ export function TermsFr() {
       <Section id="cond-editeur" title="Mentions légales">
         <List>
           <li>
-            <strong className="font-medium">Éditeur et directeur de la publication</strong> : voir ci-dessous.
-            Contact : <SupportEmail />.
+            <strong className="font-medium">Éditeur</strong> : Ghnaya est édité par un particulier, à titre non
+            professionnel. Conformément à l&rsquo;article 6, III, 2 de la loi n° 2004-575 du 21 juin 2004 pour la
+            confiance dans l&rsquo;économie numérique, ses éléments d&rsquo;identification ont été communiqués à
+            l&rsquo;hébergeur. Contact : <SupportEmail />.
           </li>
           <li>
             <strong className="font-medium">Hébergeur</strong> : Vercel Inc., 440 N Barranca Ave #4133, Covina,
@@ -37,9 +39,8 @@ export function TermsFr() {
         </List>
         <p>Le service est gratuit.</p>
         <ToValidate>
-          éditeur : nom (personne ou association), adresse, et nom du directeur de la publication. Un particulier
-          qui édite le site à titre non professionnel peut ne donner que les coordonnées de l&rsquo;hébergeur, à
-          qui il a communiqué son identité. Confirmer l&rsquo;adresse de Vercel et ajouter son numéro de
+          vérifier que le compte Vercel porte bien les nom, prénom et adresse réels de l&rsquo;éditeur : c&rsquo;est
+          la condition de l&rsquo;anonymat. Confirmer l&rsquo;adresse de Vercel et ajouter son numéro de
           téléphone, d&rsquo;après ses propres mentions légales.
         </ToValidate>
       </Section>

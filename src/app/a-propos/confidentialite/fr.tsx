@@ -27,15 +27,18 @@ export function PrivacyFr() {
     >
       <Section id="conf-responsable" title="Qui est responsable de vos données">
         <p>
-          Le responsable du traitement est l&rsquo;éditeur de Ghnaya, désigné dans les{" "}
-          <InlineLink href="/a-propos/conditions#cond-editeur">conditions d&rsquo;utilisation</InlineLink>. Pour
-          toute question sur vos données, écrivez à <SupportEmail />. Ghnaya n&rsquo;a pas désigné de délégué
-          à la protection des données : il n&rsquo;y est pas tenu.
+          Le responsable du traitement est la personne qui édite Ghnaya, un particulier agissant à titre non
+          professionnel (voir les{" "}
+          <InlineLink href="/a-propos/conditions#cond-editeur">mentions légales</InlineLink>). Pour toute
+          question sur vos données, écrivez à <SupportEmail />. Ghnaya n&rsquo;a pas désigné de délégué à la
+          protection des données : il n&rsquo;y est pas tenu.
         </p>
         <ToValidate>
-          identité et adresse postale du responsable du traitement. L&rsquo;adresse de contact est un groupe
-          Google : vérifier que ses archives ne sont lisibles que par ses gestionnaires (les demandes contiendront
-          des données personnelles), ou la remplacer par une boîte privée.
+          le RGPD (article 13, 1, a) impose de donner l&rsquo;identité du responsable du traitement et ses
+          coordonnées ; l&rsquo;anonymat permis par la LCEN ne couvre pas cette obligation. Une adresse e-mail
+          suffit comme coordonnée, mais le nom est requis. Choisir : l&rsquo;indiquer ici, ou accepter
+          l&rsquo;écart. L&rsquo;adresse de contact est un groupe Google : vérifier que ses archives ne sont
+          lisibles que par ses gestionnaires, ou la remplacer par une boîte privée.
         </ToValidate>
       </Section>
 
