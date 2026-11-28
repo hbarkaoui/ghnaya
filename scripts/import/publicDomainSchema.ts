@@ -25,9 +25,12 @@ export const PublicDomainFile = z.array(PublicDomainSongSchema);
 export type PublicDomainSong = z.infer<typeof PublicDomainSongSchema>;
 export type PdIssue = { key: string; reason: "not_public_domain" | "translit_misaligned" };
 
-/** Œuvre traditionnelle, ou auteur mort depuis plus de 50 ans comptés à partir du 1er janvier suivant le décès. */
+/**
+ * Œuvre traditionnelle, ou auteur mort depuis plus de 70 ans comptés à partir du 1er janvier suivant le décès.
+ * 70 ans et non 50 (règle tunisienne) : le site est lu en France, où la protection dure 70 ans (CPI L.123-1).
+ */
 export function isPublicDomain(s: { traditional: boolean; author_death_year?: number }, currentYear: number): boolean {
-  return s.traditional || (s.author_death_year !== undefined && s.author_death_year <= currentYear - 51);
+  return s.traditional || (s.author_death_year !== undefined && s.author_death_year <= currentYear - 71);
 }
 
 const lineCount = (text: string): number => text.trim().split("\n").length;

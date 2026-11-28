@@ -326,7 +326,7 @@ Les chansons importées sont publiées directement, sans passer par la file de m
 ### 11.2 Domaine public
 
 - **Fichiers** : `data/public-domain/*.yaml`, préparés à la main. Chacun contient : titre, artistes, auteur des paroles, `author_death_year` ou `traditional: true`, dialecte, paroles et, si possible, une translittération relue.
-- **Vérification de la durée des droits** : le script vérifie que `traditional` vaut vrai, ou que `author_death_year` est inférieur ou égal à l'année en cours moins 51. C'est la règle tunisienne : 50 ans à compter du 1er janvier qui suit le décès. Le script refuse le fichier sinon.
+- **Vérification de la durée des droits** : le script vérifie que `traditional` vaut vrai, ou que `author_death_year` est inférieur ou égal à l'année en cours moins 71 : 70 ans à compter du 1er janvier qui suit le décès. Le script refuse le fichier sinon. *(27/11/2026, relecture juridique : la règle tunisienne de 50 ans ne suffit pas, le site étant lu en France, où la protection dure 70 ans, art. L.123-1 CPI.)*
 
 ## 12. Erreurs, sécurité et exploitation
 

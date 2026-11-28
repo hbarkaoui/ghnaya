@@ -1,4 +1,4 @@
-import { CirclePlus, FileClock, Languages, ListMusic, LogOut, Scale, ShieldCheck, UserCog } from "lucide-react";
+import { CirclePlus, FileClock, FileText, Languages, ListMusic, Lock, LogOut, Scale, ShieldCheck, UserCog } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /**
  * Moi (IA, hiérarchie du contenu) : le nom et les pastilles de club ; Mes playlists, Mes contributions,
- * Proposer une chanson ; Modération (modérateurs) ; Langue, Compte, Vos droits ; Se déconnecter.
+ * Proposer une chanson ; Modération (modérateurs) ; Langue, Compte, pages juridiques ; Se déconnecter.
  */
 export default async function MePage({ searchParams }: PageProps<"/moi">) {
   const t = await getTranslations("me");
@@ -128,7 +128,10 @@ async function ClubPills({ user, clubs }: { user: CurrentUser; clubs: ClubRef[] 
   );
 }
 
-/** Langue, Compte (membres), Vos droits et le retrait de contenus (pour tous, visiteurs compris). */
+/**
+ * Langue, Compte (membres), Droits d'auteur et retrait de contenus, la politique de confidentialité et les
+ * conditions d'utilisation (pour tous, visiteurs compris).
+ */
 async function SettingsList({ withAccount = false }: { withAccount?: boolean }) {
   const t = await getTranslations("me");
 
@@ -139,6 +142,8 @@ async function SettingsList({ withAccount = false }: { withAccount?: boolean }) 
       </MenuControl>
       {withAccount ? <MenuLink href="/moi/compte" Icon={UserCog} label={t("account")} /> : null}
       <MenuLink href="/a-propos/droits" Icon={Scale} label={t("rights")} />
+      <MenuLink href="/a-propos/confidentialite" Icon={Lock} label={t("privacy")} />
+      <MenuLink href="/a-propos/conditions" Icon={FileText} label={t("terms")} />
     </MenuList>
   );
 }

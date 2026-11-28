@@ -8,6 +8,7 @@ import { db } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
 import { magicLinkEmail } from "@/lib/mail/magicLinkEmail";
 import { sendMail } from "@/lib/mail/transport";
+import { markUserActive } from "@/lib/retention/retention";
 import { defaultNameFromEmail, normalizeUserName } from "./name";
 
 /**
@@ -16,6 +17,16 @@ import { defaultNameFromEmail, normalizeUserName } from "./name";
  * Le compte est créé à la première connexion (spec §4.1).
  */
 export const MAGIC_LINK_TTL_SECONDS = 15 * 60;
+
+/** Champs de jetons OAuth de la table `accounts`, vidés à chaque écriture. */
+const OAUTH_TOKEN_FIELDS = [
+  "accessToken",
+  "refreshToken",
+  "idToken",
+  "accessTokenExpiresAt",
+  "refreshTokenExpiresAt",
+] as const;
+const NO_OAUTH_TOKENS = Object.fromEntries(OAUTH_TOKEN_FIELDS.map((field) => [field, null]));
 
 export const isGoogleEnabled = (): boolean =>
   Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
@@ -41,6 +52,27 @@ const createAuth = () =>
       ? { google: { clientId: process.env.GOOGLE_CLIENT_ID!, clientSecret: process.env.GOOGLE_CLIENT_SECRET! } }
       : {},
     databaseHooks: {
+      // Minimisation (politique de confidentialité, relecture juridique du 27/11/2026) : Ghnaya n'appelle
+      // jamais Google après la connexion, donc ne garde aucun jeton. Le compte Google reste lié (identifiant).
+      account: {
+        create: { before: async (account) => ({ data: { ...account, ...NO_OAUTH_TOKENS } }) },
+        update: {
+          before: async (data) => {
+            if (!OAUTH_TOKEN_FIELDS.some((field) => field in data)) return;
+            return { data: { ...data, ...NO_OAUTH_TOKENS } };
+          },
+        },
+      },
+      // Durées de conservation (lib/retention) : une connexion, ou une session prolongée à l'usage (une fois
+      // par jour au plus), marque le compte actif et annule un avertissement d'inactivité.
+      session: {
+        create: { after: async (session) => markUserActive(db, session.userId) },
+        update: {
+          after: async (session) => {
+            if (session.userId) await markUserActive(db, session.userId);
+          },
+        },
+      },
       user: {
         create: {
           // Lien magique : Better Auth crée le compte avec un nom vide, ou celui du corps de la demande (écart 3).

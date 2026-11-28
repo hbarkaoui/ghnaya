@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { getAuth } from "@/lib/auth/auth";
 import { db } from "@/lib/db/client";
-import { sessions, users, verifications } from "@/lib/db/schema";
+import { accounts, sessions, users, verifications } from "@/lib/db/schema";
 import { readOutbox } from "@/lib/mail/transport";
 import { resetDb } from "./helpers";
 
@@ -94,5 +94,61 @@ describe("connexion par lien magique", () => {
     expect(rows).toHaveLength(1);
     expect(rows[0].identifier).not.toBe(token);
     expect(JSON.stringify(rows[0])).not.toContain(token);
+  });
+});
+
+describe("activité du compte", () => {
+  beforeEach(resetDb);
+
+  // Durées de conservation : une connexion remet à zéro le délai d'inactivité et l'avertissement.
+  it("une connexion note l'activité et annule l'avertissement d'inactivité", async () => {
+    const old = new Date("2020-01-01T00:00:00Z");
+    await db.insert(users).values({
+      email: "karim@example.com",
+      name: "karim",
+      emailVerified: true,
+      lastActiveAt: old,
+      inactivityNoticeAt: old,
+    });
+    const start = Date.now();
+    await signInByMagicLink("karim@example.com");
+    const [row] = await db.select().from(users).where(eq(users.email, "karim@example.com"));
+    expect(row.lastActiveAt.getTime()).toBeGreaterThanOrEqual(start - 1000);
+    expect(row.inactivityNoticeAt).toBeNull();
+  });
+});
+
+describe("comptes Google", () => {
+  beforeEach(resetDb);
+
+  // Les jetons Google ne servent qu'à la connexion : ni gardés à la création, ni à la reconnexion.
+  it("ne conserve aucun jeton Google, à la création comme à la mise à jour", async () => {
+    const [user] = await db
+      .insert(users)
+      .values({ email: "nadia@example.com", name: "nadia", emailVerified: true })
+      .returning();
+    const adapter = (await getAuth().$context).internalAdapter;
+    const tokens = {
+      accessToken: "ya29.acces",
+      refreshToken: "1//actualisation",
+      idToken: "eyJ.identite",
+      accessTokenExpiresAt: new Date(Date.now() + 3600_000),
+      refreshTokenExpiresAt: new Date(Date.now() + 86_400_000),
+      scope: "openid,email,profile",
+    };
+    const account = await adapter.createAccount({ userId: user.id, providerId: "google", accountId: "g-123", ...tokens });
+    const empty = {
+      accessToken: null,
+      refreshToken: null,
+      idToken: null,
+      accessTokenExpiresAt: null,
+      refreshTokenExpiresAt: null,
+    };
+    const [created] = await db.select().from(accounts).where(eq(accounts.id, account.id));
+    expect(created).toMatchObject({ providerId: "google", accountId: "g-123", ...empty });
+
+    await adapter.updateAccount(account.id, tokens);
+    const [updated] = await db.select().from(accounts).where(eq(accounts.id, account.id));
+    expect(updated).toMatchObject(empty);
   });
 });

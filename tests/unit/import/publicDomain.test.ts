@@ -13,9 +13,11 @@ const song: PublicDomainSong = {
 };
 
 describe("isPublicDomain", () => {
-  it("applique vie + 50 ans à compter du 1er janvier suivant le décès", () => {
-    expect(isPublicDomain({ traditional: false, author_death_year: 1975 }, 2026)).toBe(true);
-    expect(isPublicDomain({ traditional: false, author_death_year: 1976 }, 2026)).toBe(false);
+  it("applique vie + 70 ans (UE) à compter du 1er janvier suivant le décès", () => {
+    expect(isPublicDomain({ traditional: false, author_death_year: 1955 }, 2026)).toBe(true);
+    expect(isPublicDomain({ traditional: false, author_death_year: 1956 }, 2026)).toBe(false);
+    // Libre en Tunisie (50 ans), encore protégé en France : refusé.
+    expect(isPublicDomain({ traditional: false, author_death_year: 1975 }, 2026)).toBe(false);
     expect(isPublicDomain({ traditional: true }, 2026)).toBe(true);
     expect(isPublicDomain({ traditional: false }, 2026)).toBe(false);
   });

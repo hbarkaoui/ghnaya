@@ -126,9 +126,13 @@ export const users = pgTable(
     globalRole: globalRoleEnum("global_role").notNull().default("member"),
     isAnimator: boolean("is_animator").notNull().default(false),
     locale: localeEnum("locale").notNull().default("fr"),
+    // Durées de conservation (lib/retention) : dernière connexion ou session prolongée, et date de l'e-mail
+    // qui prévient de la suppression d'un compte inactif (remis à vide dès que le compte resert).
+    lastActiveAt: timestamp("last_active_at", { withTimezone: true }).notNull().defaultNow(),
+    inactivityNoticeAt: timestamp("inactivity_notice_at", { withTimezone: true }),
     ...timestamps,
   },
-  (t) => [uniqueIndex("users_email_uq").on(t.email)],
+  (t) => [uniqueIndex("users_email_uq").on(t.email), index("users_last_active_idx").on(t.lastActiveAt)],
 );
 
 export const sessions = pgTable(
