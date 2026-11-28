@@ -200,11 +200,13 @@ export function PrivacyFr() {
             vos propositions et vos signalements : conservés après la suppression de votre compte, mais sans
             lien avec vous ;
           </li>
-          <li>les copies de sauvegarde de la base : 30 jours.</li>
+          <li>les copies de sauvegarde de la base : 30 jours ;</li>
+          <li>les journaux de l&rsquo;hébergeur (adresse IP, page demandée) : 1 heure.</li>
         </List>
+        {/* 1 heure : offre Hobby de Vercel (relevé du 28/11/2026). À revoir en cas de passage à une offre payante. */}
         <ToValidate>
-          ajouter la durée des journaux de Vercel et celle de l&rsquo;historique de Neon (restauration à un
-          instant donné), telles que leurs offres les indiquent.
+          ajouter la durée de l&rsquo;historique de Neon (restauration à un instant donné), telle que
+          l&rsquo;offre du projet l&rsquo;indique.
         </ToValidate>
       </Section>
 
